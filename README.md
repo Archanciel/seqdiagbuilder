@@ -6,7 +6,7 @@ Generates a UML sequence diagram on Python code using data collected at executio
 
 ### SeqDiagBuilder tags
 * **:seqdiag_return** this tag can be added anywhere in the method documentation to specify the return type to attach in the sequence diagram to the call of this method
-
+* **:seqdiag_select_method**
 ## Installing PlantUML
 
 Download plantuml.jar from http://plantuml.com/starting
