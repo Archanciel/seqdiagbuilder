@@ -376,7 +376,18 @@ class SeqDiagBuilder:
     _participantDocOrderedDic = None
 
     @staticmethod
-    def activate(entryClass, entryMethod):
+    def activate(projectPath, entryClass, entryMethod):
+        '''
+        Initialise and activate SeqDiagBuilder. This method must be called before calling any method
+        on the entry class.
+
+        :param projectPath: for example 'D:\\Development\\Python\\seqdiagbuilder' or
+                            'D:/Development/Python/seqdiagbuilder'
+        :param entryClass:
+        :param entryMethod:
+        :return:
+        '''
+        SeqDiagBuilder.projectPath = projectPath
         SeqDiagBuilder.seqDiagEntryClass = entryClass
         SeqDiagBuilder.seqDiagEntryMethod = entryMethod
         SeqDiagBuilder.recordedFlowPath = RecordedFlowPath(SeqDiagBuilder.seqDiagEntryClass, SeqDiagBuilder.seqDiagEntryMethod)
@@ -760,6 +771,7 @@ class SeqDiagBuilder:
                 match = re.match(PYTHON_FILE_AND_FUNC_PATTERN, frame)
                 if match:
                     pythonClassFilePath = match.group(1)
+                    packageSpec = SeqDiagBuilder.extractPackageSpec(pythonClassFilePath)
                     moduleName = match.group(2)
                     methodCallLineNumber = match.group(3)
                     currentMethodName = match.group(4)
@@ -784,7 +796,7 @@ class SeqDiagBuilder:
                         else:
                             entryClassEncountered = True
 
-                        toClassName, toClassNote, toMethodReturn, toMethodSignature, toMethodNote, toMethodReturnNote = SeqDiagBuilder._extractToClassMethodInformation(moduleClassNameList, moduleName, currentMethodName)
+                        toClassName, toClassNote, toMethodReturn, toMethodSignature, toMethodNote, toMethodReturnNote = SeqDiagBuilder._extractToClassMethodInformation(moduleClassNameList, packageSpec, moduleName, currentMethodName)
 
                         if toClassName == None:
                             continue
@@ -800,7 +812,25 @@ class SeqDiagBuilder:
                         fromMethodName = toMethodName
                         toMethodCallLineNumber = "{}-{}".format(toMethodCallLineNumber, methodCallLineNumber)
                         SeqDiagBuilder.recordedFlowPath.addIfNotIn(flowEntry)
-#            print(SeqDiagBuilder.recordedFlowPath)
+
+    @staticmethod
+    def extractPackageSpec(pythonClassFilePath):
+        '''
+        Extract the package part of the class file path. The package component will be required
+        later when instanciating the class.
+
+        :param pythonClassFilePath:
+        :return:
+        '''
+        packageSpec = pythonClassFilePath.replace(SeqDiagBuilder.projectPath, '')
+
+        #handling file path containg either \\ (windows like) or / (unix like)
+        packageSpec = packageSpec.replace('\\', '.')
+        packageSpec = packageSpec.replace('/', '.')
+        packageSpec = packageSpec.replace('.', '', 1)
+        return packageSpec
+
+    #            print(SeqDiagBuilder.recordedFlowPath)
 
 
     @staticmethod
@@ -814,7 +844,7 @@ class SeqDiagBuilder:
 
 
     @staticmethod
-    def _extractToClassMethodInformation(moduleClassNameList, moduleName, methodName):
+    def _extractToClassMethodInformation(moduleClassNameList, packageSpec, moduleName, methodName):
         '''
         This method returns informations specific to the target class and method, namely, the name
         of the class supporting methodName, its seqdiag note, the target method return type,
@@ -833,6 +863,7 @@ class SeqDiagBuilder:
         documentation.
 
         :param moduleClassNameList: contains the names of all the classes defined in module moduleName
+        :param packageSpec:         package containing the module
         :param moduleName:          name of module containing the classes
         :param methodName:          name of the method whose doc is searched for the :seqdiag_return tag so
                                     the associated value can be returned as the method return value.
@@ -853,7 +884,7 @@ class SeqDiagBuilder:
             if selectedMethodFound:
                 break
 
-            instance = SeqDiagBuilder._instanciateClass(className, moduleName)
+            instance = SeqDiagBuilder._instanciateClass(className, packageSpec, moduleName)
 
             # obtain the list of methods of the instance
             methodTupplesList = inspect.getmembers(instance, predicate=inspect.ismethod)
@@ -923,18 +954,19 @@ class SeqDiagBuilder:
 
 
     @staticmethod
-    def _instanciateClass(className, moduleName):
+    def _instanciateClass(className, packageSpec, moduleName):
         '''
-        This method instanciate the passed className defined in the passed module name
+        This method instanciate the passed className defined in the passed package + module name
         whatever the number of required arguments in the __init__ method.
         :param className:
+        :param packageSpec:
         :param moduleName:
         :return:
         '''
         module = None
 
         try:
-            module = importlib.import_module(moduleName)
+            module = importlib.import_module(packageSpec + moduleName)
         except ModuleNotFoundError:
             return None
 

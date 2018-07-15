@@ -1,6 +1,8 @@
 import unittest
 import os, sys, inspect
 
+from testclasses.subtestpackage.dsub import DSub
+
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0, parentdir)
@@ -8,6 +10,7 @@ sys.path.insert(0,currentdir) # this instruction is necessary for successful imp
                               # the test is executed standalone
 
 from testclasses.isolatedclass import IsolatedClass
+from testclasses.subtestpackage.isolatedclasssub import IsolatedClassSub
 from testclasses.isolatedclasswithinstancevariables import IsolatedClassWithInstanceVariables
 from testclasses.foobarclasses import *
 
@@ -249,32 +252,6 @@ class ClassB:
         SeqDiagBuilder.recordFlow()
 
 
-class D:
-    def d1(self, d1_p1):
-        '''
-
-        :param d1_p1:
-        :seqdiag_return Dd1Return
-        :return:
-        '''
-        SeqDiagBuilder.recordFlow()
-    def d2(self, d2_p1):
-        '''
-
-        :param d2_p1:
-        :seqdiag_return Dd2Return
-        :return:
-        '''
-        SeqDiagBuilder.recordFlow()
-    def d3(self, d3_p1):
-        '''
-
-        :param d3_p1:
-        :seqdiag_return Dd3Return
-        :return:
-        '''
-        return 'Dd3Return'
-
 class C:
     def c1(self, c1_p1):
         '''
@@ -291,7 +268,7 @@ class C:
         :seqdiag_return Cc2Return
         :return:
         '''
-        d = D()
+        d = DSub()
         d.d1(1)
     def c3(self, c3_p1):
         '''
@@ -300,7 +277,7 @@ class C:
         :seqdiag_return Cc3Return
         :return:
         '''
-        d = D()
+        d = DSub()
         d.d2(1)
         SeqDiagBuilder.recordFlow()
         self.c4(1)
@@ -311,7 +288,7 @@ class C:
         :seqdiag_return Cc4Return
         :return:
         '''
-        d = D()
+        d = DSub()
         d.d2(1)
         SeqDiagBuilder.recordFlow()
     def c5(self, c5_p1):
@@ -321,7 +298,7 @@ class C:
         :seqdiag_return Cc5Return
         :return:
         '''
-        d = D()
+        d = DSub()
         d.d3(1)
     def fibonaci(self, number):
         '''
@@ -407,7 +384,7 @@ class B:
         c = C()
         c.c3(1)
         SeqDiagBuilder.recordFlow()
-        d = D()
+        d = DSub()
         d.d2(1)
     def b8(self, b8_p1):
         '''
@@ -418,7 +395,7 @@ class B:
         '''
         c = C()
         c.c5(1)
-        d = D()
+        d = DSub()
         d.d2(1)
 
 class A:
@@ -546,13 +523,15 @@ class A:
 
 class TestSeqDiagBuilder(unittest.TestCase):
     def setUp(self):
+        self.projectPath = 'D:\\Development\\Python\\seqdiagbuilder'
+
         SeqDiagBuilder.deactivate()
 
 
     def testCreateSeqDiagCommandsOnSimplestCallWithoutRecordFlowCallInLeafMethod(self):
         entryPoint = A()
 
-        SeqDiagBuilder.activate('A', 'a0')  # activate sequence diagram building
+        SeqDiagBuilder.activate(self.projectPath, 'A', 'a0')  # activate sequence diagram building
         entryPoint.a0(1, 2)
 
         commands = SeqDiagBuilder.createSeqDiaqCommands('USER')
@@ -581,7 +560,7 @@ actor USER
     def testCreateSeqDiagCommandsOnSimplestCall(self):
         entryPoint = A()
 
-        SeqDiagBuilder.activate('A', 'a1')  # activate sequence diagram building
+        SeqDiagBuilder.activate(self.projectPath, 'A', 'a1')  # activate sequence diagram building
         entryPoint.a1(1, 2)
 
         commands = SeqDiagBuilder.createSeqDiaqCommands('USER')
@@ -607,7 +586,7 @@ participant A
     def testCreateSeqDiagCommandsTwoLevelCallTwoDiffMethods(self):
         entryPoint = A()
 
-        SeqDiagBuilder.activate('A', 'a10')  # activate sequence diagram building
+        SeqDiagBuilder.activate(self.projectPath, 'A', 'a10')  # activate sequence diagram building
         entryPoint.a10(1)
 
         commands = SeqDiagBuilder.createSeqDiaqCommands('USER')
@@ -642,7 +621,7 @@ participant B
     def testCreateSeqDiagCommandsOnTwoLevelCall(self):
         entryPoint = A()
 
-        SeqDiagBuilder.activate('A', 'a2')  # activate sequence diagram building
+        SeqDiagBuilder.activate(self.projectPath, 'A', 'a2')  # activate sequence diagram building
         entryPoint.a2(1)
 
         commands = SeqDiagBuilder.createSeqDiaqCommands('USER')
@@ -675,7 +654,7 @@ participant B
     def testCreateSeqDiagCommandsOnThreeLevelCallingMidLevelMethodTwice(self):
         entryPoint = A()
 
-        SeqDiagBuilder.activate('A', 'a6')  # activate sequence diagram building
+        SeqDiagBuilder.activate(self.projectPath, 'A', 'a6')  # activate sequence diagram building
         entryPoint.a6(1)
 
         commands = SeqDiagBuilder.createSeqDiaqCommands('USER')
@@ -721,7 +700,7 @@ participant C
     def testCreateSeqDiagCommandsOnFiveLevelCallingSecondLevelMethodTwice(self):
         entryPoint = A()
 
-        SeqDiagBuilder.activate('A', 'a11')  # activate sequence diagram building
+        SeqDiagBuilder.activate(self.projectPath, 'A', 'a11')  # activate sequence diagram building
         entryPoint.a11(1)
 
         commands = SeqDiagBuilder.createSeqDiaqCommands('USER')
@@ -739,17 +718,17 @@ participant TestSeqDiagBuilder
 participant A
 participant B
 participant C
-participant D
+participant DSub
 	USER -> A: a11(a11_p1)
 		activate A
 		A -> B: b6(b6_p1)
 			activate B
 			B -> C: c2(c2_p1)
 				activate C
-				C -> D: d1(d1_p1)
-					activate D
-					C <-- D: return Dd1Return
-					deactivate D
+				C -> DSub: d1(d1_p1)
+					activate DSub
+					C <-- DSub: return Dd1Return
+					deactivate DSub
 				B <-- C: return Cc2Return
 				deactivate C
 			A <-- B: return Bb6Return
@@ -758,10 +737,10 @@ participant D
 			activate B
 			B -> C: c2(c2_p1)
 				activate C
-				C -> D: d1(d1_p1)
-					activate D
-					C <-- D: return Dd1Return
-					deactivate D
+				C -> DSub: d1(d1_p1)
+					activate DSub
+					C <-- DSub: return Dd1Return
+					deactivate DSub
 				B <-- C: return Cc2Return
 				deactivate C
 			A <-- B: return Bb6Return
@@ -775,7 +754,7 @@ participant D
     def testCreateSeqDiagCommandsOnFiveLevelCallingSecondLevelMethodTwiceWithRecordFlowInEveryMethod(self):
         entryPoint = A()
 
-        SeqDiagBuilder.activate('A', 'a12')  # activate sequence diagram building
+        SeqDiagBuilder.activate(self.projectPath, 'A', 'a12')  # activate sequence diagram building
         entryPoint.a12(1)
 
         commands = SeqDiagBuilder.createSeqDiaqCommands('USER')
@@ -793,55 +772,55 @@ participant TestSeqDiagBuilder
 participant A
 participant B
 participant C
-participant D
+participant DSub
 	USER -> A: a12(a12_p1)
 		activate A
 		A -> B: b7(b7_p1)
 			activate B
 			B -> C: c3(c3_p1)
 				activate C
-				C -> D: d2(d2_p1)
-					activate D
-					C <-- D: return Dd2Return
-					deactivate D
+				C -> DSub: d2(d2_p1)
+					activate DSub
+					C <-- DSub: return Dd2Return
+					deactivate DSub
 				C -> C: c4(c4_p1)
 					activate C
-					C -> D: d2(d2_p1)
-						activate D
-						C <-- D: return Dd2Return
-						deactivate D
+					C -> DSub: d2(d2_p1)
+						activate DSub
+						C <-- DSub: return Dd2Return
+						deactivate DSub
 					C <-- C: return Cc4Return
 					deactivate C
 				B <-- C: return Cc3Return
 				deactivate C
-			B -> D: d2(d2_p1)
-				activate D
-				B <-- D: return Dd2Return
-				deactivate D
+			B -> DSub: d2(d2_p1)
+				activate DSub
+				B <-- DSub: return Dd2Return
+				deactivate DSub
 			A <-- B: return Bb7Return
 			deactivate B
 		A -> B: b7(b7_p1)
 			activate B
 			B -> C: c3(c3_p1)
 				activate C
-				C -> D: d2(d2_p1)
-					activate D
-					C <-- D: return Dd2Return
-					deactivate D
+				C -> DSub: d2(d2_p1)
+					activate DSub
+					C <-- DSub: return Dd2Return
+					deactivate DSub
 				C -> C: c4(c4_p1)
 					activate C
-					C -> D: d2(d2_p1)
-						activate D
-						C <-- D: return Dd2Return
-						deactivate D
+					C -> DSub: d2(d2_p1)
+						activate DSub
+						C <-- DSub: return Dd2Return
+						deactivate DSub
 					C <-- C: return Cc4Return
 					deactivate C
 				B <-- C: return Cc3Return
 				deactivate C
-			B -> D: d2(d2_p1)
-				activate D
-				B <-- D: return Dd2Return
-				deactivate D
+			B -> DSub: d2(d2_p1)
+				activate DSub
+				B <-- DSub: return Dd2Return
+				deactivate DSub
 			A <-- B: return Bb7Return
 			deactivate B
 		USER <-- A: return Aa12Return
@@ -853,7 +832,7 @@ participant D
     def testCreateSeqDiagCommandsOnFiveLevelCallingSecondLevelMethodTwiceWithRecordFlowInOnePlaceOnly(self):
         entryPoint = A()
 
-        SeqDiagBuilder.activate('A', 'a13')  # activate sequence diagram building
+        SeqDiagBuilder.activate(self.projectPath, 'A', 'a13')  # activate sequence diagram building
         entryPoint.a13(1)
 
         commands = SeqDiagBuilder.createSeqDiaqCommands('USER')
@@ -870,23 +849,23 @@ actor USER
 participant TestSeqDiagBuilder
 participant A
 participant B
-participant D
+participant DSub
 	USER -> A: a13(a13_p1)
 		activate A
 		A -> B: b8(b8_p1)
 			activate B
-			B -> D: d2(d2_p1)
-				activate D
-				B <-- D: return Dd2Return
-				deactivate D
+			B -> DSub: d2(d2_p1)
+				activate DSub
+				B <-- DSub: return Dd2Return
+				deactivate DSub
 			A <-- B: return Bb8Return
 			deactivate B
 		A -> B: b8(b8_p1)
 			activate B
-			B -> D: d2(d2_p1)
-				activate D
-				B <-- D: return Dd2Return
-				deactivate D
+			B -> DSub: d2(d2_p1)
+				activate DSub
+				B <-- DSub: return Dd2Return
+				deactivate DSub
 			A <-- B: return Bb8Return
 			deactivate B
 		USER <-- A: return Aa13Return
@@ -903,7 +882,7 @@ participant D
         '''
         entryPoint = A()
 
-        SeqDiagBuilder.activate('A', 'a7')  # activate sequence diagram building
+        SeqDiagBuilder.activate(self.projectPath, 'A', 'a7')  # activate sequence diagram building
         entryPoint.a7(1)
 
         commands = SeqDiagBuilder.createSeqDiaqCommands('USER')
@@ -945,7 +924,7 @@ participant C
     def testCreateSeqDiagCommandsOnTwoLevelCallCallingMethodTwice(self):
         entryPoint = A()
 
-        SeqDiagBuilder.activate('A', 'a4')  # activate sequence diagram building
+        SeqDiagBuilder.activate(self.projectPath, 'A', 'a4')  # activate sequence diagram building
         entryPoint.a4(1)
 
         commands = SeqDiagBuilder.createSeqDiaqCommands('USER')
@@ -982,7 +961,7 @@ participant B
     def testCreateSeqDiagCommandsOnTwoLevelCallCallingMethodThreeTimes(self):
         entryPoint = A()
 
-        SeqDiagBuilder.activate('A', 'a5')  # activate sequence diagram building
+        SeqDiagBuilder.activate(self.projectPath, 'A', 'a5')  # activate sequence diagram building
         entryPoint.a5(1)
 
         commands = SeqDiagBuilder.createSeqDiaqCommands('USER')
@@ -1023,7 +1002,7 @@ participant B
     def testCreateSeqDiagCommandsOnThreeLevelCall(self):
         entryPoint = A()
 
-        SeqDiagBuilder.activate('A', 'a3')  # activate sequence diagram building
+        SeqDiagBuilder.activate(self.projectPath, 'A', 'a3')  # activate sequence diagram building
         entryPoint.a3(1)
 
         commands = SeqDiagBuilder.createSeqDiaqCommands('USER')
@@ -1058,26 +1037,58 @@ participant C
 
     def test_instanciateClassInitTwoArgs(self):
         className = 'IsolatedClassWithInstanceVariables'
-        moduleName = 'testclasses.isolatedclasswithinstancevariables'
+        packageSpec = 'testclasses.'
+        moduleName = 'isolatedclasswithinstancevariables'
 
-        instance = SeqDiagBuilder._instanciateClass(className, moduleName)
+        instance = SeqDiagBuilder._instanciateClass(className, packageSpec, moduleName)
 
         self.assertIsInstance(instance, IsolatedClassWithInstanceVariables)
 
 
     def test_instanciateClassInitNoArgs(self):
         className = 'IsolatedClass'
-        moduleName = 'testclasses.isolatedclass'
+        packageSpec = 'testclasses.'
+        moduleName = 'isolatedclass'
 
-        instance = SeqDiagBuilder._instanciateClass(className, moduleName)
+        instance = SeqDiagBuilder._instanciateClass(className, packageSpec, moduleName)
 
         self.assertIsInstance(instance, IsolatedClass)
+
+
+    def test_instanciateClassInitNoArgsSubPackageSpec(self):
+        className = 'IsolatedClassSub'
+        packageSpec = 'testclasses.subtestpackage.'
+        moduleName = 'isolatedclasssub'
+
+        instance = SeqDiagBuilder._instanciateClass(className, packageSpec, moduleName)
+
+        self.assertIsInstance(instance, IsolatedClassSub)
+
+
+    def test_instanciateClassInitNoArgsEmptyPackageSpec(self):
+        className = 'Client'
+        packageSpec = ''
+        moduleName = 'testseqdiagbuilder'
+
+        instance = SeqDiagBuilder._instanciateClass(className, packageSpec, moduleName)
+
+        self.assertIsInstance(instance, Client)
+
+
+    def test_instanciateClassInitNoArgsEmptyPackageSpecClassInProjectRoot(self):
+        className = 'SeqDiagBuilder'
+        packageSpec = ''
+        moduleName = 'seqdiagbuilder'
+
+        instance = SeqDiagBuilder._instanciateClass(className, packageSpec, moduleName)
+
+        self.assertIsInstance(instance, SeqDiagBuilder)
 
 
     def testRecordFlowWhereMulitpleClassesSupportSameMethodAndOneIsSelected(self):
         entryPoint = ChildThree()
 
-        SeqDiagBuilder.activate('ChildThree', 'getCoordinate')  # activate sequence diagram building
+        SeqDiagBuilder.activate(self.projectPath, 'ChildThree', 'getCoordinate')  # activate sequence diagram building
         entryPoint.getCoordinate()
 
         commands = SeqDiagBuilder.createSeqDiaqCommands('USER')
@@ -1103,7 +1114,7 @@ participant ChildThree
     def testRecordFlowWhereMulitpleClassesSupportSameMethodAndOneIsSelectedInOtherClass(self):
         entryPoint = ChildTwo()
 
-        SeqDiagBuilder.activate('ChildTwo', 'getCoordinate')  # activate sequence diagram building
+        SeqDiagBuilder.activate(self.projectPath, 'ChildTwo', 'getCoordinate')  # activate sequence diagram building
         entryPoint.getCoordinate()
 
         commands = SeqDiagBuilder.createSeqDiaqCommands('USER')
@@ -1131,7 +1142,7 @@ actor USER
     def testRecordFlowWhereMulitpleClassesSupportSameMethodAndNoneIsSelected(self):
         entryPoint = ChildTwo()
 
-        SeqDiagBuilder.activate('ChildTwo', 'getCoordinateNoneSelected')  # activate sequence diagram building
+        SeqDiagBuilder.activate(self.projectPath, 'ChildTwo', 'getCoordinateNoneSelected')  # activate sequence diagram building
         entryPoint.getCoordinateNoneSelected()
 
         commands = SeqDiagBuilder.createSeqDiaqCommands('USER')
@@ -1164,7 +1175,7 @@ actor USER
     def testRecordFlowWhereMulitpleClassesSupportInheritedMethodAndNoneIsSelected(self):
         entryPoint = ClassA()
 
-        SeqDiagBuilder.activate('ClassA', 'aMethod')  # activate sequence diagram building
+        SeqDiagBuilder.activate(self.projectPath, 'ClassA', 'aMethod')  # activate sequence diagram building
         entryPoint.aMethod(1)
 
         commands = SeqDiagBuilder.createSeqDiaqCommands('USER')
@@ -1207,7 +1218,7 @@ participant Parent
 #         from guioutputformater import GuiOutputFormater
 #         from controller import Controller
 #
-#         SeqDiagBuilder.activate('Controller', 'getPrintableResultForInput')  # activate sequence diagram building
+#         SeqDiagBuilder.activate(self.projectPath, 'Controller', 'getPrintableResultForInput')  # activate sequence diagram building
 #
 #         if os.name == 'posix':
 #             FILE_PATH = '/sdcard/cryptopricer.ini'
@@ -1328,7 +1339,7 @@ participant Parent
 #         from guioutputformater import GuiOutputFormater
 #         from controller import Controller
 #
-#         SeqDiagBuilder.activate('Controller', 'getPrintableResultForInput')  # activate sequence diagram building
+#         SeqDiagBuilder.activate(self.projectPath, 'Controller', 'getPrintableResultForInput')  # activate sequence diagram building
 #
 #         if os.name == 'posix':
 #             FILE_PATH = '/sdcard/cryptopricer.ini'
@@ -1441,7 +1452,7 @@ participant Parent
     def testCreateSeqDiagCommandsOnClassesWithEmbededSelfCalls(self):
         entryPoint = ClassA()
 
-        SeqDiagBuilder.activate('ClassA', 'doWork')  # activate sequence diagram building
+        SeqDiagBuilder.activate(self.projectPath,'ClassA', 'doWork')  # activate sequence diagram building
         entryPoint.doWork()
 
         commands = SeqDiagBuilder.createSeqDiaqCommands('USER')
@@ -1497,7 +1508,7 @@ participant ClassB
     def testCreateSeqDiagCommandsOnClassLocatedInPackage(self):
         entryPoint = IsolatedClass()
 
-        SeqDiagBuilder.activate('IsolatedClass', 'analyse')  # activate sequence diagram building
+        SeqDiagBuilder.activate(self.projectPath, 'IsolatedClass', 'analyse')  # activate sequence diagram building
         entryPoint.analyse()
 
         commands = SeqDiagBuilder.createSeqDiaqCommands('USER')
@@ -1515,6 +1526,32 @@ USER -> IsolatedClass: analyse()
 	activate IsolatedClass
 	USER <-- IsolatedClass: return Analysis
 	deactivate IsolatedClass
+@enduml''', commands)
+
+        SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
+
+
+    def testCreateSeqDiagCommandsOnClassLocatedInSubPackage(self):
+        entryPoint = IsolatedClassSub()
+
+        SeqDiagBuilder.activate(self.projectPath, 'IsolatedClassSub', 'analyse')  # activate sequence diagram building
+        entryPoint.analyse()
+
+        commands = SeqDiagBuilder.createSeqDiaqCommands('USER')
+
+        with open("c:\\temp\\ess.txt", "w") as f:
+            f.write(commands)
+
+        self.assertEqual(len(SeqDiagBuilder.getWarningList()), 0)
+        self.assertEqual(
+'''@startuml
+
+actor USER
+participant IsolatedClassSub
+USER -> IsolatedClassSub: analyse()
+	activate IsolatedClassSub
+	USER <-- IsolatedClassSub: return Analysis
+	deactivate IsolatedClassSub
 @enduml''', commands)
 
         SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
