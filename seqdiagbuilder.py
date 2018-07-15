@@ -813,6 +813,7 @@ class SeqDiagBuilder:
                         toMethodCallLineNumber = "{}-{}".format(toMethodCallLineNumber, methodCallLineNumber)
                         SeqDiagBuilder.recordedFlowPath.addIfNotIn(flowEntry)
 
+
     @staticmethod
     def extractPackageSpec(pythonClassFilePath):
         '''
@@ -822,12 +823,28 @@ class SeqDiagBuilder:
         :param pythonClassFilePath:
         :return:
         '''
-        packageSpec = pythonClassFilePath.replace(SeqDiagBuilder.projectPath, '')
+        pythonisedPythonClassFilePath = SeqDiagBuilder.pythoniseFilePath(pythonClassFilePath)
+        pythonisedProjectPath = SeqDiagBuilder.pythoniseFilePath(SeqDiagBuilder.projectPath)
+        packageSpec = pythonisedPythonClassFilePath.replace(pythonisedProjectPath, '')
 
         #handling file path containg either \\ (windows like) or / (unix like)
+        packageSpec = packageSpec.replace('.', '', 1)
+
+        return packageSpec
+
+
+    @staticmethod
+    def pythoniseFilePath(packageSpec):
+        '''
+        In order to liberate SeqDiagBuilder from sub dir separators different in Windows and
+        in Unix, simply replaces them with a period.
+
+        :param packageSpec:
+        :return:
+        '''
         packageSpec = packageSpec.replace('\\', '.')
         packageSpec = packageSpec.replace('/', '.')
-        packageSpec = packageSpec.replace('.', '', 1)
+
         return packageSpec
 
     #            print(SeqDiagBuilder.recordedFlowPath)

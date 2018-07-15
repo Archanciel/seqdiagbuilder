@@ -1,8 +1,6 @@
 import unittest
 import os, sys, inspect
 
-from testclasses.subtestpackage.dsub import DSub
-
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0, parentdir)
@@ -13,6 +11,7 @@ from testclasses.isolatedclass import IsolatedClass
 from testclasses.subtestpackage.isolatedclasssub import IsolatedClassSub
 from testclasses.isolatedclasswithinstancevariables import IsolatedClassWithInstanceVariables
 from testclasses.foobarclasses import *
+from testclasses.subtestpackage.dsub import DSub
 
 
 #from controller import Controller
@@ -750,6 +749,62 @@ participant DSub
 @enduml''', commands)
 
         SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
+
+
+    def testCreateSeqDiagCommandsOnFiveLevelCallingSecondLevelMethodTwiceProjectPathUnixLike(self):
+            entryPoint = A()
+
+            SeqDiagBuilder.activate(self.projectPath.replace('\\','/'), 'A', 'a11')  # activate sequence diagram building
+            entryPoint.a11(1)
+
+            commands = SeqDiagBuilder.createSeqDiaqCommands('USER')
+
+            self.assertEqual(len(SeqDiagBuilder.getWarningList()), 0)
+
+            with open("c:\\temp\\ess.txt", "w") as f:
+                f.write(commands)
+
+            self.assertEqual(
+'''@startuml
+
+actor USER
+participant TestSeqDiagBuilder
+participant A
+participant B
+participant C
+participant DSub
+	USER -> A: a11(a11_p1)
+		activate A
+		A -> B: b6(b6_p1)
+			activate B
+			B -> C: c2(c2_p1)
+				activate C
+				C -> DSub: d1(d1_p1)
+					activate DSub
+					C <-- DSub: return Dd1Return
+					deactivate DSub
+				B <-- C: return Cc2Return
+				deactivate C
+			A <-- B: return Bb6Return
+			deactivate B
+		A -> B: b6(b6_p1)
+			activate B
+			B -> C: c2(c2_p1)
+				activate C
+				C -> DSub: d1(d1_p1)
+					activate DSub
+					C <-- DSub: return Dd1Return
+					deactivate DSub
+				B <-- C: return Cc2Return
+				deactivate C
+			A <-- B: return Bb6Return
+			deactivate B
+		USER <-- A: return Aa11Return
+		deactivate A
+@enduml''', commands)
+
+            SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
+
 
     def testCreateSeqDiagCommandsOnFiveLevelCallingSecondLevelMethodTwiceWithRecordFlowInEveryMethod(self):
         entryPoint = A()
