@@ -2,6 +2,22 @@
 
 Generates a UML sequence diagram on Python code using data collected at execution time.
 
+## Principle
+SeqDiagBuilder does its job in four steps:
+1. record control flow data during program execution
+2. generate a PlantUML sequence diagram command file
+3. launch PlantUML on the generated command file to draw a sequence diagram in an svg file
+4. open the svg file in a browser to display the sequence diagram
+
+Step 1 requires the insertion of a single line of code in the leaf methods which are to be displayed in the sequence diagram.
+
+The code to insert is
+```
+from seqdiagbuilder import SeqDiagBuilder
+...
+    SeqDiagBuilder.recordFlow()
+```
+
 ## Usage
 
 ### SeqDiagBuilder tags
