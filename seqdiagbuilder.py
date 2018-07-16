@@ -565,11 +565,11 @@ class SeqDiagBuilder:
         if SeqDiagBuilder.recordedFlowPath == None:
             isEntryPointReached = False
             isFlowRecorded = False
-            SeqDiagBuilder.issueNoFlowRecordedWarning(isEntryPointReached)
+            SeqDiagBuilder._issueNoFlowRecordedWarning(isEntryPointReached)
         elif SeqDiagBuilder.recordedFlowPath.isEmpty():
             isEntryPointReached = SeqDiagBuilder.recordedFlowPath.entryPointReached
             isFlowRecorded = False
-            SeqDiagBuilder.issueNoFlowRecordedWarning(isEntryPointReached)
+            SeqDiagBuilder._issueNoFlowRecordedWarning(isEntryPointReached)
 
         seqDiagCommandStr = SeqDiagBuilder._buildCommandFileHeaderSection()
 
@@ -629,7 +629,7 @@ class SeqDiagBuilder:
         return seqDiagCommandStr
 
     @staticmethod
-    def issueNoFlowRecordedWarning(isEntryPointReached):
+    def _issueNoFlowRecordedWarning(isEntryPointReached):
         SeqDiagBuilder._issueWarning(
             "No control flow recorded. Method activate() called: {}. Method recordFlow() called: {}. Specified entry point: {}.{} reached: {}".format(
                 SeqDiagBuilder._isActive, SeqDiagBuilder._recordFlowCalled, SeqDiagBuilder.seqDiagEntryClass,
@@ -771,7 +771,7 @@ class SeqDiagBuilder:
                 match = re.match(PYTHON_FILE_AND_FUNC_PATTERN, frame)
                 if match:
                     pythonClassFilePath = match.group(1)
-                    packageSpec = SeqDiagBuilder.extractPackageSpec(pythonClassFilePath)
+                    packageSpec = SeqDiagBuilder._extractPackageSpec(pythonClassFilePath)
                     moduleName = match.group(2)
                     methodCallLineNumber = match.group(3)
                     currentMethodName = match.group(4)
@@ -815,7 +815,7 @@ class SeqDiagBuilder:
 
 
     @staticmethod
-    def extractPackageSpec(pythonClassFilePath):
+    def _extractPackageSpec(pythonClassFilePath):
         '''
         Extract the package part of the class file path. The package component will be required
         later when instanciating the class.
@@ -823,8 +823,8 @@ class SeqDiagBuilder:
         :param pythonClassFilePath:
         :return:
         '''
-        pythonisedPythonClassFilePath = SeqDiagBuilder.pythoniseFilePath(pythonClassFilePath)
-        pythonisedProjectPath = SeqDiagBuilder.pythoniseFilePath(SeqDiagBuilder.projectPath)
+        pythonisedPythonClassFilePath = SeqDiagBuilder._pythoniseFilePath(pythonClassFilePath)
+        pythonisedProjectPath = SeqDiagBuilder._pythoniseFilePath(SeqDiagBuilder.projectPath)
         packageSpec = pythonisedPythonClassFilePath.replace(pythonisedProjectPath, '')
 
         #handling file path containg either \\ (windows like) or / (unix like)
@@ -834,7 +834,7 @@ class SeqDiagBuilder:
 
 
     @staticmethod
-    def pythoniseFilePath(packageSpec):
+    def _pythoniseFilePath(packageSpec):
         '''
         In order to liberate SeqDiagBuilder from sub dir separators different in Windows and
         in Unix, simply replaces them with a period.
