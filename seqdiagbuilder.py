@@ -1003,6 +1003,11 @@ class SeqDiagBuilder:
                     instance = eval('class_(' + noneStr + ')')
                 except TypeError:
                     noneStr += ', None'
+                except SyntaxError as e:
+                    SeqDiagBuilder._issueWarning('ERROR - constructor for class {} in module {} failed due to invalid \
+                    argument(s). To solve the problem, pass a class argument dictionary to the SeqDiagBuilder.activate() method'.format(
+                        className, packageSpec + moduleName))
+                    break
 
         return instance
 
