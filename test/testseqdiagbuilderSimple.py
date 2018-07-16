@@ -438,7 +438,7 @@ participant PriceRequester
         classFilePath = 'D:\\Development\\Python\\seqdiagbuilder\\testclasses\\subtestpackage\\'
 
         SeqDiagBuilder.activate(projectPath, '', '')
-        self.assertEquals('testclasses.subtestpackage.',SeqDiagBuilder.extractPackageSpec(classFilePath))
+        self.assertEquals('testclasses.subtestpackage.', SeqDiagBuilder._extractPackageSpec(classFilePath))
 
 
     def testExtractPackageSpecWindowsUnix(self):
@@ -446,7 +446,7 @@ participant PriceRequester
         classFilePath = 'D:/Development/Python/seqdiagbuilder/testclasses/subtestpackage/'
 
         SeqDiagBuilder.activate(projectPath, '', '')
-        self.assertEquals('testclasses.subtestpackage.',SeqDiagBuilder.extractPackageSpec(classFilePath))
+        self.assertEquals('testclasses.subtestpackage.', SeqDiagBuilder._extractPackageSpec(classFilePath))
 
 
     def testExtractPackageSpecUnixWindows(self):
@@ -454,7 +454,7 @@ participant PriceRequester
         classFilePath = 'D:\\Development\\Python\\seqdiagbuilder\\testclasses\\subtestpackage\\'
 
         SeqDiagBuilder.activate(projectPath, '', '')
-        self.assertEquals('testclasses.subtestpackage.',SeqDiagBuilder.extractPackageSpec(classFilePath))
+        self.assertEquals('testclasses.subtestpackage.', SeqDiagBuilder._extractPackageSpec(classFilePath))
 
 
     def testExtractPackageSpecUnixUnix(self):
@@ -462,7 +462,7 @@ participant PriceRequester
         classFilePath = 'D:/Development/Python/seqdiagbuilder/testclasses/subtestpackage/'
 
         SeqDiagBuilder.activate(projectPath, '', '')
-        self.assertEquals('testclasses.subtestpackage.',SeqDiagBuilder.extractPackageSpec(classFilePath))
+        self.assertEquals('testclasses.subtestpackage.', SeqDiagBuilder._extractPackageSpec(classFilePath))
 
 
 if __name__ == '__main__':
