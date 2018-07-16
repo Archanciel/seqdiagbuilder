@@ -12,6 +12,7 @@ from testclasses.subtestpackage.isolatedclasssub import IsolatedClassSub
 from testclasses.isolatedclasswithinstancevariables import IsolatedClassWithInstanceVariables
 from testclasses.foobarclasses import *
 from testclasses.subtestpackage.dsub import DSub
+from testclasses.subtestpackage.caller import Caller
 
 
 #from controller import Controller
@@ -1266,242 +1267,248 @@ participant Parent
         SeqDiagBuilder.deactivate()
 
 
-#     def testCreateSeqDiagCommandsOnFullRequestHistoDayPrice(self):
-#         from datetimeutil import DateTimeUtil
-#         from utilityfortest import UtilityForTest
-#         from configurationmanager import ConfigurationManager
-#         from guioutputformater import GuiOutputFormater
-#         from controller import Controller
-#
-#         SeqDiagBuilder.activate(self.projectPath, 'Controller', 'getPrintableResultForInput')  # activate sequence diagram building
-#
-#         if os.name == 'posix':
-#             FILE_PATH = '/sdcard/cryptopricer.ini'
-#         else:
-#             FILE_PATH = 'c:\\temp\\cryptopricer.ini'
-#
-#         configMgr = ConfigurationManager(FILE_PATH)
-#         self.controller = Controller(GuiOutputFormater(configMgr), configMgr)
-#
-#         timezoneStr = 'Europe/Zurich'
-#         now = DateTimeUtil.localNow(timezoneStr)
-#         eightDaysBeforeArrowDate = now.shift(days=-8)
-#
-#         eightDaysBeforeYearStr, eightDaysBeforeMonthStr, eightDaysBeforeDayStr, eightDaysBeforeHourStr, eightDaysBeforeMinuteStr = UtilityForTest.getFormattedDateTimeComponentsForArrowDateTimeObj(eightDaysBeforeArrowDate)
-#
-#         requestYearStr = eightDaysBeforeYearStr
-#         requestDayStr = eightDaysBeforeDayStr
-#         requestMonthStr = eightDaysBeforeMonthStr
-#         inputStr = 'eth btc {}/{} all'.format(requestDayStr, requestMonthStr)
-#         printResult, fullCommandStr, fullCommandStrWithOptions, fullCommandStrWithSaveModeOptions = self.controller.getPrintableResultForInput(
-#             inputStr)
-#
-#         if DateTimeUtil.isDateOlderThan(eightDaysBeforeArrowDate, 7):
-#             hourStr = '00'
-#             minuteStr = '00'
-#             priceType = 'C'
-#         else:
-#             hourStr = eightDaysBeforeHourStr
-#             minuteStr = eightDaysBeforeMinuteStr
-#             priceType = 'M'
-#
-#         self.assertEqual(
-#             'ETH/BTC on CCCAGG: ' + '{}/{}/{} {}:{}{}'.format(requestDayStr, requestMonthStr, requestYearStr, hourStr, minuteStr, priceType),
-#                                                         UtilityForTest.removePriceFromResult(printResult))
-#         self.assertEqual('eth btc {}/{}/{} {}:{} all'.format(requestDayStr, requestMonthStr, requestYearStr, hourStr, minuteStr), fullCommandStr)
-#         self.assertEqual(None, fullCommandStrWithSaveModeOptions)
-#         self.assertEqual(len(SeqDiagBuilder.getWarningList()), 0)
-#         commands = SeqDiagBuilder.createSeqDiaqCommands('GUI')
-#
-#         with open("c:\\temp\\ess.txt","w") as f:
-#             f.write(commands)
-#
-#         SeqDiagBuilder.deactivate()
-#
-# #        print(commands)
-#         self.assertEqual(
-# '''@startuml
-#
-# actor GUI
-# participant Controller
-# 	note over of Controller
-# 		Entry point of the business layer
-# 	end note
-# participant Requester
-# 	note over of Requester
-# 		Parses the user commands
-# 	end note
-# participant CommandPrice
-# participant Processor
-# participant PriceRequester
-# 	note over of PriceRequester
-# 		Obtains the RT or historical rates from the Cryptocompare web site
-# 	end note
-# participant GuiOutputFormater
-# GUI -> Controller: getPrintableResultForInput(inputStr)
-# 	activate Controller
-# 	Controller -> Requester: getCommand(inputStr)
-# 		activate Requester
-# 		Requester -> Requester: _parseAndFillCommandPrice(inputStr)
-# 			activate Requester
-# 			Requester -> Requester: _buildFullCommandPriceOptionalParmsDic(optionalParmList)
-# 				activate Requester
-# 				Requester <-- Requester: return optionalParsedParmDataDic
-# 				deactivate Requester
-# 			Requester <-- Requester: return CommandPrice or CommandError
-# 			deactivate Requester
-# 		Controller <-- Requester: return AbstractCommand
-# 		deactivate Requester
-# 		note right
-# 			May return a CommandError in case of parsing problem.
-# 		end note
-# 	Controller -> CommandPrice: execute()
-# 		activate CommandPrice
-# 		CommandPrice -> Processor: getCryptoPrice(crypto, fiat, exchange, day, month, year, hour, minute, priceValueSymbol=None, ...)
-# 			activate Processor
-# 			Processor -> PriceRequester: getHistoricalPriceAtUTCTimeStamp(crypto, fiat, timeStampLocalForHistoMinute, timeStampUTCNoHHMMForHistoDay, exchange)
-# 				activate PriceRequester
-# 				note right
-# 					Obtainins a minute price if request date < 7 days from now, else a day close price.
-# 				end note
-# 				PriceRequester -> PriceRequester: _getHistoDayPriceAtUTCTimeStamp(crypto, fiat, timeStampUTC, exchange, resultData)
-# 					activate PriceRequester
-# 					PriceRequester <-- PriceRequester: return ResultData
-# 					deactivate PriceRequester
-# 				Processor <-- PriceRequester: return ResultData
-# 				deactivate PriceRequester
-# 			CommandPrice <-- Processor: return ResultData
-# 			deactivate Processor
-# 		Controller <-- CommandPrice: return ResultData or False
-# 		deactivate CommandPrice
-# 	Controller -> GuiOutputFormater: getFullCommandString(resultData)
-# 		activate GuiOutputFormater
-# 		GuiOutputFormater -> GuiOutputFormater: _buildFullDateAndTimeStrings(commandDic, timezoneStr)
-# 			activate GuiOutputFormater
-# 			GuiOutputFormater <-- GuiOutputFormater: return requestDateDMY, requestDateHM
-# 			deactivate GuiOutputFormater
-# 		Controller <-- GuiOutputFormater: return printResult, fullCommandStr, fullCommandStrWithOptions, fullCommandStrWithSaveModeOptions
-# 		deactivate GuiOutputFormater
-# 	GUI <-- Controller: return printResult, fullCommandStr, fullCommandStrWithOptions, fullCommandStrWithSaveModeOptions
-# 	deactivate Controller
-# @enduml''', commands)
-#
-#
-#     def testCreateSeqDiagCommandsOnFullRequestHistoDayPriceWithSignatureLimitation(self):
-#         from datetimeutil import DateTimeUtil
-#         from utilityfortest import UtilityForTest
-#         from configurationmanager import ConfigurationManager
-#         from guioutputformater import GuiOutputFormater
-#         from controller import Controller
-#
-#         SeqDiagBuilder.activate(self.projectPath, 'Controller', 'getPrintableResultForInput')  # activate sequence diagram building
-#
-#         if os.name == 'posix':
-#             FILE_PATH = '/sdcard/cryptopricer.ini'
-#         else:
-#             FILE_PATH = 'c:\\temp\\cryptopricer.ini'
-#
-#         configMgr = ConfigurationManager(FILE_PATH)
-#         self.controller = Controller(GuiOutputFormater(configMgr), configMgr)
-#
-#         timezoneStr = 'Europe/Zurich'
-#         now = DateTimeUtil.localNow(timezoneStr)
-#         eightDaysBeforeArrowDate = now.shift(days=-8)
-#
-#         eightDaysBeforeYearStr, eightDaysBeforeMonthStr, eightDaysBeforeDayStr, eightDaysBeforeHourStr, eightDaysBeforeMinuteStr = UtilityForTest.getFormattedDateTimeComponentsForArrowDateTimeObj(
-#             eightDaysBeforeArrowDate)
-#
-#         requestYearStr = eightDaysBeforeYearStr
-#         requestDayStr = eightDaysBeforeDayStr
-#         requestMonthStr = eightDaysBeforeMonthStr
-#         inputStr = 'mcap btc {}/{} all'.format(requestDayStr, requestMonthStr)
-#         printResult, fullCommandStr, fullCommandStrWithOptions, fullCommandStrWithSaveModeOptions = self.controller.getPrintableResultForInput(
-#             inputStr)
-#
-#         commands = SeqDiagBuilder.createSeqDiaqCommands('GUI', None, 20)
-#
-#         with open("c:\\temp\\ess.txt", "w") as f:
-#             f.write(commands)
-#
-#         try:
-#             self.assertEqual(
-# '''@startuml
-#
-# actor GUI
-# participant Controller
-# 	note over of Controller
-# 		Entry point of the business
-# 		layer
-# 	end note
-# participant Requester
-# 	note over of Requester
-# 		Parses the user commands
-# 	end note
-# participant CommandPrice
-# participant Processor
-# participant PriceRequester
-# 	note over of PriceRequester
-# 		Obtains the RT or historical
-# 		rates from the Cryptocompare
-# 		web site
-# 	end note
-# participant GuiOutputFormater
-# GUI -> Controller: getPrintableResultForInput(inputStr)
-# 	activate Controller
-# 	Controller -> Requester: getCommand(inputStr)
-# 		activate Requester
-# 		Requester -> Requester: _parseAndFillCommandPrice(inputStr)
-# 			activate Requester
-# 			Requester -> Requester: _buildFullCommandPriceOptionalParmsDic(optionalParmList)
-# 				activate Requester
-# 				Requester <-- Requester: return ...
-# 				deactivate Requester
-# 			Requester <-- Requester: return ...
-# 			deactivate Requester
-# 		Controller <-- Requester: return AbstractCommand
-# 		deactivate Requester
-# 		note right
-# 			May return a CommandError in
-# 			case of parsing problem.
-# 		end note
-# 	Controller -> CommandPrice: execute()
-# 		activate CommandPrice
-# 		CommandPrice -> Processor: getCryptoPrice(crypto, fiat, ...)
-# 			activate Processor
-# 			Processor -> PriceRequester: getHistoricalPriceAtUTCTimeStamp(crypto, fiat, ...)
-# 				activate PriceRequester
-# 				note right
-# 					Obtainins a minute price if
-# 					request date < 7 days from
-# 					now, else a day close price.
-# 				end note
-# 				PriceRequester -> PriceRequester: _getHistoDayPriceAtUTCTimeStamp(crypto, fiat, ...)
-# 					activate PriceRequester
-# 					PriceRequester <-- PriceRequester: return ResultData
-# 					deactivate PriceRequester
-# 				Processor <-- PriceRequester: return ResultData
-# 				deactivate PriceRequester
-# 			CommandPrice <-- Processor: return ResultData
-# 			deactivate Processor
-# 		Controller <-- CommandPrice: return ResultData or False
-# 		deactivate CommandPrice
-# 	Controller -> GuiOutputFormater: getFullCommandString(resultData)
-# 		activate GuiOutputFormater
-# 		GuiOutputFormater -> GuiOutputFormater: _buildFullDateAndTimeStrings(commandDic, ...)
-# 			activate GuiOutputFormater
-# 			GuiOutputFormater <-- GuiOutputFormater: return requestDateDMY, ...
-# 			deactivate GuiOutputFormater
-# 		Controller <-- GuiOutputFormater: return printResult, ...
-# 		deactivate GuiOutputFormater
-# 	GUI <-- Controller: return printResult, ...
-# 	deactivate Controller
-# @enduml''' \
-#                 , commands)
-#         except TypeError as e:
-#             print(e)
-#             pass
-#
-#         SeqDiagBuilder.deactivate()
+    def testCreateSeqDiagCommandsOnFullRequestHistoDayPrice(self):
+        if not 'CryptoPricer' in self.projectPath:
+            return
+
+        from datetimeutil import DateTimeUtil
+        from utilityfortest import UtilityForTest
+        from configurationmanager import ConfigurationManager
+        from guioutputformater import GuiOutputFormater
+        from controller import Controller
+
+        SeqDiagBuilder.activate(self.projectPath, 'Controller', 'getPrintableResultForInput')  # activate sequence diagram building
+
+        if os.name == 'posix':
+            FILE_PATH = '/sdcard/cryptopricer.ini'
+        else:
+            FILE_PATH = 'c:\\temp\\cryptopricer.ini'
+
+        configMgr = ConfigurationManager(FILE_PATH)
+        self.controller = Controller(GuiOutputFormater(configMgr), configMgr)
+
+        timezoneStr = 'Europe/Zurich'
+        now = DateTimeUtil.localNow(timezoneStr)
+        eightDaysBeforeArrowDate = now.shift(days=-8)
+
+        eightDaysBeforeYearStr, eightDaysBeforeMonthStr, eightDaysBeforeDayStr, eightDaysBeforeHourStr, eightDaysBeforeMinuteStr = UtilityForTest.getFormattedDateTimeComponentsForArrowDateTimeObj(eightDaysBeforeArrowDate)
+
+        requestYearStr = eightDaysBeforeYearStr
+        requestDayStr = eightDaysBeforeDayStr
+        requestMonthStr = eightDaysBeforeMonthStr
+        inputStr = 'eth btc {}/{} all'.format(requestDayStr, requestMonthStr)
+        printResult, fullCommandStr, fullCommandStrWithOptions, fullCommandStrWithSaveModeOptions = self.controller.getPrintableResultForInput(
+            inputStr)
+
+        if DateTimeUtil.isDateOlderThan(eightDaysBeforeArrowDate, 7):
+            hourStr = '00'
+            minuteStr = '00'
+            priceType = 'C'
+        else:
+            hourStr = eightDaysBeforeHourStr
+            minuteStr = eightDaysBeforeMinuteStr
+            priceType = 'M'
+
+        self.assertEqual(
+            'ETH/BTC on CCCAGG: ' + '{}/{}/{} {}:{}{}'.format(requestDayStr, requestMonthStr, requestYearStr, hourStr, minuteStr, priceType),
+                                                        UtilityForTest.removePriceFromResult(printResult))
+        self.assertEqual('eth btc {}/{}/{} {}:{} all'.format(requestDayStr, requestMonthStr, requestYearStr, hourStr, minuteStr), fullCommandStr)
+        self.assertEqual(None, fullCommandStrWithSaveModeOptions)
+        self.assertEqual(len(SeqDiagBuilder.getWarningList()), 0)
+        commands = SeqDiagBuilder.createSeqDiaqCommands('GUI')
+
+        with open("c:\\temp\\ess.txt","w") as f:
+            f.write(commands)
+
+        SeqDiagBuilder.deactivate()
+
+#        print(commands)
+        self.assertEqual(
+'''@startuml
+
+actor GUI
+participant Controller
+	note over of Controller
+		Entry point of the business layer
+	end note
+participant Requester
+	note over of Requester
+		Parses the user commands
+	end note
+participant CommandPrice
+participant Processor
+participant PriceRequester
+	note over of PriceRequester
+		Obtains the RT or historical rates from the Cryptocompare web site
+	end note
+participant GuiOutputFormater
+GUI -> Controller: getPrintableResultForInput(inputStr)
+	activate Controller
+	Controller -> Requester: getCommand(inputStr)
+		activate Requester
+		Requester -> Requester: _parseAndFillCommandPrice(inputStr)
+			activate Requester
+			Requester -> Requester: _buildFullCommandPriceOptionalParmsDic(optionalParmList)
+				activate Requester
+				Requester <-- Requester: return optionalParsedParmDataDic
+				deactivate Requester
+			Requester <-- Requester: return CommandPrice or CommandError
+			deactivate Requester
+		Controller <-- Requester: return AbstractCommand
+		deactivate Requester
+		note right
+			May return a CommandError in case of parsing problem.
+		end note
+	Controller -> CommandPrice: execute()
+		activate CommandPrice
+		CommandPrice -> Processor: getCryptoPrice(crypto, fiat, exchange, day, month, year, hour, minute, priceValueSymbol=None, ...)
+			activate Processor
+			Processor -> PriceRequester: getHistoricalPriceAtUTCTimeStamp(crypto, fiat, timeStampLocalForHistoMinute, timeStampUTCNoHHMMForHistoDay, exchange)
+				activate PriceRequester
+				note right
+					Obtainins a minute price if request date < 7 days from now, else a day close price.
+				end note
+				PriceRequester -> PriceRequester: _getHistoDayPriceAtUTCTimeStamp(crypto, fiat, timeStampUTC, exchange, resultData)
+					activate PriceRequester
+					PriceRequester <-- PriceRequester: return ResultData
+					deactivate PriceRequester
+				Processor <-- PriceRequester: return ResultData
+				deactivate PriceRequester
+			CommandPrice <-- Processor: return ResultData
+			deactivate Processor
+		Controller <-- CommandPrice: return ResultData or False
+		deactivate CommandPrice
+	Controller -> GuiOutputFormater: getFullCommandString(resultData)
+		activate GuiOutputFormater
+		GuiOutputFormater -> GuiOutputFormater: _buildFullDateAndTimeStrings(commandDic, timezoneStr)
+			activate GuiOutputFormater
+			GuiOutputFormater <-- GuiOutputFormater: return requestDateDMY, requestDateHM
+			deactivate GuiOutputFormater
+		Controller <-- GuiOutputFormater: return printResult, fullCommandStr, fullCommandStrWithOptions, fullCommandStrWithSaveModeOptions
+		deactivate GuiOutputFormater
+	GUI <-- Controller: return printResult, fullCommandStr, fullCommandStrWithOptions, fullCommandStrWithSaveModeOptions
+	deactivate Controller
+@enduml''', commands)
+
+
+    def testCreateSeqDiagCommandsOnFullRequestHistoDayPriceWithSignatureLimitation(self):
+        if not 'CryptoPricer' in self.projectPath:
+            return
+
+        from datetimeutil import DateTimeUtil
+        from utilityfortest import UtilityForTest
+        from configurationmanager import ConfigurationManager
+        from guioutputformater import GuiOutputFormater
+        from controller import Controller
+
+        SeqDiagBuilder.activate(self.projectPath, 'Controller', 'getPrintableResultForInput')  # activate sequence diagram building
+
+        if os.name == 'posix':
+            FILE_PATH = '/sdcard/cryptopricer.ini'
+        else:
+            FILE_PATH = 'c:\\temp\\cryptopricer.ini'
+
+        configMgr = ConfigurationManager(FILE_PATH)
+        self.controller = Controller(GuiOutputFormater(configMgr), configMgr)
+
+        timezoneStr = 'Europe/Zurich'
+        now = DateTimeUtil.localNow(timezoneStr)
+        eightDaysBeforeArrowDate = now.shift(days=-8)
+
+        eightDaysBeforeYearStr, eightDaysBeforeMonthStr, eightDaysBeforeDayStr, eightDaysBeforeHourStr, eightDaysBeforeMinuteStr = UtilityForTest.getFormattedDateTimeComponentsForArrowDateTimeObj(
+            eightDaysBeforeArrowDate)
+
+        requestYearStr = eightDaysBeforeYearStr
+        requestDayStr = eightDaysBeforeDayStr
+        requestMonthStr = eightDaysBeforeMonthStr
+        inputStr = 'mcap btc {}/{} all'.format(requestDayStr, requestMonthStr)
+        printResult, fullCommandStr, fullCommandStrWithOptions, fullCommandStrWithSaveModeOptions = self.controller.getPrintableResultForInput(
+            inputStr)
+
+        commands = SeqDiagBuilder.createSeqDiaqCommands('GUI', None, 20)
+
+        with open("c:\\temp\\ess.txt", "w") as f:
+            f.write(commands)
+
+        try:
+            self.assertEqual(
+'''@startuml
+
+actor GUI
+participant Controller
+	note over of Controller
+		Entry point of the business
+		layer
+	end note
+participant Requester
+	note over of Requester
+		Parses the user commands
+	end note
+participant CommandPrice
+participant Processor
+participant PriceRequester
+	note over of PriceRequester
+		Obtains the RT or historical
+		rates from the Cryptocompare
+		web site
+	end note
+participant GuiOutputFormater
+GUI -> Controller: getPrintableResultForInput(inputStr)
+	activate Controller
+	Controller -> Requester: getCommand(inputStr)
+		activate Requester
+		Requester -> Requester: _parseAndFillCommandPrice(inputStr)
+			activate Requester
+			Requester -> Requester: _buildFullCommandPriceOptionalParmsDic(optionalParmList)
+				activate Requester
+				Requester <-- Requester: return ...
+				deactivate Requester
+			Requester <-- Requester: return ...
+			deactivate Requester
+		Controller <-- Requester: return AbstractCommand
+		deactivate Requester
+		note right
+			May return a CommandError in
+			case of parsing problem.
+		end note
+	Controller -> CommandPrice: execute()
+		activate CommandPrice
+		CommandPrice -> Processor: getCryptoPrice(crypto, fiat, ...)
+			activate Processor
+			Processor -> PriceRequester: getHistoricalPriceAtUTCTimeStamp(crypto, fiat, ...)
+				activate PriceRequester
+				note right
+					Obtainins a minute price if
+					request date < 7 days from
+					now, else a day close price.
+				end note
+				PriceRequester -> PriceRequester: _getHistoDayPriceAtUTCTimeStamp(crypto, fiat, ...)
+					activate PriceRequester
+					PriceRequester <-- PriceRequester: return ResultData
+					deactivate PriceRequester
+				Processor <-- PriceRequester: return ResultData
+				deactivate PriceRequester
+			CommandPrice <-- Processor: return ResultData
+			deactivate Processor
+		Controller <-- CommandPrice: return ResultData or False
+		deactivate CommandPrice
+	Controller -> GuiOutputFormater: getFullCommandString(resultData)
+		activate GuiOutputFormater
+		GuiOutputFormater -> GuiOutputFormater: _buildFullDateAndTimeStrings(commandDic, ...)
+			activate GuiOutputFormater
+			GuiOutputFormater <-- GuiOutputFormater: return requestDateDMY, ...
+			deactivate GuiOutputFormater
+		Controller <-- GuiOutputFormater: return printResult, ...
+		deactivate GuiOutputFormater
+	GUI <-- Controller: return printResult, ...
+	deactivate Controller
+@enduml''' \
+                , commands)
+        except TypeError as e:
+            print(e)
+            pass
+
+        SeqDiagBuilder.deactivate()
 
 
     def testCreateSeqDiagCommandsOnClassesWithEmbededSelfCalls(self):
@@ -1607,6 +1614,72 @@ USER -> IsolatedClassSub: analyse()
 	activate IsolatedClassSub
 	USER <-- IsolatedClassSub: return Analysis
 	deactivate IsolatedClassSub
+@enduml''', commands)
+
+        SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
+
+
+    def testCallingMethodOnClassRequiringNonNoneConstructotParmWithoutPassingClassArgsDic(self):
+        entryPoint = Caller()
+
+        SeqDiagBuilder.activate(self.projectPath, 'Caller', 'call')  # activate sequence diagram building
+        entryPoint.call()
+
+        commands = SeqDiagBuilder.createSeqDiaqCommands('USER')
+
+        with open("c:\\temp\\ess.txt", "w") as f:
+            f.write(commands)
+
+        self.assertEqual(len(SeqDiagBuilder.getWarningList()), 1)
+
+        self.assertEqual(
+'''@startuml
+center header
+<b><font color=red size=20> Warnings</font></b>
+<b><font color=red size=14>  ERROR - constructor for class FileReader in module testclasses.subtestpackage.filereader failed due to invalid                     argument(s).</font></b>
+<b><font color=red size=14>  To solve the problem, pass a class argument dictionary to the SeqDiagBuilder.activate() method.</font></b>
+endheader
+
+
+actor USER
+participant Caller
+USER -> Caller: call()
+	activate Caller
+	USER <-- Caller: 
+	deactivate Caller
+@enduml''', commands)
+
+        SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
+
+
+    def testCallingMethodOnClassRequiringNonNoneConstructotParmWithPassingClassArgsDic(self):
+        entryPoint = Caller()
+
+        SeqDiagBuilder.activate(self.projectPath, 'Caller', 'call')  # activate sequence diagram building
+        entryPoint.call()
+
+        commands = SeqDiagBuilder.createSeqDiaqCommands('USER')
+
+        with open("c:\\temp\\ess.txt", "w") as f:
+            f.write(commands)
+
+        self.assertEqual(len(SeqDiagBuilder.getWarningList()), 1)
+
+        self.assertEqual(
+'''@startuml
+
+actor USER
+participant TestSeqDiagBuilder
+participant Caller
+participant FileReader
+	USER -> Caller: call()
+		activate Caller
+		Caller -> FileReader: getContentAsList()
+			activate FileReader
+			Caller <-- FileReader:
+			deactivate FileReader
+		USER <-- Caller:
+		deactivate Caller
 @enduml''', commands)
 
         SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
