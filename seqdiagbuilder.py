@@ -358,6 +358,50 @@ class SeqDiagCommandStack:
         return False
 
 
+class ConstructorArgsProvider:
+    def __init__(self, classArgDic):
+        self.classArgDic = classArgDic
+
+    def getArgsForClassConstructor(self, className):
+
+        # collecting all the keys in the classArgDic which are for the className.
+        # The keys may contain a digit, which indicates that the entry can only be
+        # used once to instanciate className
+        keys = self.classArgDic.keys()
+        keyList = []
+
+        for key in keys:
+            if className in key:
+                keyList.append(key)
+
+        if len(keyList) == 0:
+            # here, no ctor arg definition for className found in the classArgDic
+            return None
+        elif len(keyList) == 1:
+            classNameFromDic = keyList[0]
+            if any(c.isdigit() for c in classNameFromDic):
+                args = self.classArgDic[classNameFromDic]
+
+                # since an entry in the classArgDic keyed by a key conttaining a digit
+                # can be consumed only once, it must be deleted from the classArgDic
+                del self.classArgDic[classNameFromDic]
+
+                return args
+            else:
+                # here, the ctor argument(s) are reusable and need not be removed from the classArgDic
+                return self.classArgDic[className]
+
+        # here, the keyList contains more than one key, which means that several sets of ctor
+        # arguments were specified for className, which means that at each instanciation, the used
+        # entry must be removed from the classArgDic.
+        orderedKeyList = sorted(keyList)
+        firstKey = orderedKeyList[0]
+        firstKeyArgs = self.classArgDic[firstKey]
+        del self.classArgDic[firstKey]
+
+        return firstKeyArgs
+
+
 class SeqDiagBuilder:
     '''
     This class contains a static utility methods used to build a sequence diagram from the
@@ -1013,4 +1057,22 @@ class SeqDiagBuilder:
 
 
 if __name__ == '__main__':
-    pass
+    # testing ConstructorArgsProvider
+    dic = {'cl_2': ['clarg21', 'clarg22'],
+           'cl_1': ['clarg11', 'clarg12'],
+           'ca': ['ca_arg1'],
+           'cc1': ['ccarg1'],
+           'cc3': ['ccarg3'],
+           'cc2': ['ccarg2']}
+    cap = ConstructorArgsProvider(dic)
+    print('cc {}'.format(cap.getArgsForClassConstructor('cc')))
+    print('cl {}'.format(cap.getArgsForClassConstructor('cl')))
+    print('ca {}'.format(cap.getArgsForClassConstructor('ca')))
+    print()
+    print('cc {}'.format(cap.getArgsForClassConstructor('cc')))
+    print('cl {}'.format(cap.getArgsForClassConstructor('cl')))
+    print('ca {}'.format(cap.getArgsForClassConstructor('ca')))
+    print()
+    print('cc {}'.format(cap.getArgsForClassConstructor('cc')))
+    print('cl {}'.format(cap.getArgsForClassConstructor('cl')))
+    print('ca {}'.format(cap.getArgsForClassConstructor('ca')))
