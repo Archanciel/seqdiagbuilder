@@ -360,9 +360,30 @@ class SeqDiagCommandStack:
 
 class ConstructorArgsProvider:
     def __init__(self, classArgDic):
+        '''
+
+        :param classArgDic: class cnstructor arguments dictionary
+                            classArgDic format:
+                                {
+                                    'classNameA_usage_2': ['a_arg21', 'a_arg22'], #args used at second instanciation
+                                    'classNameA_usage_1': ['a_arg11', 'a_arg12'], #args used at first instanciation
+                                    'classNameB': ['b_arg1']
+                                    'classNameC_usage_1': ['c_arg1'],
+                                    'classNameC_usage_3': ['c_arg3'],
+                                    'classNameC_usage_2': ['c_arg2']
+                                }
+        '''
         self.classArgDic = classArgDic
 
     def getArgsForClassConstructor(self, className):
+        '''
+        Return a list containing the ctor arguments for the passed className. If className is
+        not found in the internal classArgDic, None is returned.
+
+        :param className:
+        :return: list containing the ctor arguments in their usage order, None if no entry exist
+                 for the passed className
+        '''
 
         # collecting all the keys in the classArgDic which are for the className.
         # The keys may contain a digit, which indicates that the entry can only be
@@ -418,9 +439,10 @@ class SeqDiagBuilder:
     seqDiagEntryMethod = None
     recordedFlowPath = None
     _participantDocOrderedDic = None
+    _constructorArgProvider = None
 
     @staticmethod
-    def activate(projectPath, entryClass, entryMethod):
+    def activate(projectPath, entryClass, entryMethod, classArgDic = None):
         '''
         Initialise and activate SeqDiagBuilder. This method must be called before calling any method
         on the entry class.
@@ -429,6 +451,17 @@ class SeqDiagBuilder:
                             'D:/Development/Python/seqdiagbuilder'
         :param entryClass:
         :param entryMethod:
+        :param classArgDic: class cnstructor arguments dictionary
+                            classArgDic format:
+                                {
+                                    'classNameA_usage_2': ['a_arg21', 'a_arg22'], #args used at second instanciation
+                                    'classNameA_usage_1': ['a_arg11', 'a_arg12'], #args used at first instanciation
+                                    'classNameB': ['b_arg1']
+                                    'classNameC_usage_1': ['c_arg1'],
+                                    'classNameC_usage_3': ['c_arg3'],
+                                    'classNameC_usage_2': ['c_arg2']
+                                }
+
         :return:
         '''
         SeqDiagBuilder.projectPath = projectPath
@@ -437,6 +470,9 @@ class SeqDiagBuilder:
         SeqDiagBuilder.recordedFlowPath = RecordedFlowPath(SeqDiagBuilder.seqDiagEntryClass, SeqDiagBuilder.seqDiagEntryMethod)
         SeqDiagBuilder._isActive = True
         SeqDiagBuilder._participantDocOrderedDic = collections.OrderedDict()
+
+        if classArgDic:
+            SeqDiagBuilder._constructorArgProvider = ConstructorArgsProvider(classArgDic)
 
 
     @staticmethod
@@ -453,6 +489,7 @@ class SeqDiagBuilder:
         SeqDiagBuilder._isActive = False
         SeqDiagBuilder._recordFlowCalled = False
         SeqDiagBuilder._participantDocOrderedDic = collections.OrderedDict()
+        SeqDiagBuilder._constructorArgProvider = None
 
 
     @staticmethod
@@ -1034,24 +1071,40 @@ class SeqDiagBuilder:
         class_ = getattr(module, className)
         instance = None
         noneStr = ''
+        ctorArgValueList = None
+
+        if SeqDiagBuilder._constructorArgProvider:
+            ctorArgValueList = SeqDiagBuilder._constructorArgProvider.getArgsForClassConstructor(className)
 
         try:
-            instance = eval('class_(' + noneStr + ')')
+            if ctorArgValueList:
+                evaluationString = 'class_('
+                for argValue in ctorArgValueList:
+                    evaluationString += "'" + argValue + "',"
+
+                evaluationString = evaluationString[:-1] + ')'
+                instance = eval(evaluationString)
+            else:
+                instance = eval('class_(' + noneStr + ')')
         except TypeError:
             # here, the clasa we try to instanciate has an __init__ method with one or more
             # arguments. We enter in a loop, trying to instanciate the class adding one argument
             # at each loop run.
             noneStr = 'None'
-            while not instance:
-                try:
-                    instance = eval('class_(' + noneStr + ')')
-                except TypeError:
-                    noneStr += ', None'
-                except SyntaxError as e:
-                    SeqDiagBuilder._issueWarning('ERROR - constructor for class {} in module {} failed due to invalid \
-                    argument(s). To solve the problem, pass a class argument dictionary to the SeqDiagBuilder.activate() method'.format(
-                        className, packageSpec + moduleName))
-                    break
+            if not ctorArgValueList:
+                while not instance:
+                    try:
+                        instance = eval('class_(' + noneStr + ')')
+                    except TypeError:
+                        noneStr += ', None'
+                    except SyntaxError as e:
+                        SeqDiagBuilder._issueWarning('ERROR - constructor for class {} in module {} failed due to invalid argument(s). To solve the problem, pass a class argument dictionary to the SeqDiagBuilder.activate() method'.format(
+                            className, packageSpec + moduleName))
+                        break
+            else:
+                SeqDiagBuilder._issueWarning('ERROR - constructor for class {} in module {} failed due to invalid \
+                argument(s) ({})defined in the class argument dictionary passed to the SeqDiagBuilder.activate() method'.format(
+                    className, packageSpec + moduleName, ctorArgValueList))
 
         return instance
 

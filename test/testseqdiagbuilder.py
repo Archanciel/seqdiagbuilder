@@ -1627,7 +1627,7 @@ USER -> IsolatedClassSub: analyse()
 
         commands = SeqDiagBuilder.createSeqDiaqCommands('USER')
 
-        with open("c:\\temp\\ess.txt", "w") as f:
+        with open("c:\\temp\\ess2.txt", "w") as f:
             f.write(commands)
 
         self.assertEqual(len(SeqDiagBuilder.getWarningList()), 1)
@@ -1636,7 +1636,7 @@ USER -> IsolatedClassSub: analyse()
 '''@startuml
 center header
 <b><font color=red size=20> Warnings</font></b>
-<b><font color=red size=14>  ERROR - constructor for class FileReader in module testclasses.subtestpackage.filereader failed due to invalid                     argument(s).</font></b>
+<b><font color=red size=14>  ERROR - constructor for class FileReader in module testclasses.subtestpackage.filereader failed due to invalid argument(s).</font></b>
 <b><font color=red size=14>  To solve the problem, pass a class argument dictionary to the SeqDiagBuilder.activate() method.</font></b>
 endheader
 
@@ -1654,8 +1654,9 @@ USER -> Caller: call()
 
     def testCallingMethodOnClassRequiringNonNoneConstructotParmWithPassingClassArgsDic(self):
         entryPoint = Caller()
+        classArgDic = {'FileReader': ['testfile.txt']}
 
-        SeqDiagBuilder.activate(self.projectPath, 'Caller', 'call')  # activate sequence diagram building
+        SeqDiagBuilder.activate(self.projectPath, 'Caller', 'call', classArgDic)  # activate sequence diagram building
         entryPoint.call()
 
         commands = SeqDiagBuilder.createSeqDiaqCommands('USER')
@@ -1663,23 +1664,22 @@ USER -> Caller: call()
         with open("c:\\temp\\ess.txt", "w") as f:
             f.write(commands)
 
-        self.assertEqual(len(SeqDiagBuilder.getWarningList()), 1)
+        self.assertEqual(len(SeqDiagBuilder.getWarningList()), 0)
 
         self.assertEqual(
 '''@startuml
 
 actor USER
-participant TestSeqDiagBuilder
 participant Caller
 participant FileReader
-	USER -> Caller: call()
-		activate Caller
-		Caller -> FileReader: getContentAsList()
-			activate FileReader
-			Caller <-- FileReader:
-			deactivate FileReader
-		USER <-- Caller:
-		deactivate Caller
+USER -> Caller: call()
+	activate Caller
+	Caller -> FileReader: getContentAsList()
+		activate FileReader
+		Caller <-- FileReader: 
+		deactivate FileReader
+	USER <-- Caller: 
+	deactivate Caller
 @enduml''', commands)
 
         SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
