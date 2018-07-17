@@ -1627,7 +1627,7 @@ USER -> IsolatedClassSub: analyse()
 
         commands = SeqDiagBuilder.createSeqDiaqCommands('USER')
 
-        with open("c:\\temp\\ess2.txt", "w") as f:
+        with open("c:\\temp\\ess.txt", "w") as f:
             f.write(commands)
 
         self.assertEqual(len(SeqDiagBuilder.getWarningList()), 1)
