@@ -1685,5 +1685,38 @@ USER -> Caller: call()
         SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
 
 
+    def testCallingMethodOnClassRequiringNonNoneConstructotParmWithPassingInvalidClassArgsDic(self):
+        entryPoint = Caller()
+        classArgDic = {'FileReader': ['testfile.txt', 'inval arg']}
+
+        SeqDiagBuilder.activate(self.projectPath, 'Caller', 'call', classArgDic)  # activate sequence diagram building
+        entryPoint.call()
+
+        commands = SeqDiagBuilder.createSeqDiaqCommands('USER')
+
+        with open("c:\\temp\\ess.txt", "w") as f:
+            f.write(commands)
+
+        self.assertEqual(len(SeqDiagBuilder.getWarningList()), 1)
+
+        self.assertEqual(
+'''@startuml
+center header
+<b><font color=red size=20> Warnings</font></b>
+<b><font color=red size=14>  ERROR - constructor for class FileReader in module testclasses.subtestpackage.filereader failed due to invalid                 argument(s) (['testfile.txt', 'inval arg']) defined in the class argument dictionary passed to the SeqDiagBuilder.activate() method.</font></b>
+endheader
+
+
+actor USER
+participant Caller
+USER -> Caller: call()
+	activate Caller
+	USER <-- Caller: 
+	deactivate Caller
+@enduml''', commands)
+
+        SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
+
+
 if __name__ == '__main__':
     unittest.main()
