@@ -11,6 +11,9 @@ class Caller:
         fr2 = FileReader('testfile2.txt')
         print(fr2.getContentAsList())
 
+    def callUsingVerboseFileReader(self):
+        fr = FileReader('testfile.txt')
+
 if __name__ == '__main__':
     c = Caller()
     c.call()

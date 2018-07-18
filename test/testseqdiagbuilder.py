@@ -1770,6 +1770,50 @@ USER -> Caller: callUsingTwoFileReaders()
 
         SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
 
+
+    def testCallingMethodOnClassRequiringNonNoneConstructotParmWithPassingClassArgsDicWithOneEntryOneBooleanArg(self):
+        '''
+        Test case where the flow requires to instanciate the a class (FileReaderSupportingVerboseMode) whose ctor
+        requires astring and a boolean value.
+        :return:
+        '''
+        entryPoint = Caller()
+        classArgDic = {'FileReaderSupportingVerboseMode': ['testfile.txt', False]}
+
+        SeqDiagBuilder.activate(self.projectPath, 'Caller', 'callUsingVerboseFileReader',
+                                classArgDic)  # activate sequence diagram building
+        entryPoint.callUsingTwoFileReaders()
+
+        commands = SeqDiagBuilder.createSeqDiaqCommands('USER')
+
+        with open("c:\\temp\\ess.txt", "w") as f:
+            f.write(commands)
+
+        self.assertEqual(len(SeqDiagBuilder.getWarningList()), 0)
+
+        self.assertEqual(
+            '''@startuml
+        
+            actor USER
+            participant Caller
+            participant FileReader
+            USER -> Caller: callUsingTwoFileReaders()
+                activate Caller
+                Caller -> FileReader: getContentAsList()
+                    activate FileReader
+                    Caller <-- FileReader: 
+                    deactivate FileReader
+                Caller -> FileReader: getContentAsList()
+                    activate FileReader
+                    Caller <-- FileReader: 
+                    deactivate FileReader
+                USER <-- Caller: 
+                deactivate Caller
+            @enduml''', commands)
+
+        SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
+
+
     def testCallingMethodOnClassRequiringNonNoneConstructotParmWithPassingClassArgsDicWithTwoEntriesSpecifyingWrongMethodName(self):
         '''
         Test case where the flow requires to instanciate the same class (FileReader) twice with
