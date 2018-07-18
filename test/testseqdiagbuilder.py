@@ -545,7 +545,7 @@ class TestSeqDiagBuilder(unittest.TestCase):
 center header
 <b><font color=red size=20> Warnings</font></b>
 <b><font color=red size=14>  No control flow recorded.</font></b>
-<b><font color=red size=14>  Method activate() called: True.</font></b>
+<b><font color=red size=14>  Method activate() called with arguments D:\Development\Python\seqdiagbuilder, A, a0, None: True.</font></b>
 <b><font color=red size=14>  Method recordFlow() called: False.</font></b>
 <b><font color=red size=14>  Specified entry point: A.a0 reached: False.</font></b>
 endheader
@@ -1183,7 +1183,7 @@ participant ChildThree
 center header
 <b><font color=red size=20> Warnings</font></b>
 <b><font color=red size=14>  No control flow recorded.</font></b>
-<b><font color=red size=14>  Method activate() called: True.</font></b>
+<b><font color=red size=14>  Method activate() called with arguments D:\Development\Python\seqdiagbuilder, ChildTwo, getCoordinate, None: True.</font></b>
 <b><font color=red size=14>  Method recordFlow() called: True.</font></b>
 <b><font color=red size=14>  Specified entry point: ChildTwo.getCoordinate reached: False.</font></b>
 endheader
@@ -1217,7 +1217,7 @@ center header
 <b><font color=red size=14>  See help for more information.</font></b>
 <b><font color=red size=20> 2</font></b>
 <b><font color=red size=14>  No control flow recorded.</font></b>
-<b><font color=red size=14>  Method activate() called: True.</font></b>
+<b><font color=red size=14>  Method activate() called with arguments D:\Development\Python\seqdiagbuilder, ChildTwo, getCoordinateNoneSelected, None: True.</font></b>
 <b><font color=red size=14>  Method recordFlow() called: True.</font></b>
 <b><font color=red size=14>  Specified entry point: ChildTwo.getCoordinateNoneSelected reached: False.</font></b>
 endheader
@@ -1680,6 +1680,130 @@ USER -> Caller: call()
 		deactivate FileReader
 	USER <-- Caller: 
 	deactivate Caller
+@enduml''', commands)
+
+        SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
+
+
+    def testCallingMethodOnClassRequiringNonNoneConstructotParmWithPassingClassArgsDicWithTwoEntries(self):
+        '''
+        Test case where the flow requires to instanciate the same class (FileReader) twice with
+        different values passed to the ctor at each instanciation.
+        :return:
+        '''
+        entryPoint = Caller()
+        classArgDic = {'FileReader_1': ['testfile.txt'], 'FileReader_2': ['testfile2.txt']}
+
+        SeqDiagBuilder.activate(self.projectPath, 'Caller', 'callUsingTwoFileReaders',
+                                classArgDic)  # activate sequence diagram building
+        entryPoint.callUsingTwoFileReaders()
+
+        commands = SeqDiagBuilder.createSeqDiaqCommands('USER')
+
+        with open("c:\\temp\\ess.txt", "w") as f:
+            f.write(commands)
+
+        self.assertEqual(len(SeqDiagBuilder.getWarningList()), 0)
+
+        self.assertEqual(
+'''@startuml
+
+actor USER
+participant Caller
+participant FileReader
+USER -> Caller: callUsingTwoFileReaders()
+	activate Caller
+	Caller -> FileReader: getContentAsList()
+		activate FileReader
+		Caller <-- FileReader: 
+		deactivate FileReader
+	Caller -> FileReader: getContentAsList()
+		activate FileReader
+		Caller <-- FileReader: 
+		deactivate FileReader
+	USER <-- Caller: 
+	deactivate Caller
+@enduml''', commands)
+
+        SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
+
+
+    def testCallingMethodOnClassRequiringNonNoneConstructotParmWithPassingClassArgsDicWithOneEntry(self):
+        '''
+        Test case where the flow requires to instanciate the same class (FileReader) twice with
+        the same value passed to the ctor at each instanciation.
+        :return:
+        '''
+        entryPoint = Caller()
+        classArgDic = {'FileReader': ['testfile.txt']}
+
+        SeqDiagBuilder.activate(self.projectPath, 'Caller', 'callUsingTwoFileReaders',
+                                classArgDic)  # activate sequence diagram building
+        entryPoint.callUsingTwoFileReaders()
+
+        commands = SeqDiagBuilder.createSeqDiaqCommands('USER')
+
+        with open("c:\\temp\\ess.txt", "w") as f:
+            f.write(commands)
+
+        self.assertEqual(len(SeqDiagBuilder.getWarningList()), 0)
+
+        self.assertEqual(
+'''@startuml
+
+actor USER
+participant Caller
+participant FileReader
+USER -> Caller: callUsingTwoFileReaders()
+	activate Caller
+	Caller -> FileReader: getContentAsList()
+		activate FileReader
+		Caller <-- FileReader: 
+		deactivate FileReader
+	Caller -> FileReader: getContentAsList()
+		activate FileReader
+		Caller <-- FileReader: 
+		deactivate FileReader
+	USER <-- Caller: 
+	deactivate Caller
+@enduml''', commands)
+
+        SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
+
+    def testCallingMethodOnClassRequiringNonNoneConstructotParmWithPassingClassArgsDicWithTwoEntriesSpecifyingWrongMethodName(self):
+        '''
+        Test case where the flow requires to instanciate the same class (FileReader) twice with
+        different values passed to the ctor at each instanciation. But here, we do not specify
+        the right method for the SeqDiagBuilder.activate() method: 'callUsingTwoFileReaders'
+        should be specified, not 'call' !
+        :return:
+        '''
+        entryPoint = Caller()
+        classArgDic = {'FileReader_1': ['testfile.txt'], 'FileReader_2': ['testfile2.txt']}
+
+        SeqDiagBuilder.activate(self.projectPath, 'Caller', 'call',
+                                classArgDic)  # activate sequence diagram building
+        entryPoint.callUsingTwoFileReaders()
+
+        commands = SeqDiagBuilder.createSeqDiaqCommands('USER')
+
+        with open("c:\\temp\\ess.txt", "w") as f:
+            f.write(commands)
+
+        self.assertEqual(len(SeqDiagBuilder.getWarningList()), 1)
+
+        self.assertEqual(
+'''@startuml
+center header
+<b><font color=red size=20> Warnings</font></b>
+<b><font color=red size=14>  No control flow recorded.</font></b>
+<b><font color=red size=14>  Method activate() called with arguments D:\Development\Python\seqdiagbuilder, Caller, call, {'FileReader_1': ['testfile.txt'], 'FileReader_2': ['testfile2.txt']}: True.</font></b>
+<b><font color=red size=14>  Method recordFlow() called: True.</font></b>
+<b><font color=red size=14>  Specified entry point: Caller.call reached: False.</font></b>
+endheader
+
+actor USER
+
 @enduml''', commands)
 
         SeqDiagBuilder.deactivate()  # deactivate sequence diagram building

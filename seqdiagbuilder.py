@@ -1,6 +1,7 @@
 import traceback, re, ast, importlib, inspect
 import webbrowser
 import os
+import copy
 from inspect import signature
 import collections
 
@@ -375,6 +376,11 @@ class ConstructorArgsProvider:
         '''
         self.classArgDic = classArgDic
 
+        # making a copy of the classArgDic so it can be added to a warning message to make it clearer.
+        # Doing a deep copy does not seem necessary for now, but in the future ...
+        self.savedClassArgDic = copy.deepcopy(classArgDic)
+
+
     def getArgsForClassConstructor(self, className):
         '''
         Return a list containing the ctor arguments for the passed className. If className is
@@ -433,10 +439,11 @@ class SeqDiagBuilder:
     '''
 
     seqDiagWarningList = []
+    _projectPath = None
     _isActive = False
     _recordFlowCalled = False
-    seqDiagEntryClass = None
-    seqDiagEntryMethod = None
+    _seqDiagEntryClass = None
+    _seqDiagEntryMethod = None
     recordedFlowPath = None
     _participantDocOrderedDic = None
     _constructorArgProvider = None
@@ -464,10 +471,10 @@ class SeqDiagBuilder:
 
         :return:
         '''
-        SeqDiagBuilder.projectPath = projectPath
-        SeqDiagBuilder.seqDiagEntryClass = entryClass
-        SeqDiagBuilder.seqDiagEntryMethod = entryMethod
-        SeqDiagBuilder.recordedFlowPath = RecordedFlowPath(SeqDiagBuilder.seqDiagEntryClass, SeqDiagBuilder.seqDiagEntryMethod)
+        SeqDiagBuilder._projectPath = projectPath
+        SeqDiagBuilder._seqDiagEntryClass = entryClass
+        SeqDiagBuilder._seqDiagEntryMethod = entryMethod
+        SeqDiagBuilder.recordedFlowPath = RecordedFlowPath(SeqDiagBuilder._seqDiagEntryClass, SeqDiagBuilder._seqDiagEntryMethod)
         SeqDiagBuilder._isActive = True
         SeqDiagBuilder._participantDocOrderedDic = collections.OrderedDict()
 
@@ -482,8 +489,8 @@ class SeqDiagBuilder:
         build mode to False
         :return:
         '''
-        SeqDiagBuilder.seqDiagEntryClass = None
-        SeqDiagBuilder.seqDiagEntryMethod = None
+        SeqDiagBuilder._seqDiagEntryClass = None
+        SeqDiagBuilder._seqDiagEntryMethod = None
         SeqDiagBuilder.recordedFlowPath = None
         SeqDiagBuilder.seqDiagWarningList = []
         SeqDiagBuilder._isActive = False
@@ -608,7 +615,7 @@ class SeqDiagBuilder:
         :return:                    nothing.
         '''
         seqDiagCommands = SeqDiagBuilder.createSeqDiaqCommands(actorName, maxSigArgNum, maxSigCharLen)
-        targetCommandFileName = SeqDiagBuilder.seqDiagEntryMethod + '.txt'
+        targetCommandFileName = SeqDiagBuilder._seqDiagEntryMethod + '.txt'
         targetDriveDirName = targetDriveDirName.replace('\\','/')
 
         if targetDriveDirName[-1] != '/':
@@ -622,7 +629,7 @@ class SeqDiagBuilder:
         os.chdir(targetDriveDirName)
 
         os.system('java -jar plantuml.jar -tsvg ' + targetCommandFileName)
-        webbrowser.open("file:///{}{}.svg".format(targetDriveDirName, SeqDiagBuilder.seqDiagEntryMethod))
+        webbrowser.open("file:///{}{}.svg".format(targetDriveDirName, SeqDiagBuilder._seqDiagEntryMethod))
 
 
     @staticmethod
@@ -711,10 +718,30 @@ class SeqDiagBuilder:
 
     @staticmethod
     def _issueNoFlowRecordedWarning(isEntryPointReached):
-        SeqDiagBuilder._issueWarning(
-            "No control flow recorded. Method activate() called: {}. Method recordFlow() called: {}. Specified entry point: {}.{} reached: {}".format(
-                SeqDiagBuilder._isActive, SeqDiagBuilder._recordFlowCalled, SeqDiagBuilder.seqDiagEntryClass,
-                SeqDiagBuilder.seqDiagEntryMethod, isEntryPointReached))
+        if SeqDiagBuilder._constructorArgProvider:
+            savedClassArgDic = SeqDiagBuilder._constructorArgProvider.savedClassArgDic
+        else:
+            savedClassArgDic = None
+
+        if SeqDiagBuilder._isActive:
+            warning = "No control flow recorded. Method activate() called with arguments {}, {}, {}, {}: {}. Method recordFlow() called: {}. Specified entry point: {}.{} reached: {}".format(
+                SeqDiagBuilder._projectPath,
+                SeqDiagBuilder._seqDiagEntryClass,
+                SeqDiagBuilder._seqDiagEntryMethod,
+                savedClassArgDic,
+                SeqDiagBuilder._isActive,
+                SeqDiagBuilder._recordFlowCalled,
+                SeqDiagBuilder._seqDiagEntryClass,
+                SeqDiagBuilder._seqDiagEntryMethod,
+                isEntryPointReached)
+        else:
+            warning = "No control flow recorded. Method activate() called: {}. Method recordFlow() called: {}. Specified entry point: {}.{} reached: {}".format(
+                SeqDiagBuilder._isActive,
+                SeqDiagBuilder._recordFlowCalled,
+                SeqDiagBuilder._seqDiagEntryClass,
+                SeqDiagBuilder._seqDiagEntryMethod,
+                isEntryPointReached)
+        SeqDiagBuilder._issueWarning(warning)
 
 
     @staticmethod
@@ -869,7 +896,7 @@ class SeqDiagBuilder:
                         # extracting from the parsed source the name of the classes it contains
                         moduleClassNameList = [node.name for node in ast.walk(parsedSource) if isinstance(node, ast.ClassDef)]
 
-                        if not entryClassEncountered and not SeqDiagBuilder.seqDiagEntryClass in moduleClassNameList:
+                        if not entryClassEncountered and not SeqDiagBuilder._seqDiagEntryClass in moduleClassNameList:
                             # optimization: if the entry class was not yet found and if moduleName
                             # does not contain the definition of the entry class, searching an instance
                             # supporting the entry method in this module does not make sense !
@@ -905,7 +932,7 @@ class SeqDiagBuilder:
         :return:
         '''
         pythonisedPythonClassFilePath = SeqDiagBuilder._pythoniseFilePath(pythonClassFilePath)
-        pythonisedProjectPath = SeqDiagBuilder._pythoniseFilePath(SeqDiagBuilder.projectPath)
+        pythonisedProjectPath = SeqDiagBuilder._pythoniseFilePath(SeqDiagBuilder._projectPath)
         packageSpec = pythonisedPythonClassFilePath.replace(pythonisedProjectPath, '')
 
         #handling file path containg either \\ (windows like) or / (unix like)

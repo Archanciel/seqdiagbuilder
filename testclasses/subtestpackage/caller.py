@@ -5,6 +5,11 @@ class Caller:
         fr = FileReader('testfile.txt')
         print(fr.getContentAsList())
 
+    def callUsingTwoFileReaders(self):
+        fr1 = FileReader('testfile.txt')
+        print(fr1.getContentAsList())
+        fr2 = FileReader('testfile2.txt')
+        print(fr2.getContentAsList())
 
 if __name__ == '__main__':
     c = Caller()
