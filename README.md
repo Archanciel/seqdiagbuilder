@@ -23,6 +23,7 @@ from seqdiagbuilder import SeqDiagBuilder
 ### SeqDiagBuilder tags
 * **:seqdiag_return** This tag can be added anywhere in the method documentation to specify the return type to attach in the sequence diagram to the call of this method
 * **:seqdiag_select_method** Used in the context where a method is defined at different levels in a class hierarchy. In this case, SeqDiagBuilder selects by default the parent class method (the one at the highest level in the hierchy. Use this tag anywhere in the method documentation to override the default.
+* **:seqdiag_note** Used either in class or in method documentation. Use \r to force a line break. But a better solution is to specify maxSigArgNum=None, maxSigCharLen=30 for example when calling SeqDiagBuilder.createSeqDiaqCommands() or SeqDiagBuilder.createDiagram().
 ## Installing PlantUML
 
 Download plantuml.jar from http://plantuml.com/starting
