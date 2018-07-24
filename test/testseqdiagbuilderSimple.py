@@ -12,6 +12,7 @@ sys.path.insert(0,currentdir) # this instruction is necessary for successful imp
 from seqdiagbuilder import SeqDiagBuilder
 from seqdiagbuilder import FlowEntry
 from seqdiagbuilder import RecordedFlowPath
+from seqdiagbuilder import ConstructorArgsProvider
 import collections
 
 
@@ -464,6 +465,52 @@ participant PriceRequester
         SeqDiagBuilder.activate(projectPath, '', '')
         self.assertEquals('testclasses.subtestpackage.', SeqDiagBuilder._extractPackageSpec(classFilePath))
 
+
+    def testGetArgsForClassConstructorClassNotInDic(self):
+        '''
+        Test case when asking ctor args for a class which is unknown from the ConstructorArgsProvider
+        '''
+
+        dic = {'cl_2': ['clarg21', 'clarg22'],
+               'cl_1': ['clarg11', 'clarg12'],
+               'ca': ['ca_arg1'],
+               'cc1': ['ccarg1'],
+               'cc3': ['ccarg3'],
+               'cc2': ['ccarg2']}
+
+        cap = ConstructorArgsProvider(dic)
+
+        self.assertIsNone(cap.getArgsForClassConstructor("UnknownClass"))
+
+    def testGetArgsForClassConstructorClassesInDicCalledSeveralTime(self):
+        '''
+        Testing that ConstructorArgsProvider correctly consumes its entries
+        when called several time for a class which has, or does not have,
+        multiple ctor arguments sets, i.e. is keyed with a name suffixed by
+        an integer.
+        '''
+        dic = {'cl_2': ['clarg21', 'clarg22'],
+               'cl_1': ['clarg11', 'clarg12'],
+               'ca': ['ca_arg1'],
+               'cc1': ['ccarg1'],
+               'cc3': ['ccarg3'],
+               'cc2': ['ccarg2']}
+        cap = ConstructorArgsProvider(dic)
+
+        # first call to ConstructorArgsProvider for the tested classes
+        self.assertEquals(['ccarg1'],cap.getArgsForClassConstructor('cc'))
+        self.assertEquals(['clarg11', 'clarg12'], cap.getArgsForClassConstructor('cl'))
+        self.assertEquals(['ca_arg1'], cap.getArgsForClassConstructor('ca'))
+
+        # second call to ConstructorArgsProvider for the tested classes
+        self.assertEquals(['ccarg2'],cap.getArgsForClassConstructor('cc'))
+        self.assertEquals(['clarg21', 'clarg22'], cap.getArgsForClassConstructor('cl'))
+        self.assertEquals(['ca_arg1'], cap.getArgsForClassConstructor('ca'))
+
+        # third call to ConstructorArgsProvider for the tested classes
+        self.assertEquals(['ccarg3'],cap.getArgsForClassConstructor('cc'))
+        self.assertIsNone(cap.getArgsForClassConstructor('cl'))
+        self.assertEquals(['ca_arg1'], cap.getArgsForClassConstructor('ca'))
 
 if __name__ == '__main__':
     unittest.main()
