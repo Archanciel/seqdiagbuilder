@@ -1,4 +1,5 @@
 from testclasses.subtestpackage.filereader import FileReader
+from testclasses.subtestpackage.filereadersupportingverbosemode import FileReaderSupportingVerboseMode
 
 class Caller:
     def call(self):
@@ -12,7 +13,8 @@ class Caller:
         print(fr2.getContentAsList())
 
     def callUsingVerboseFileReader(self):
-        fr = FileReader('testfile.txt')
+        fr = FileReaderSupportingVerboseMode('testfile.txt', False)
+        print(fr.getContentAsList())
 
 if __name__ == '__main__':
     c = Caller()

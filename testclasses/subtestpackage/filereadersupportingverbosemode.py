@@ -5,13 +5,15 @@ class FileReaderSupportingVerboseMode(FileReader):
     def __init__(self, fileName, isVerbose):
         super().__init__(fileName)
 
+        self.isVerbose = isVerbose
+
         if self.isVerbose:
             print(self.content)
 
     def getContentAsList(self):
         SeqDiagBuilder.recordFlow()
 
-        return 'FileReaderSupportingVerboseMode {}'.format(self.getContentAsList())
+        return self.content
 
 if __name__ == '__main__':
     pass

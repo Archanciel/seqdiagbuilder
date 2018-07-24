@@ -1774,7 +1774,7 @@ USER -> Caller: callUsingTwoFileReaders()
     def testCallingMethodOnClassRequiringNonNoneConstructotParmWithPassingClassArgsDicWithOneEntryOneBooleanArg(self):
         '''
         Test case where the flow requires to instanciate the a class (FileReaderSupportingVerboseMode) whose ctor
-        requires astring and a boolean value.
+        requires a string and a boolean value.
         :return:
         '''
         entryPoint = Caller()
@@ -1782,7 +1782,7 @@ USER -> Caller: callUsingTwoFileReaders()
 
         SeqDiagBuilder.activate(self.projectPath, 'Caller', 'callUsingVerboseFileReader',
                                 classArgDic)  # activate sequence diagram building
-        entryPoint.callUsingTwoFileReaders()
+        entryPoint.callUsingVerboseFileReader()
 
         commands = SeqDiagBuilder.createSeqDiaqCommands('USER')
 
@@ -1792,24 +1792,20 @@ USER -> Caller: callUsingTwoFileReaders()
         self.assertEqual(len(SeqDiagBuilder.getWarningList()), 0)
 
         self.assertEqual(
-            '''@startuml
-        
-            actor USER
-            participant Caller
-            participant FileReader
-            USER -> Caller: callUsingTwoFileReaders()
-                activate Caller
-                Caller -> FileReader: getContentAsList()
-                    activate FileReader
-                    Caller <-- FileReader: 
-                    deactivate FileReader
-                Caller -> FileReader: getContentAsList()
-                    activate FileReader
-                    Caller <-- FileReader: 
-                    deactivate FileReader
-                USER <-- Caller: 
-                deactivate Caller
-            @enduml''', commands)
+'''@startuml
+
+actor USER
+participant Caller
+participant FileReaderSupportingVerboseMode
+USER -> Caller: callUsingVerboseFileReader()
+	activate Caller
+	Caller -> FileReaderSupportingVerboseMode: getContentAsList()
+		activate FileReaderSupportingVerboseMode
+		Caller <-- FileReaderSupportingVerboseMode: 
+		deactivate FileReaderSupportingVerboseMode
+	USER <-- Caller: 
+	deactivate Caller
+@enduml''', commands)
 
         SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
 
