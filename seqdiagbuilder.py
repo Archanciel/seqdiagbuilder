@@ -416,7 +416,7 @@ class ConstructorArgsProvider:
                 return args
             else:
                 # here, the ctor argument(s) are reusable and need not be removed from the classArgDic
-                return self.classArgDic[className]
+                return self.classArgDic.get(className, None)
 
         # here, the keyList contains more than one key, which means that several sets of ctor
         # arguments were specified for className, which means that at each instanciation, the used
@@ -1125,8 +1125,8 @@ class SeqDiagBuilder:
                     except TypeError:
                         noneStr += ', None'
                     except SyntaxError as e:
-                        SeqDiagBuilder._issueWarning('ERROR - constructor for class {} in module {} failed due to invalid argument(s). To solve the problem, pass a class argument dictionary to the SeqDiagBuilder.activate() method'.format(
-                            className, packageSpec + moduleName))
+                        SeqDiagBuilder._issueWarning('ERROR - constructor for class {} in module {} failed due to invalid argument(s). To solve the problem, pass a class argument dictionary with an entry for {} to the SeqDiagBuilder.activate() method'.format(
+                            className, packageSpec + moduleName, className))
                         break
             else:
                 SeqDiagBuilder._issueWarning('ERROR - constructor for class {} in module {} failed due to invalid \

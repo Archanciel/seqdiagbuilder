@@ -482,6 +482,17 @@ participant PriceRequester
 
         self.assertIsNone(cap.getArgsForClassConstructor("UnknownClass"))
 
+    def testGetArgsForClassConstructorClassNotInDicButWhoseNameIsSubStringFromClassInDic(self):
+        '''
+        Test case when asking ctor args for a class which is unknown from the ConstructorArgsProvider
+        '''
+
+        dic = {'FileReaderSupportingVerboseMode': ['clarg21', 'clarg22']}
+
+        cap = ConstructorArgsProvider(dic)
+
+        self.assertIsNone(cap.getArgsForClassConstructor("FileReader"))
+
     def testGetArgsForClassConstructorClassesInDicCalledSeveralTime(self):
         '''
         Testing that ConstructorArgsProvider correctly consumes its entries

@@ -16,6 +16,10 @@ class Caller:
         fr = FileReaderSupportingVerboseMode('testfile.txt', False)
         print(fr.getContentAsList())
 
+    def callUsingVerboseFileReaderWithCallToSuper(self):
+        fr = FileReaderSupportingVerboseMode('testfile.txt', False)
+        print(fr.getContentAsListFromSuper())
+
 if __name__ == '__main__':
     c = Caller()
     c.call()

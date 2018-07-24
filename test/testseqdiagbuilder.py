@@ -1637,7 +1637,7 @@ USER -> IsolatedClassSub: analyse()
 center header
 <b><font color=red size=20> Warnings</font></b>
 <b><font color=red size=14>  ERROR - constructor for class FileReader in module testclasses.subtestpackage.filereader failed due to invalid argument(s).</font></b>
-<b><font color=red size=14>  To solve the problem, pass a class argument dictionary to the SeqDiagBuilder.activate() method.</font></b>
+<b><font color=red size=14>  To solve the problem, pass a class argument dictionary with an entry for FileReader to the SeqDiagBuilder.activate() method.</font></b>
 endheader
 
 
@@ -1689,7 +1689,6 @@ USER -> Caller: call()
         '''
         Test case where the flow requires to instanciate the same class (FileReader) twice with
         different values passed to the ctor at each instanciation.
-        :return:
         '''
         entryPoint = Caller()
         classArgDic = {'FileReader_1': ['testfile.txt'], 'FileReader_2': ['testfile2.txt']}
@@ -1732,7 +1731,6 @@ USER -> Caller: callUsingTwoFileReaders()
         '''
         Test case where the flow requires to instanciate the same class (FileReader) twice with
         the same value passed to the ctor at each instanciation.
-        :return:
         '''
         entryPoint = Caller()
         classArgDic = {'FileReader': ['testfile.txt']}
@@ -1773,9 +1771,9 @@ USER -> Caller: callUsingTwoFileReaders()
 
     def testCallingMethodOnClassRequiringNonNoneConstructotParmWithPassingClassArgsDicWithOneEntryOneBooleanArg(self):
         '''
-        Test case where the flow requires to instanciate the a class (FileReaderSupportingVerboseMode) whose ctor
-        requires a string and a boolean value.
-        :return:
+        Test case where the flow requires to instanciate a class (FileReaderSupportingVerboseMode) whose ctor
+        requires a string and a boolean value. To handle this situation, a class ctor arg dictionary
+        must be passed to the SeqDiagBuilder.activate() method.
         '''
         entryPoint = Caller()
         classArgDic = {'FileReaderSupportingVerboseMode': ['testfile.txt', False]}
@@ -1809,6 +1807,100 @@ USER -> Caller: callUsingVerboseFileReader()
 
         SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
 
+    def testCallingMethodOnClassRequiringNonNoneConstructotParmWithPassingClassArgsDicWithOneEntryOneBooleanArgCallSuperClassMethod(self):
+        '''
+        Test case where the flow requires to instanciate a class (FileReaderSupportingVerboseMode) whose ctor
+        requires a string and a boolean value. To handle this situation, a class ctor arg dictionary
+        must be passed to the SeqDiagBuilder.activate() method. But here, since the method
+        FileReaderSupportingVerboseMode.getContentAsListFromSuper() calls a method of its parent
+        class, the class ctor arg dictionary must also contain an entry for the parent class since
+        its ctor __init__ method also requires arguments !
+        '''
+        entryPoint = Caller()
+        classArgDic = {'FileReaderSupportingVerboseMode': ['testfile.txt', False]}
+
+        SeqDiagBuilder.activate(self.projectPath, 'Caller', 'callUsingVerboseFileReaderWithCallToSuper',
+                                classArgDic)  # activate sequence diagram building
+        entryPoint.callUsingVerboseFileReaderWithCallToSuper()
+
+        commands = SeqDiagBuilder.createSeqDiaqCommands('USER')
+
+        with open("c:\\temp\\ess.txt", "w") as f:
+            f.write(commands)
+
+        self.assertEqual(len(SeqDiagBuilder.getWarningList()), 1)
+
+        self.assertEqual(
+'''@startuml
+center header
+<b><font color=red size=20> Warnings</font></b>
+<b><font color=red size=14>  ERROR - constructor for class FileReader in module testclasses.subtestpackage.filereader failed due to invalid argument(s).</font></b>
+<b><font color=red size=14>  To solve the problem, pass a class argument dictionary with an entry for FileReader to the SeqDiagBuilder.activate() method.</font></b>
+endheader
+
+
+actor USER
+participant Caller
+participant FileReaderSupportingVerboseMode
+USER -> Caller: callUsingVerboseFileReaderWithCallToSuper()
+	activate Caller
+	Caller -> FileReaderSupportingVerboseMode: getContentAsListFromSuper()
+		activate FileReaderSupportingVerboseMode
+		Caller <-- FileReaderSupportingVerboseMode: 
+		deactivate FileReaderSupportingVerboseMode
+	USER <-- Caller: 
+	deactivate Caller
+@enduml''', commands)
+
+        SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
+
+    def testCallingMethodOnClassRequiringNonNoneConstructotParmWithPassingClassArgsDicWithOneEntryOneBooleanArgCallSuperClassMethodEntryAddedForParentClass(
+            self):
+        '''
+        Test case where the flow requires to instanciate a class (FileReaderSupportingVerboseMode) whose ctor
+        requires a string and a boolean value. To handle this situation, a class ctor arg dictionary
+        must be passed to the SeqDiagBuilder.activate() method. But here, since the method
+        FileReaderSupportingVerboseMode.getContentAsListFromSuper() calls a method of its parent
+        class, the class ctor arg dictionary must also contain an entry for the parent class since
+        its ctor __init__ method also requires arguments. In this tst case, this requirement has
+        been satisfied !
+        '''
+        entryPoint = Caller()
+        classArgDic = {'FileReaderSupportingVerboseMode': ['testfile.txt', False], 'FileReader': ['testfile.txt']}
+
+        SeqDiagBuilder.activate(self.projectPath, 'Caller', 'callUsingVerboseFileReaderWithCallToSuper',
+                                classArgDic)  # activate sequence diagram building
+        entryPoint.callUsingVerboseFileReaderWithCallToSuper()
+
+        commands = SeqDiagBuilder.createSeqDiaqCommands('USER')
+
+        with open("c:\\temp\\ess.txt", "w") as f:
+            f.write(commands)
+
+        self.assertEqual(len(SeqDiagBuilder.getWarningList()), 0)
+
+        self.assertEqual(
+'''@startuml
+
+actor USER
+participant Caller
+participant FileReaderSupportingVerboseMode
+participant FileReader
+USER -> Caller: callUsingVerboseFileReaderWithCallToSuper()
+	activate Caller
+	Caller -> FileReaderSupportingVerboseMode: getContentAsListFromSuper()
+		activate FileReaderSupportingVerboseMode
+		FileReaderSupportingVerboseMode -> FileReader: getContentAsList()
+			activate FileReader
+			FileReaderSupportingVerboseMode <-- FileReader: 
+			deactivate FileReader
+		Caller <-- FileReaderSupportingVerboseMode: 
+		deactivate FileReaderSupportingVerboseMode
+	USER <-- Caller: 
+	deactivate Caller
+@enduml''', commands)
+
+        SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
 
     def testCallingMethodOnClassRequiringNonNoneConstructotParmWithPassingClassArgsDicWithTwoEntriesSpecifyingWrongMethodName(self):
         '''

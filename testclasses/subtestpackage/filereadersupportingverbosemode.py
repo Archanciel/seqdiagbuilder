@@ -15,5 +15,10 @@ class FileReaderSupportingVerboseMode(FileReader):
 
         return self.content
 
+    def getContentAsListFromSuper(self):
+        SeqDiagBuilder.recordFlow()
+
+        return super().getContentAsList()
+
 if __name__ == '__main__':
     pass
