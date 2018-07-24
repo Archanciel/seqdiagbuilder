@@ -1107,7 +1107,7 @@ class SeqDiagBuilder:
             if ctorArgValueList:
                 evaluationString = 'class_('
                 for argValue in ctorArgValueList:
-                    evaluationString += "'" + argValue + "',"
+                    evaluationString += "'" + str(argValue) + "',"
 
                 evaluationString = evaluationString[:-1] + ')'
                 instance = eval(evaluationString)
