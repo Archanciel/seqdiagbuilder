@@ -5,7 +5,7 @@ import copy
 from inspect import signature
 import collections
 
-BIG_SIGNATURE_LENGTH = 100
+BIG_COMMENT_LENGTH = 100
 
 SEQDIAG_RETURN_TAG = ":seqdiag_return"
 SEQDIAG_SELECT_METHOD_TAG = ":seqdiag_select_method"
@@ -600,7 +600,7 @@ class SeqDiagBuilder:
         return formattedWarnings
 
     @staticmethod
-    def createDiagram(targetDriveDirName, actorName, maxSigArgNum=None, maxSigCharLen=BIG_SIGNATURE_LENGTH):
+    def createDiagram(targetDriveDirName, actorName, maxSigArgNum=None, maxSigCharLen=BIG_COMMENT_LENGTH, maxNoteCharLen=BIG_COMMENT_LENGTH):
         '''
         This method create a Plant UML command file, launch Plant UML on it and open the
         created sequence diagram svg file in a browser.
@@ -610,11 +610,12 @@ class SeqDiagBuilder:
         :param actorName:           name of the sequence diagram actor.
         :param maxSigArgNum:        maximum arguments number of a called toMethod
                                     toSignature. Applies to return type aswell.
-        :param maxSigCharLen:       maximum length a toMethod toSignature can occupy.
+        :param maxSigCharLen:       maximum length a method signature can occupy.
                                     Applies to return type aswell.
+        :param maxNoteCharLen:      maximum length a method or participant note can occupy.
         :return:                    nothing.
         '''
-        seqDiagCommands = SeqDiagBuilder.createSeqDiaqCommands(actorName, maxSigArgNum, maxSigCharLen)
+        seqDiagCommands = SeqDiagBuilder.createSeqDiaqCommands(actorName, maxSigArgNum, maxSigCharLen, maxNoteCharLen)
         targetCommandFileName = SeqDiagBuilder._seqDiagEntryMethod + '.txt'
         targetDriveDirName = targetDriveDirName.replace('\\','/')
 
@@ -633,7 +634,7 @@ class SeqDiagBuilder:
 
 
     @staticmethod
-    def createSeqDiaqCommands(actorName, maxSigArgNum=None, maxSigCharLen=BIG_SIGNATURE_LENGTH):
+    def createSeqDiaqCommands(actorName, maxSigArgNum=None, maxSigCharLen=BIG_COMMENT_LENGTH, maxNoteCharLen=BIG_COMMENT_LENGTH):
         '''
         This method uses the control flow data collected during execution to create
         the commands Plantuml will use to draw the sequence diagram.
@@ -646,6 +647,7 @@ class SeqDiagBuilder:
                                 toSignature. Applies to return type aswell.
         :param maxSigCharLen:   maximum length a toMethod toSignature can occupy.
                                 Applies to return type aswell.
+        :param maxNoteCharLen:      maximum length a method or participant note can occupy.
         :return:                nothing.
         '''
         isFlowRecorded = True
@@ -665,17 +667,17 @@ class SeqDiagBuilder:
             classMethodReturnStack = SeqDiagCommandStack()
             seqDiagCommandStr += "\nactor {}\n".format(actorName)
             seqDiagCommandStr += SeqDiagBuilder._buildClassNoteSection(SeqDiagBuilder._participantDocOrderedDic,
-                                                                       maxSigCharLen)
+                                                                       maxNoteCharLen)
             firstFlowEntry = SeqDiagBuilder.recordedFlowPath.flowEntryList[0]
             firstFlowEntry.fromClass = actorName
             fromClass = firstFlowEntry.fromClass
-            commandStr = SeqDiagBuilder._handleSeqDiagForwardMesssageCommand(fromClass, firstFlowEntry, classMethodReturnStack, maxSigArgNum, maxSigCharLen)
+            commandStr = SeqDiagBuilder._handleSeqDiagForwardMesssageCommand(fromClass, firstFlowEntry, classMethodReturnStack, maxSigArgNum, maxSigCharLen, maxNoteCharLen)
             seqDiagCommandStr += commandStr
             fromClass = firstFlowEntry.toClass
 
             for flowEntry in SeqDiagBuilder.recordedFlowPath.flowEntryList[1:]:
                 if not classMethodReturnStack.containsFromCall(flowEntry):
-                    commandStr = SeqDiagBuilder._handleSeqDiagForwardMesssageCommand(fromClass, flowEntry, classMethodReturnStack, maxSigArgNum, maxSigCharLen)
+                    commandStr = SeqDiagBuilder._handleSeqDiagForwardMesssageCommand(fromClass, flowEntry, classMethodReturnStack, maxSigArgNum, maxSigCharLen, maxNoteCharLen)
                     seqDiagCommandStr += commandStr
                     fromClass = flowEntry.toClass
                 else:
@@ -698,7 +700,7 @@ class SeqDiagBuilder:
                         commandStr = SeqDiagBuilder._handleSeqDiagReturnMesssageCommand(returnEntry, maxSigArgNum, maxSigCharLen)
                         seqDiagCommandStr += commandStr
                         fromClass = returnEntry.fromClass
-                    commandStr = SeqDiagBuilder._handleSeqDiagForwardMesssageCommand(fromClass, flowEntry, classMethodReturnStack, maxSigArgNum, maxSigCharLen)
+                    commandStr = SeqDiagBuilder._handleSeqDiagForwardMesssageCommand(fromClass, flowEntry, classMethodReturnStack, maxSigArgNum, maxSigCharLen, maxNoteCharLen)
                     seqDiagCommandStr += commandStr
                     fromClass = flowEntry.toClass
                     deepestReached = True
@@ -768,7 +770,7 @@ class SeqDiagBuilder:
 
 
     @staticmethod
-    def _handleSeqDiagForwardMesssageCommand(fromClass, flowEntry, classMethodReturnStack, maxSigArgNum, maxSigCharLen):
+    def _handleSeqDiagForwardMesssageCommand(fromClass, flowEntry, classMethodReturnStack, maxSigArgNum, maxSigCharLen, maxNoteCharLen):
         '''
         Controls the creation of the Plant UML call commands.
         :param fromClass:
@@ -788,7 +790,7 @@ class SeqDiagBuilder:
 
         # adding method note
         if toMethodNote != '':
-            toMethodNoteLineList = SeqDiagBuilder._splitNoteToLines(toMethodNote, maxSigCharLen * 1.5)
+            toMethodNoteLineList = SeqDiagBuilder._splitNoteToLines(toMethodNote, maxNoteCharLen * 1.5)
             indentStr += TAB_CHAR
             noteSection = '{}note right\n'.format(indentStr)
 

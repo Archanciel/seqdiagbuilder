@@ -1,6 +1,9 @@
 from seqdiagbuilder import SeqDiagBuilder
 
 class DSub:
+    '''
+    :seqdiag_note Short note DSub
+    '''
     def d1(self, d1_p1):
         '''
 

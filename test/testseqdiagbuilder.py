@@ -314,6 +314,9 @@ class C:
             return number + self.fibonaci(number - 1)
 
 class B:
+    '''
+    :seqdiag_note This is test class note for class B
+    '''
     def b0(self, b1_p1):
         '''
 
@@ -399,6 +402,9 @@ class B:
         d.d2(1)
 
 class A:
+    '''
+    :seqdiag_note This is test class note for class A
+    '''
     def a0(self, a1_p1, a1_p2):
         '''
         :param a1_p1:
@@ -575,6 +581,9 @@ actor USER
 actor USER
 participant TestSeqDiagBuilder
 participant A
+	note over of A
+		This is test class note for class A
+	end note
 	USER -> A: a1(a1_p1, a1_p2)
 		activate A
 		USER <-- A: return Aa1Return
@@ -601,7 +610,13 @@ participant A
 actor USER
 participant TestSeqDiagBuilder
 participant A
+	note over of A
+		This is test class note for class A
+	end note
 participant B
+	note over of B
+		This is test class note for class B
+	end note
 	USER -> A: a10(a10_p1)
 		activate A
 		A -> B: b4(b4_p1)
@@ -637,7 +652,13 @@ participant B
 actor USER
 participant TestSeqDiagBuilder
 participant A
+	note over of A
+		This is test class note for class A
+	end note
 participant B
+	note over of B
+		This is test class note for class B
+	end note
 	USER -> A: a2(a2_p1)
 		activate A
 		A -> B: b1(b1_p1)
@@ -670,7 +691,13 @@ participant B
 actor USER
 participant TestSeqDiagBuilder
 participant A
+	note over of A
+		This is test class note for class A
+	end note
 participant B
+	note over of B
+		This is test class note for class B
+	end note
 participant C
 	USER -> A: a6(a6_p1)
 		activate A
@@ -716,9 +743,18 @@ participant C
 actor USER
 participant TestSeqDiagBuilder
 participant A
+	note over of A
+		This is test class note for class A
+	end note
 participant B
+	note over of B
+		This is test class note for class B
+	end note
 participant C
 participant DSub
+	note over of DSub
+		Short note DSub
+	end note
 	USER -> A: a11(a11_p1)
 		activate A
 		A -> B: b6(b6_p1)
@@ -771,9 +807,18 @@ participant DSub
 actor USER
 participant TestSeqDiagBuilder
 participant A
+	note over of A
+		This is test class note for class A
+	end note
 participant B
+	note over of B
+		This is test class note for class B
+	end note
 participant C
 participant DSub
+	note over of DSub
+		Short note DSub
+	end note
 	USER -> A: a11(a11_p1)
 		activate A
 		A -> B: b6(b6_p1)
@@ -826,9 +871,18 @@ participant DSub
 actor USER
 participant TestSeqDiagBuilder
 participant A
+	note over of A
+		This is test class note for class A
+	end note
 participant B
+	note over of B
+		This is test class note for class B
+	end note
 participant C
 participant DSub
+	note over of DSub
+		Short note DSub
+	end note
 	USER -> A: a12(a12_p1)
 		activate A
 		A -> B: b7(b7_p1)
@@ -885,13 +939,13 @@ participant DSub
 
         SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
 
-    def testCreateSeqDiagCommandsOnFiveLevelCallingSecondLevelMethodTwiceWithRecordFlowInOnePlaceOnly(self):
+    def testCreateSeqDiagCommandsOnFiveLevelCallingSecondLevelMethodTwiceWithRecordFlowInOnePlaceOnlySpecifyingNoteLengthLimit(self):
         entryPoint = A()
 
         SeqDiagBuilder.activate(self.projectPath, 'A', 'a13')  # activate sequence diagram building
         entryPoint.a13(1)
 
-        commands = SeqDiagBuilder.createSeqDiaqCommands('USER')
+        commands = SeqDiagBuilder.createSeqDiaqCommands('USER', None, 200, 15)
 
         self.assertEqual(len(SeqDiagBuilder.getWarningList()), 0)
 
@@ -904,8 +958,19 @@ participant DSub
 actor USER
 participant TestSeqDiagBuilder
 participant A
+	note over of A
+		This is test class
+		note for class A
+	end note
 participant B
+	note over of B
+		This is test class
+		note for class B
+	end note
 participant DSub
+	note over of DSub
+		Short note DSub
+	end note
 	USER -> A: a13(a13_p1)
 		activate A
 		A -> B: b8(b8_p1)
@@ -954,7 +1019,13 @@ participant DSub
 actor USER
 participant TestSeqDiagBuilder
 participant A
+	note over of A
+		This is test class note for class A
+	end note
 participant B
+	note over of B
+		This is test class note for class B
+	end note
 participant C
 	USER -> A: a7(a7_p1)
 		activate A
@@ -996,7 +1067,13 @@ participant C
 actor USER
 participant TestSeqDiagBuilder
 participant A
+	note over of A
+		This is test class note for class A
+	end note
 participant B
+	note over of B
+		This is test class note for class B
+	end note
 	USER -> A: a4(a4_p1)
 		activate A
 		A -> B: b1(b1_p1)
@@ -1033,7 +1110,13 @@ participant B
 actor USER
 participant TestSeqDiagBuilder
 participant A
+	note over of A
+		This is test class note for class A
+	end note
 participant B
+	note over of B
+		This is test class note for class B
+	end note
 	USER -> A: a5(a5_p1)
 		activate A
 		A -> B: b1(b1_p1)
@@ -1073,7 +1156,13 @@ participant B
 actor USER
 participant TestSeqDiagBuilder
 participant A
+	note over of A
+		This is test class note for class A
+	end note
 participant B
+	note over of B
+		This is test class note for class B
+	end note
 participant C
 	USER -> A: a3(a3_p1)
 		activate A
