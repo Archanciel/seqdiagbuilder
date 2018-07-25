@@ -417,17 +417,17 @@ class TestSeqDiagBuilderSimple(unittest.TestCase):
         participantSection = SeqDiagBuilder._buildClassNoteSection(participantDocOrderedDic, maxNoteLineLen)
         self.assertEqual(
 '''participant Controller
-	note over of Controller
+	/note over of Controller
 		Entry point of the business layer
 	end note
 participant Requester
-	note over of Requester
+	/note over of Requester
 		Parses the user commands
 	end note
 participant CommandPrice
 participant Processor
 participant PriceRequester
-	note over of PriceRequester
+	/note over of PriceRequester
 		Obtains the RT or historical rates from the
 		Cryptocompare web site
 	end note
