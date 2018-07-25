@@ -581,7 +581,7 @@ actor USER
 actor USER
 participant TestSeqDiagBuilder
 participant A
-	note over of A
+	/note over of A
 		This is test class note for class A
 	end note
 	USER -> A: a1(a1_p1, a1_p2)
@@ -610,11 +610,11 @@ participant A
 actor USER
 participant TestSeqDiagBuilder
 participant A
-	note over of A
+	/note over of A
 		This is test class note for class A
 	end note
 participant B
-	note over of B
+	/note over of B
 		This is test class note for class B
 	end note
 	USER -> A: a10(a10_p1)
@@ -652,11 +652,11 @@ participant B
 actor USER
 participant TestSeqDiagBuilder
 participant A
-	note over of A
+	/note over of A
 		This is test class note for class A
 	end note
 participant B
-	note over of B
+	/note over of B
 		This is test class note for class B
 	end note
 	USER -> A: a2(a2_p1)
@@ -691,11 +691,11 @@ participant B
 actor USER
 participant TestSeqDiagBuilder
 participant A
-	note over of A
+	/note over of A
 		This is test class note for class A
 	end note
 participant B
-	note over of B
+	/note over of B
 		This is test class note for class B
 	end note
 participant C
@@ -743,16 +743,16 @@ participant C
 actor USER
 participant TestSeqDiagBuilder
 participant A
-	note over of A
+	/note over of A
 		This is test class note for class A
 	end note
 participant B
-	note over of B
+	/note over of B
 		This is test class note for class B
 	end note
 participant C
 participant DSub
-	note over of DSub
+	/note over of DSub
 		Short note DSub
 	end note
 	USER -> A: a11(a11_p1)
@@ -807,16 +807,16 @@ participant DSub
 actor USER
 participant TestSeqDiagBuilder
 participant A
-	note over of A
+	/note over of A
 		This is test class note for class A
 	end note
 participant B
-	note over of B
+	/note over of B
 		This is test class note for class B
 	end note
 participant C
 participant DSub
-	note over of DSub
+	/note over of DSub
 		Short note DSub
 	end note
 	USER -> A: a11(a11_p1)
@@ -871,16 +871,16 @@ participant DSub
 actor USER
 participant TestSeqDiagBuilder
 participant A
-	note over of A
+	/note over of A
 		This is test class note for class A
 	end note
 participant B
-	note over of B
+	/note over of B
 		This is test class note for class B
 	end note
 participant C
 participant DSub
-	note over of DSub
+	/note over of DSub
 		Short note DSub
 	end note
 	USER -> A: a12(a12_p1)
@@ -958,17 +958,17 @@ participant DSub
 actor USER
 participant TestSeqDiagBuilder
 participant A
-	note over of A
+	/note over of A
 		This is test class
 		note for class A
 	end note
 participant B
-	note over of B
+	/note over of B
 		This is test class
 		note for class B
 	end note
 participant DSub
-	note over of DSub
+	/note over of DSub
 		Short note DSub
 	end note
 	USER -> A: a13(a13_p1)
@@ -1019,11 +1019,11 @@ participant DSub
 actor USER
 participant TestSeqDiagBuilder
 participant A
-	note over of A
+	/note over of A
 		This is test class note for class A
 	end note
 participant B
-	note over of B
+	/note over of B
 		This is test class note for class B
 	end note
 participant C
@@ -1067,11 +1067,11 @@ participant C
 actor USER
 participant TestSeqDiagBuilder
 participant A
-	note over of A
+	/note over of A
 		This is test class note for class A
 	end note
 participant B
-	note over of B
+	/note over of B
 		This is test class note for class B
 	end note
 	USER -> A: a4(a4_p1)
@@ -1110,11 +1110,11 @@ participant B
 actor USER
 participant TestSeqDiagBuilder
 participant A
-	note over of A
+	/note over of A
 		This is test class note for class A
 	end note
 participant B
-	note over of B
+	/note over of B
 		This is test class note for class B
 	end note
 	USER -> A: a5(a5_p1)
@@ -1156,11 +1156,11 @@ participant B
 actor USER
 participant TestSeqDiagBuilder
 participant A
-	note over of A
+	/note over of A
 		This is test class note for class A
 	end note
 participant B
-	note over of B
+	/note over of B
 		This is test class note for class B
 	end note
 participant C
@@ -1417,17 +1417,17 @@ participant Parent
 
 actor GUI
 participant Controller
-	note over of Controller
+	/note over of Controller
 		Entry point of the business layer
 	end note
 participant Requester
-	note over of Requester
+	/note over of Requester
 		Parses the user commands
 	end note
 participant CommandPrice
 participant Processor
 participant PriceRequester
-	note over of PriceRequester
+	/note over of PriceRequester
 		Obtains the RT or historical rates from the Cryptocompare web site
 	end note
 participant GuiOutputFormater
@@ -1525,18 +1525,18 @@ GUI -> Controller: getPrintableResultForInput(inputStr)
 
 actor GUI
 participant Controller
-	note over of Controller
+	/note over of Controller
 		Entry point of the business
 		layer
 	end note
 participant Requester
-	note over of Requester
+	/note over of Requester
 		Parses the user commands
 	end note
 participant CommandPrice
 participant Processor
 participant PriceRequester
-	note over of PriceRequester
+	/note over of PriceRequester
 		Obtains the RT or historical
 		rates from the Cryptocompare
 		web site

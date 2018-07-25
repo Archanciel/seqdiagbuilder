@@ -572,7 +572,9 @@ class SeqDiagBuilder:
                 participantEntry = 'participant {}\n'.format(className)
             else:
                 classNoteLineList = SeqDiagBuilder._splitNoteToLines(classNote, maxNoteCharLen * 1.5)
-                participantEntry = 'participant {}\n{}note over of {}\n'.format(className, TAB_CHAR, className)
+
+                #adding a '/' before 'note over ...' causes PlantUML to position participant notes on the same line !
+                participantEntry = 'participant {}\n{}/note over of {}\n'.format(className, TAB_CHAR, className)
 
                 for classNoteLine in classNoteLineList:
                     participantEntry += '{}{}{}\n'.format(TAB_CHAR, TAB_CHAR, classNoteLine)
