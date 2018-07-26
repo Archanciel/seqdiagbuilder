@@ -556,7 +556,7 @@ endheader
 
 actor USER
 
-@enduml'''.replace('{}',parentdir), commands) # using format() instead og replace fails !
+@enduml'''.format(parentdir), commands) # using format() instead og replace fails !
 
         SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
 
@@ -1277,7 +1277,7 @@ endheader
 
 actor USER
 
-@enduml'''.replace('{}',parentdir), commands) # using format() instead og replace fails !
+@enduml'''.format(parentdir), commands) # using format() instead og replace fails !
 
         SeqDiagBuilder.deactivate()
 
@@ -1311,7 +1311,7 @@ endheader
 
 actor USER
 
-@enduml'''.replace('{}',parentdir), commands) # using format() instead og replace fails !
+@enduml'''.format(parentdir), commands) # using format() instead og replace fails !
 
         SeqDiagBuilder.deactivate()
 
@@ -2016,14 +2016,14 @@ USER -> Caller: callUsingVerboseFileReaderWithCallToSuper()
 center header
 <b><font color=red size=20> Warnings</font></b>
 <b><font color=red size=14>  No control flow recorded.</font></b>
-<b><font color=red size=14>  Method activate() called with arguments {}, Caller, call, {'FileReader_1': ['testfile.txt'], 'FileReader_2': ['testfile2.txt']}: True.</font></b>
+<b><font color=red size=14>  Method activate() called with arguments {}, Caller, call, {{'FileReader_1': ['testfile.txt'], 'FileReader_2': ['testfile2.txt']}}: True.</font></b>
 <b><font color=red size=14>  Method recordFlow() called: True.</font></b>
 <b><font color=red size=14>  Specified entry point: Caller.call reached: False.</font></b>
 endheader
 
 actor USER
 
-@enduml""".replace('{}',parentdir), commands) # using format() instead og replace fails !
+@enduml""".format(parentdir), commands) # using format() instead og replace fails !
 
         SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
 
