@@ -1513,7 +1513,7 @@ GUI -> Controller: getPrintableResultForInput(inputStr)
         printResult, fullCommandStr, fullCommandStrWithOptions, fullCommandStrWithSaveModeOptions = self.controller.getPrintableResultForInput(
             inputStr)
 
-        commands = SeqDiagBuilder.createSeqDiaqCommands('GUI', None, 20, 20)
+        commands = SeqDiagBuilder.createSeqDiaqCommands(actorName='GUI', title='CryptoPricer sequence diagram', maxSigArgNum=None, maxSigCharLen=20, maxNoteCharLen=20)
 
         with open("c:\\temp\\ess.txt", "w") as f:
             f.write(commands)
@@ -1522,6 +1522,7 @@ GUI -> Controller: getPrintableResultForInput(inputStr)
             self.assertEqual(
 '''@startuml
 
+title CryptoPricer sequence diagram
 actor GUI
 participant Controller
 	/note over of Controller
