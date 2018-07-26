@@ -602,7 +602,7 @@ class SeqDiagBuilder:
         return formattedWarnings
 
     @staticmethod
-    def createDiagram(targetDriveDirName, actorName, maxSigArgNum=None, maxSigCharLen=BIG_COMMENT_LENGTH, maxNoteCharLen=BIG_COMMENT_LENGTH):
+    def createDiagram(targetDriveDirName, actorName, title=None, maxSigArgNum=None, maxSigCharLen=BIG_COMMENT_LENGTH, maxNoteCharLen=BIG_COMMENT_LENGTH):
         '''
         This method create a Plant UML command file, launch Plant UML on it and open the
         created sequence diagram svg file in a browser.
@@ -610,6 +610,7 @@ class SeqDiagBuilder:
         :param targetDriveDirName:  folder in which the generated command file and svg diagram
                                     are saved. Ex: c:/temp.
         :param actorName:           name of the sequence diagram actor.
+        :param title:               title of the sequence diagram.
         :param maxSigArgNum:        maximum arguments number of a called toMethod
                                     toSignature. Applies to return type aswell.
         :param maxSigCharLen:       maximum length a method signature can occupy.
@@ -636,7 +637,7 @@ class SeqDiagBuilder:
 
 
     @staticmethod
-    def createSeqDiaqCommands(actorName, maxSigArgNum=None, maxSigCharLen=BIG_COMMENT_LENGTH, maxNoteCharLen=BIG_COMMENT_LENGTH):
+    def createSeqDiaqCommands(actorName, title=None, maxSigArgNum=None, maxSigCharLen=BIG_COMMENT_LENGTH, maxNoteCharLen=BIG_COMMENT_LENGTH):
         '''
         This method uses the control flow data collected during execution to create
         the commands Plantuml will use to draw the sequence diagram.
@@ -645,6 +646,7 @@ class SeqDiagBuilder:
         in a command line window. This build a svg file which can be displayed in a browser.
 
         :param actorName:       name of the sequence diagram actor.
+        :param title:           title of the sequence diagram.
         :param maxSigArgNum:    maximum arguments number of a called toMethod
                                 toSignature. Applies to return type aswell.
         :param maxSigCharLen:   maximum length a toMethod toSignature can occupy.
@@ -667,7 +669,11 @@ class SeqDiagBuilder:
 
         if isFlowRecorded:
             classMethodReturnStack = SeqDiagCommandStack()
-            seqDiagCommandStr += "\nactor {}\n".format(actorName)
+            if title:
+                seqDiagCommandStr += "\ntitle {}\n".format(title)
+                seqDiagCommandStr += "actor {}\n".format(actorName)
+            else:
+                seqDiagCommandStr += "\nactor {}\n".format(actorName)
             seqDiagCommandStr += SeqDiagBuilder._buildClassNoteSection(SeqDiagBuilder._participantDocOrderedDic,
                                                                        maxNoteCharLen)
             firstFlowEntry = SeqDiagBuilder.recordedFlowPath.flowEntryList[0]

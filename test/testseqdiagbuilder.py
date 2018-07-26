@@ -728,7 +728,7 @@ participant C
         SeqDiagBuilder.activate(parentdir, 'A', 'a11')  # activate sequence diagram building
         entryPoint.a11(1)
 
-        commands = SeqDiagBuilder.createSeqDiaqCommands('USER')
+        commands = SeqDiagBuilder.createSeqDiaqCommands(actorName='USER', title='Sequence diagram title')
 
         self.assertEqual(len(SeqDiagBuilder.getWarningList()), 0)
 
@@ -738,6 +738,7 @@ participant C
         self.assertEqual(
 '''@startuml
 
+title Sequence diagram title
 actor USER
 participant TestSeqDiagBuilder
 participant A
@@ -943,7 +944,7 @@ participant DSub
         SeqDiagBuilder.activate(parentdir, 'A', 'a13')  # activate sequence diagram building
         entryPoint.a13(1)
 
-        commands = SeqDiagBuilder.createSeqDiaqCommands('USER', None, 200, 15)
+        commands = SeqDiagBuilder.createSeqDiaqCommands(actorName='USER', title=None, maxSigArgNum=None, maxSigCharLen=200, maxNoteCharLen=15)
 
         self.assertEqual(len(SeqDiagBuilder.getWarningList()), 0)
 
