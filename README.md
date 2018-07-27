@@ -20,7 +20,7 @@ The code to insert is
     ...
 
     SeqDiagBuilder.recordFlow()
-...
+
 
 ## Example
 Here's a very basic usage of SeqDiagBuilder followed by the generated PlantUML command file and the sequence diagram drawned from it. Later in this document, more detailed and complete informations on SeqDiagBuilder usage is provided. In the end, a section is devoted to the inner working and implementation of SeqDiagBuilder in order to facilitate its extension / improvement by any motivated developer.
