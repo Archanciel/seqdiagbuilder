@@ -23,9 +23,83 @@ The code to insert is
 
 
 ## Example
-Here's a very basic usage of SeqDiagBuilder followed by the generated PlantUML command file and the sequence diagram drawned from it. Later in this document, more detailed and complete informations on SeqDiagBuilder usage is provided. In the end, a section is devoted to the inner working and implementation of SeqDiagBuilder in order to facilitate its extension / improvement by any motivated developer.
+Here's a very basic usage of SeqDiagBuilder followed by the generated
+PlantUML command file and the sequence diagram drawned from it.
 
+#### ClassA
+```
+class ClassA:
+    '''
+    '''
+    def doWork(self, p1):
+        '''
+        :param p1:
+        :return:
+        '''
+        b = ClassB()
+        b.do(p1)
+```
+#### ClassB
+```
+class ClassB:
+    def do(self, p1):
+        '''
+
+        :param p1:
+        :return:
+        '''
+        from seqdiagbuilder import SeqDiagBuilder
+        SeqDiagBuilder.recordFlow()
+```
+#### Code using SeqDiagBuilder
+```
+import os, inspect, sys
+
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(currentdir)
+sys.path.insert(0, parentdir)
+
+from seqdiagbuilder import SeqDiagBuilder
+from doc.classa import ClassA
+
+def createSeqDiagram():
+    a = ClassA()
+    currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+
+    SeqDiagBuilder.activate(projectPath=currentdir, entryClass='ClassA', entryMethod='doWork')
+
+    a.doWork(1)
+
+    SeqDiagBuilder.createDiagram(targetDriveDirName='c:/temp', actorName='User')
+    SeqDiagBuilder.deactivate()
+
+if __name__ == '__main__':
+    createSeqDiagram()
+```
+#### Generated PlantUML command file
+```
+@startuml
+
+actor User
+participant ClassA
+participant ClassB
+User -> ClassA: doWork(p1)
+	activate ClassA
+	ClassA -> ClassB: do(p1)
+		activate ClassB
+		ClassA <-- ClassB:
+		deactivate ClassB
+	User <-- ClassA:
+	deactivate ClassA
+@enduml
+```
+#### Generated sequence diagram
 ![](doc/basic_usage_seq_diagr.jpg)
+
+Later in this document, more detailed and complete informations on
+SeqDiagBuilder usage is provided. In the end, a section is devoted to
+the inner working and implementation of SeqDiagBuilder in order to
+facilitate its extension / improvement by any motivated developer.
 
 ## Usage
 
