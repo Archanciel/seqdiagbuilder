@@ -15,10 +15,6 @@ from testclasses.subtestpackage.dsub import DSub
 from testclasses.subtestpackage.caller import Caller
 
 
-#from controller import Controller
-#from pricerequester import PriceRequester
-
-
 class Client:
     def do(self):
         c1 = ChildOne()
@@ -315,7 +311,7 @@ class C:
 
 class B:
     '''
-    :seqdiag_note This is test class note for class B
+    :seqdiag_note Test class note for class B
     '''
     def b0(self, b1_p1):
         '''
@@ -403,7 +399,7 @@ class B:
 
 class A:
     '''
-    :seqdiag_note This is test class note for class A
+    :seqdiag_note Test class note for class A
     '''
     def a0(self, a1_p1, a1_p2):
         '''
@@ -580,7 +576,7 @@ actor USER
 participant TestSeqDiagBuilder
 participant A
 	/note over of A
-		This is test class note for class A
+		Test class note for class A
 	end note
 	USER -> A: a1(a1_p1, a1_p2)
 		activate A
@@ -609,11 +605,11 @@ actor USER
 participant TestSeqDiagBuilder
 participant A
 	/note over of A
-		This is test class note for class A
+		Test class note for class A
 	end note
 participant B
 	/note over of B
-		This is test class note for class B
+		Test class note for class B
 	end note
 	USER -> A: a10(a10_p1)
 		activate A
@@ -651,11 +647,11 @@ actor USER
 participant TestSeqDiagBuilder
 participant A
 	/note over of A
-		This is test class note for class A
+		Test class note for class A
 	end note
 participant B
 	/note over of B
-		This is test class note for class B
+		Test class note for class B
 	end note
 	USER -> A: a2(a2_p1)
 		activate A
@@ -690,11 +686,11 @@ actor USER
 participant TestSeqDiagBuilder
 participant A
 	/note over of A
-		This is test class note for class A
+		Test class note for class A
 	end note
 participant B
 	/note over of B
-		This is test class note for class B
+		Test class note for class B
 	end note
 participant C
 	USER -> A: a6(a6_p1)
@@ -743,11 +739,11 @@ actor USER
 participant TestSeqDiagBuilder
 participant A
 	/note over of A
-		This is test class note for class A
+		Test class note for class A
 	end note
 participant B
 	/note over of B
-		This is test class note for class B
+		Test class note for class B
 	end note
 participant C
 participant DSub
@@ -807,11 +803,11 @@ actor USER
 participant TestSeqDiagBuilder
 participant A
 	/note over of A
-		This is test class note for class A
+		Test class note for class A
 	end note
 participant B
 	/note over of B
-		This is test class note for class B
+		Test class note for class B
 	end note
 participant C
 participant DSub
@@ -871,11 +867,11 @@ actor USER
 participant TestSeqDiagBuilder
 participant A
 	/note over of A
-		This is test class note for class A
+		Test class note for class A
 	end note
 participant B
 	/note over of B
-		This is test class note for class B
+		Test class note for class B
 	end note
 participant C
 participant DSub
@@ -958,13 +954,13 @@ actor USER
 participant TestSeqDiagBuilder
 participant A
 	/note over of A
-		This is test class
-		note for class A
+		Test class note for
+		class A
 	end note
 participant B
 	/note over of B
-		This is test class
-		note for class B
+		Test class note for
+		class B
 	end note
 participant DSub
 	/note over of DSub
@@ -1019,11 +1015,11 @@ actor USER
 participant TestSeqDiagBuilder
 participant A
 	/note over of A
-		This is test class note for class A
+		Test class note for class A
 	end note
 participant B
 	/note over of B
-		This is test class note for class B
+		Test class note for class B
 	end note
 participant C
 	USER -> A: a7(a7_p1)
@@ -1067,11 +1063,11 @@ actor USER
 participant TestSeqDiagBuilder
 participant A
 	/note over of A
-		This is test class note for class A
+		Test class note for class A
 	end note
 participant B
 	/note over of B
-		This is test class note for class B
+		Test class note for class B
 	end note
 	USER -> A: a4(a4_p1)
 		activate A
@@ -1110,11 +1106,11 @@ actor USER
 participant TestSeqDiagBuilder
 participant A
 	/note over of A
-		This is test class note for class A
+		Test class note for class A
 	end note
 participant B
 	/note over of B
-		This is test class note for class B
+		Test class note for class B
 	end note
 	USER -> A: a5(a5_p1)
 		activate A
@@ -1156,11 +1152,11 @@ actor USER
 participant TestSeqDiagBuilder
 participant A
 	/note over of A
-		This is test class note for class A
+		Test class note for class A
 	end note
 participant B
 	/note over of B
-		This is test class note for class B
+		Test class note for class B
 	end note
 participant C
 	USER -> A: a3(a3_p1)
