@@ -93,7 +93,7 @@ User -> ClassA: doWork(p1)
 	deactivate ClassA
 @enduml
 ```
-#### Generated sequence diagram
+#### Corresponding sequence diagram
 ![](doc/basic_usage_seq_diagr.jpg)
 
 Later in this document, more detailed and complete informations on
