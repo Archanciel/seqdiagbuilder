@@ -1,22 +1,31 @@
+
 # SeqDiagBuilder
 
 Generates a UML sequence diagram on Python code using data collected at execution time.
 
 ## Principle
-SeqDiagBuilder does its job in four steps:
-1. record control flow data during program execution
-2. generate a PlantUML sequence diagram command file
-3. launch PlantUML on the generated command file to draw a sequence diagram in an svg file
-4. open the svg file in a browser to display the sequence diagram
 
-Step 1 requires the insertion of a single line of code in the leaf methods which are to be displayed in the sequence diagram.
+SeqDiagBuilder does its job in two steps:
+1. It first collects control flow data during program execution.
+2. Using the collected control flow data, it generates a PlantUML sequence diagram command file.
+
+Then, PlantUML can be launched on the generated command file to draw the sequence diagram, storing it in an svg file. The svg file can be opened in a web browser to display the diagram.
+
+Step 1 requires the insertion of a single line of code in the leaf or lowest level methods which are to be displayed in the sequence diagram.
 
 The code to insert is
-```
-from seqdiagbuilder import SeqDiagBuilder
 ...
+
+    from seqdiagbuilder import SeqDiagBuilder
+    ...
+
     SeqDiagBuilder.recordFlow()
-```
+...
+
+## Example
+Here's a very basic usage of SeqDiagBuilder followed by the generated PlantUML command file and the sequence diagram drawned from it. Later in this document, more detailed and complete informations on SeqDiagBuilder usage is provided. In the end, a section is devoted to the inner working and implementation of SeqDiagBuilder in order to facilitate its extension / improvement by any motivated developer.
+
+![](doc/basic_usage_seq_diagr.jpg)
 
 ## Usage
 
@@ -27,9 +36,9 @@ from seqdiagbuilder import SeqDiagBuilder
 ## Installing PlantUML
 
 Download plantuml.jar from http://plantuml.com/starting
-* To be executed, plantUML requires Java to be installed !
+• To be executed, plantUML requires Java to be installed !
 
-## Running PlantUML on a command file
+Running PlantUML on a command file
 
 java -jar plantuml.jar -tsvg plantUML_commands_file
 
