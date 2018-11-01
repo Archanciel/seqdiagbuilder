@@ -110,10 +110,14 @@ facilitate its extension / improvement by any motivated developer.
 ## Installing PlantUML
 
 Download plantuml.jar from http://plantuml.com/starting
-• To be executed, plantUML requires Java to be installed !
+* To be executed, plantUML requires Java to be installed !
 
 Running PlantUML on a command file
 
 java -jar plantuml.jar -tsvg plantUML_commands_file
 
+### Warning
+If your plantUML command file name contains spaces, you may have to surround it with quotation marks ("):
+
+java -jar plantuml.jar -tsvg "plantUML commands file.txt"
 ## Required libraries
