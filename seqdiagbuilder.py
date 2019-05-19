@@ -1129,8 +1129,18 @@ class SeqDiagBuilder:
             # at each loop run.
             noneStr = 'None'
             if not ctorArgValueList:
+                attemptNumber = 0
                 while not instance:
+                    # the next if solves a problem which appeared I thin% after upgrading
+                    # Python to 3.7. If a ctor contains code that fails with calling it with
+                    # a None argument, we are caught in an infinite loop, so the need to
+                    # set a max instanciation attempt number !
+                    if attemptNumber > 100:
+                        SeqDiagBuilder._issueWarning('ERROR - constructor for class {} in module {} failed due to invalid argument(s). To solve the problem, pass a class argument dictionary with an entry for {} to the SeqDiagBuilder.activate() method'.format(
+                            className, packageSpec + moduleName, className))
+                        break
                     try:
+                        attemptNumber += 1
                         instance = eval('class_(' + noneStr + ')')
                     except TypeError:
                         noneStr += ', None'

@@ -1703,8 +1703,7 @@ USER -> IsolatedClassSub: analyse()
 
         SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
 
-
-    def testCallingMethodOnClassRequiringNonNoneConstructotParmWithoutPassingClassArgsDic(self):
+    def testCallingMethodOnClassRequiringNonNoneConstructorParmWithoutPassingClassArgsDic(self):
         entryPoint = Caller()
 
         SeqDiagBuilder.activate(parentdir, 'Caller', 'call')  # activate sequence diagram building
@@ -1892,16 +1891,24 @@ USER -> Caller: callUsingVerboseFileReader()
 
         SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
 
-    def testCallingMethodOnClassRequiringNonNoneConstructotParmWithPassingClassArgsDicWithOneEntryOneBooleanArgCallSuperClassMethod(self):
+    def testCallingMethodOnClassRequiringNonNoneConstructorParmWithPassingClassArgsDicWithOneEntryOneBooleanArgCallSuperClassMethod(self):
         '''
         Test case where the flow requires to instanciate a class (FileReaderSupportingVerboseMode) whose ctor
         requires a string and a boolean value. To handle this situation, a class ctor arg dictionary
         must be passed to the SeqDiagBuilder.activate() method. But here, since the method
         FileReaderSupportingVerboseMode.getContentAsListFromSuper() calls a method of its parent
-        class, the class ctor arg dictionary must also contain an entry for the parent class since
-        its ctor __init__ method also requires arguments !
+        class, the class ctor arg dictionary must also contain an entry for the parent class (FileReader)
+        since its ctor __init__ method also requires an argument (a file name) !
         '''
         entryPoint = Caller()
+
+        # this is the argument dictionary which should be defined for successful sequence
+        # diagram generation:
+        #classArgDic = {'FileReaderSupportingVerboseMode': ['testfile.txt', False],
+        #               'FileReader': ['testfile.txt']}
+
+        # but we forget to add an entry for the FileReader base class ctor in order
+        # to ensure a correct warning will be added  to the generated sequence diagram
         classArgDic = {'FileReaderSupportingVerboseMode': ['testfile.txt', False]}
 
         SeqDiagBuilder.activate(parentdir, 'Caller', 'callUsingVerboseFileReaderWithCallToSuper',
