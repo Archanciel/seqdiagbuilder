@@ -121,3 +121,7 @@ If your plantUML command file name contains spaces, you may have to surround it 
 
 java -jar plantuml.jar -tsvg "plantUML commands file.txt"
 ## Required libraries
+
+## Note
+I am currently involved in studying Machine Learning. But if asked, I could consider devoting some time completing this documentation.
+
