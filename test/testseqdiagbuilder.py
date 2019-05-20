@@ -1352,6 +1352,10 @@ participant Parent
 
 
     def testCreateSeqDiagCommandsOnFullRequestHistoDayPrice(self):
+        '''
+        Generates a sequence diagram on a typical CryptoPricer request.
+        :return:
+        '''
         if not 'CryptoPricer' in parentdir:
             return
 
@@ -1401,7 +1405,7 @@ participant Parent
         self.assertEqual(len(SeqDiagBuilder.getWarningList()), 0)
         commands = SeqDiagBuilder.createSeqDiaqCommands('GUI')
 
-        with open("c:\\temp\\ess.txt","w") as f:
+        with open("c:\\temp\\sqCryptoPricerFullSig.txt","w") as f:
             f.write(commands)
 
         SeqDiagBuilder.deactivate()
@@ -1474,8 +1478,12 @@ GUI -> Controller: getPrintableResultForInput(inputStr)
 	deactivate Controller
 @enduml''', commands)
 
-
     def testCreateSeqDiagCommandsOnFullRequestHistoDayPriceWithSignatureLimitation(self):
+        '''
+        Generates a sequence diagram on a typical CryptoPricer request
+        with specifying a maximum size for the method signatures.
+        :return:
+        '''
         if not 'CryptoPricer' in parentdir:
             return
 
@@ -1505,13 +1513,13 @@ GUI -> Controller: getPrintableResultForInput(inputStr)
         requestYearStr = eightDaysBeforeYearStr
         requestDayStr = eightDaysBeforeDayStr
         requestMonthStr = eightDaysBeforeMonthStr
-        inputStr = 'mcap btc {}/{} all'.format(requestDayStr, requestMonthStr)
+        inputStr = 'btc usd {}/{} all'.format(requestDayStr, requestMonthStr)
         printResult, fullCommandStr, fullCommandStrWithOptions, fullCommandStrWithSaveModeOptions = self.controller.getPrintableResultForInput(
             inputStr)
 
         commands = SeqDiagBuilder.createSeqDiaqCommands(actorName='GUI', title='CryptoPricer sequence diagram', maxSigArgNum=None, maxSigCharLen=20, maxNoteCharLen=20)
 
-        with open("c:\\temp\\ess.txt", "w") as f:
+        with open("c:\\temp\\sqCryptoPricerShortSig.txt", "w") as f:
             f.write(commands)
 
         try:
