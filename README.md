@@ -1,38 +1,52 @@
 
 # SeqDiagBuilder
 
-Generates a UML sequence diagram on Python code using data collected at execution time.
+This utility generates a UML sequence diagram on Python code using data collected at execution time.
 
 ## Principle
 
 SeqDiagBuilder does its job in two steps:
-1. It first collects control flow data during program execution.
+1. It first collects control flow data during Python code execution.
 2. Using the collected control flow data, it generates a PlantUML sequence diagram command file.
 
-Then, PlantUML can be launched on the generated command file to draw the sequence diagram, storing it in an svg file. The svg file can be opened in a web browser to display the diagram.
+Then, PlantUML can be launched on the generated command file to draw the sequence diagram, storing it in an svg or png file. The svg file can be opened in a web browser to display the diagram.
 
 Step 1 requires the insertion of a single line of code in the leaf or lowest level methods which are to be displayed in the sequence diagram.
 
-The code to insert is
+The code to insert in the leaf method is
 ...
 
     from seqdiagbuilder import SeqDiagBuilder
     ...
-
+    <your method code here>
+    ...
     SeqDiagBuilder.recordFlow()
 
 
 ## Example
-Here's a very basic usage of SeqDiagBuilder followed by the generated
-PlantUML command file and the sequence diagram drawned from it.
+Here's a very basic usage of SeqDiagBuilder followed by the
+generated PlantUML command file and the sequence diagram 
+drawned from it. 
+
+The example draws a sequence diagram of the collaboration of two classes: ClassA, which calls a method of ClassB.
+
+In order to build a sequence diagram in your Python code, simply
+copy seqdiagbuilder.py in your project.
+
+Here's the code of the two classes:
 
 #### ClassA
 ```
+from classb import ClassB
+
 class ClassA:
     '''
+    ClassA is the entry point of our sequence diagram.
     '''
     def doWork(self, p1):
         '''
+        doWork() is the entry method of our sequence diagram.
+        
         :param p1:
         :return:
         '''
@@ -41,17 +55,25 @@ class ClassA:
 ```
 #### ClassB
 ```
+from seqdiagbuilder import SeqDiagBuilder
+
 class ClassB:
     def do(self, p1):
         '''
-
+        This the leaf method of our sequence diagram.
+        
         :param p1:
         :return:
         '''
-        from seqdiagbuilder import SeqDiagBuilder
-        SeqDiagBuilder.recordFlow()
+        
+        # The next instruction causes SeqDiagBuilder to record the
+        # whole control flow which conducted to call the present method.
+        seqdiagbuilder.SeqDiagBuilder.recordFlow()
 ```
 #### Code using SeqDiagBuilder
+The code below does three things: it first instanciates ClassA. Then it activates 
+SeqDiagBuilder so that the utility will record the control flow information during 
+the execution of ClassA.
 ```
 import os, inspect, sys
 
