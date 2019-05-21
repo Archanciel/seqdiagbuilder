@@ -594,6 +594,24 @@ participant A
 
         commands = SeqDiagBuilder.createSeqDiaqCommands('USER')
 
+        with open("c:\\temp\\ess.txt", "w") as f:
+            f.write(commands)
+
+        self.assertEqual(len(SeqDiagBuilder.getWarningList()), 1)
+        self.assertEqual(
+'''@startuml
+center header
+<b><font color=red size=20> Warnings</font></b>
+<b><font color=red size=14>  No control flow recorded.</font></b>
+<b><font color=red size=14>  Method activate() called with arguments projectPath=<None>, entryClass=<A>, entryMethod=<a1>, classArgDic=<None>: True.</font></b>
+<b><font color=red size=14>  Method recordFlow() called: True.</font></b>
+<b><font color=red size=14>  Specified entry point: A.a1 reached: False.</font></b>
+endheader
+
+actor USER
+
+@enduml''', commands)
+
         SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
 
 

@@ -960,6 +960,11 @@ class SeqDiagBuilder:
         :param packageSpec:
         :return:
         '''
+        if packageSpec == None:
+            packageSpec = '' # this prevents that nxt instruction raises an exception
+                             # A warning informing that None was passed to the activate()
+                             # method will be put in the PlantUml command file.
+
         packageSpec = packageSpec.replace('\\', '.')
         packageSpec = packageSpec.replace('/', '.')
 
