@@ -545,7 +545,7 @@ class TestSeqDiagBuilder(unittest.TestCase):
 center header
 <b><font color=red size=20> Warnings</font></b>
 <b><font color=red size=14>  No control flow recorded.</font></b>
-<b><font color=red size=14>  Method activate() called with arguments {}, A, a0, None: True.</font></b>
+<b><font color=red size=14>  Method activate() called with arguments projectPath=<{}>, entryClass=<A>, entryMethod=<a0>, classArgDic=<None>: True.</font></b>
 <b><font color=red size=14>  Method recordFlow() called: False.</font></b>
 <b><font color=red size=14>  Specified entry point: A.a0 reached: False.</font></b>
 endheader
@@ -582,6 +582,45 @@ participant A
 		activate A
 		USER <-- A: return Aa1Return
 		deactivate A
+@enduml''', commands)
+
+        SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
+
+    def testCreateSeqDiagCommandsOnSimplestCallNotPassingProjectDir(self):
+        entryPoint = A()
+
+        SeqDiagBuilder.activate(None, 'A', 'a1')  # activate sequence diagram building
+        entryPoint.a1(1, 2)
+
+        commands = SeqDiagBuilder.createSeqDiaqCommands('USER')
+
+        SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
+
+
+    def testCreateSeqDiagCommandsOnSimplestCallPassingEmptyProjectDir(self):
+        entryPoint = A()
+
+        SeqDiagBuilder.activate('', 'A', 'a1')  # activate sequence diagram building
+        entryPoint.a1(1, 2)
+
+        commands = SeqDiagBuilder.createSeqDiaqCommands('USER')
+
+        with open("c:\\temp\\ess.txt", "w") as f:
+            f.write(commands)
+
+        self.assertEqual(len(SeqDiagBuilder.getWarningList()), 1)
+        self.assertEqual(
+'''@startuml
+center header
+<b><font color=red size=20> Warnings</font></b>
+<b><font color=red size=14>  No control flow recorded.</font></b>
+<b><font color=red size=14>  Method activate() called with arguments projectPath=<>, entryClass=<A>, entryMethod=<a1>, classArgDic=<None>: True.</font></b>
+<b><font color=red size=14>  Method recordFlow() called: True.</font></b>
+<b><font color=red size=14>  Specified entry point: A.a1 reached: False.</font></b>
+endheader
+
+actor USER
+
 @enduml''', commands)
 
         SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
@@ -1267,7 +1306,7 @@ participant ChildThree
 center header
 <b><font color=red size=20> Warnings</font></b>
 <b><font color=red size=14>  No control flow recorded.</font></b>
-<b><font color=red size=14>  Method activate() called with arguments {}, ChildTwo, getCoordinate, None: True.</font></b>
+<b><font color=red size=14>  Method activate() called with arguments projectPath=<{}>, entryClass=<ChildTwo>, entryMethod=<getCoordinate>, classArgDic=<None>: True.</font></b>
 <b><font color=red size=14>  Method recordFlow() called: True.</font></b>
 <b><font color=red size=14>  Specified entry point: ChildTwo.getCoordinate reached: False.</font></b>
 endheader
@@ -1301,7 +1340,7 @@ center header
 <b><font color=red size=14>  See help for more information.</font></b>
 <b><font color=red size=20> 2</font></b>
 <b><font color=red size=14>  No control flow recorded.</font></b>
-<b><font color=red size=14>  Method activate() called with arguments {}, ChildTwo, getCoordinateNoneSelected, None: True.</font></b>
+<b><font color=red size=14>  Method activate() called with arguments projectPath=<{}>, entryClass=<ChildTwo>, entryMethod=<getCoordinateNoneSelected>, classArgDic=<None>: True.</font></b>
 <b><font color=red size=14>  Method recordFlow() called: True.</font></b>
 <b><font color=red size=14>  Specified entry point: ChildTwo.getCoordinateNoneSelected reached: False.</font></b>
 endheader
@@ -2029,7 +2068,7 @@ USER -> Caller: callUsingVerboseFileReaderWithCallToSuper()
 center header
 <b><font color=red size=20> Warnings</font></b>
 <b><font color=red size=14>  No control flow recorded.</font></b>
-<b><font color=red size=14>  Method activate() called with arguments {}, Caller, call, {{'FileReader_1': ['testfile.txt'], 'FileReader_2': ['testfile2.txt']}}: True.</font></b>
+<b><font color=red size=14>  Method activate() called with arguments projectPath=<{}>, entryClass=<Caller>, entryMethod=<call>, classArgDic=<{{'FileReader_1': ['testfile.txt'], 'FileReader_2': ['testfile2.txt']}}>: True.</font></b>
 <b><font color=red size=14>  Method recordFlow() called: True.</font></b>
 <b><font color=red size=14>  Specified entry point: Caller.call reached: False.</font></b>
 endheader
