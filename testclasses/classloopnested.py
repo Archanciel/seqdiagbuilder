@@ -1,10 +1,10 @@
 from testclasses.classleaf import ClassLeaf
 
-class ClassLoop:
+class ClassLoopNested:
     def doB(self, p1):
         '''
         This class is used to test the handling of the :seqdiag loop and
-        :seqdiag loop end tags.
+        :seqdiag loop end tags with two nested loops.
         :param p1:
         :return:
         '''
@@ -13,9 +13,15 @@ class ClassLoop:
 
         for i in range(3):
             #:seqdiag_loop 3 times
-            c.doC1(p1)
+            a += 1 # dummy instruction
+            #:seqdiag_loop 5 times
+            for i in range(5):
+                c.doC1(p1)
+                a += 1 # dummy instruction
+            #:seqdiag_loop_end
             a += 1 # dummy instruction
             c.doC2(p1)
+            a += 1 # dummy instruction
             #:seqdiag_loop_end
 
         print(a) # another dummy instruction
