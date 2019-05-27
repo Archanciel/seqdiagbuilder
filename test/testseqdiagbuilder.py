@@ -13,6 +13,7 @@ from testclasses.isolatedclasswithinstancevariables import IsolatedClassWithInst
 from testclasses.foobarclasses import *
 from testclasses.subtestpackage.dsub import DSub
 from testclasses.subtestpackage.caller import Caller
+from testclasses.classloopcaller import ClassLoopCaller
 
 
 class Client:
@@ -1706,7 +1707,7 @@ participant ClassB
 
 
     def testCreateSeqDiagCommandsWithoutActivatingSeqDiagBuilder(self):
-        entryPoint = ClassA()
+        entryPoint = ClassLoopCaller()
 
         SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
         entryPoint.doWork()
@@ -2130,6 +2131,47 @@ USER -> Caller: call()
 
         SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
 
+    def testLoopTag(self):
+        entryPoint = ClassLoopCaller()
+
+        SeqDiagBuilder.activate(parentdir, 'ClassLoopCaller', 'call', None)  # activate sequence diagram building
+        entryPoint.call('str')
+
+        commands = SeqDiagBuilder.createSeqDiaqCommands('User')
+
+        with open("c:\\temp\\ess.txt", "w") as f:
+            f.write(commands)
+
+        self.assertEqual(len(SeqDiagBuilder.getWarningList()), 0)
+
+        self.assertEqual(
+'''@startuml
+
+actor User
+participant ClassLoopCaller
+participant ClassLoop
+participant ClassLeaf
+User -> ClassLoopCaller: call(p1)
+	activate ClassLoopCaller
+	ClassLoopCaller -> ClassLoop: doB(p1)
+		activate ClassLoop
+		loop 3 times
+			ClassLoop -> ClassLeaf: doC1(p1)
+				activate ClassLeaf
+				ClassLoop <-- ClassLeaf: 
+				deactivate ClassLeaf
+			ClassLoop -> ClassLeaf: doC2(p1)
+				activate ClassLeaf
+				ClassLoop <-- ClassLeaf: 
+				deactivate ClassLeaf
+		end
+		ClassLoopCaller <-- ClassLoop: 
+		deactivate ClassLoop
+	User <-- ClassLoopCaller: 
+	deactivate ClassLoopCaller
+@enduml''', commands)
+
+        SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
 
 if __name__ == '__main__':
     unittest.main()
