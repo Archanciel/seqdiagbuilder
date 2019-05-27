@@ -914,7 +914,8 @@ class SeqDiagBuilder:
                         else:
                             entryClassEncountered = True
 
-                        toClassName, toClassNote, toMethodReturn, toMethodSignature, toMethodNote, toMethodReturnNote = SeqDiagBuilder._extractToClassMethodInformation(moduleClassNameList, packageSpec, moduleName, currentMethodName)
+                        currentMethodStartLineNumber = [i for i, s in enumerate(source.split('\n')) if currentMethodName in s][0] + 1
+                        toClassName, toClassNote, toMethodReturn, toMethodSignature, toMethodNote, toMethodReturnNote = SeqDiagBuilder._extractToClassMethodInformation(moduleClassNameList, packageSpec, moduleName, currentMethodName, currentMethodStartLineNumber)
 
                         if toClassName == None:
                             continue
@@ -984,7 +985,7 @@ class SeqDiagBuilder:
 
 
     @staticmethod
-    def _extractToClassMethodInformation(moduleClassNameList, packageSpec, moduleName, methodName):
+    def _extractToClassMethodInformation(moduleClassNameList, packageSpec, moduleName, methodName, methodStartLineNumber):
         '''
         This method returns informations specific to the target class and method, namely, the name
         of the class supporting methodName, the class seqdiag note, the target method return type,
@@ -1009,6 +1010,7 @@ class SeqDiagBuilder:
                                     the associated value can be returned as the method return value.
                                     In case the method doc contains the :seqdiag_select_method tag,
                                     the class containing the method is the unique one to be retained
+        :param methodStartLineNumber source line number of current method
 
         :return:                    className, classNote, methodReturn, methodSignature, methodNote, methodReturnNote
         '''
@@ -1036,6 +1038,17 @@ class SeqDiagBuilder:
                     methodObj = methodTupple[1]
                     methodSignature = str(signature(methodObj))
                     methodDoc = methodObj.__doc__
+                    methodBodyLines = inspect.getsourcelines(methodObj)
+
+                    loopIndexList = []
+                    lineNb = 0
+
+                    for line in methodBodyLines[0]:
+                        if ':seqdiag_loop' in line:
+                            loopIndexList.append([methodStartLineNumber + lineNb, line])
+                        elif ':seqdiag_loop_end' in line:
+                            loopIndexList.append([methodStartLineNumber + lineNb, line])
+                        lineNb += 1
 
                     if methodDoc:
                         # get method return type from method documentation
