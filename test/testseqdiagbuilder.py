@@ -1707,7 +1707,7 @@ participant ClassB
 
 
     def testCreateSeqDiagCommandsWithoutActivatingSeqDiagBuilder(self):
-        entryPoint = ClassLoopCaller()
+        entryPoint = ClassA()
 
         SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
         entryPoint.doWork()
