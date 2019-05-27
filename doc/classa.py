@@ -2,11 +2,12 @@ from doc.classb import ClassB
 
 class ClassA:
     '''
+    ClassA is the entry point of our sequence diagram.
     '''
-    def doWork(self, p1):
+
+    def doA(self, p1):
         '''
-        :param p1:
-        :return:
+        doWork() is the entry method of our sequence diagram.
         '''
         b = ClassB()
-        b.do(p1)
+        b.doB(p1)
