@@ -14,6 +14,8 @@ from testclasses.foobarclasses import *
 from testclasses.subtestpackage.dsub import DSub
 from testclasses.subtestpackage.caller import Caller
 from testclasses.classloopcaller import ClassLoopCaller
+from testclasses.classloopnestedcaller import ClassLoopNestedCaller
+from testclasses.classtwoloopscaller import ClassTwoLoopsCaller
 
 
 class Client:
@@ -2135,6 +2137,104 @@ USER -> Caller: call()
         entryPoint = ClassLoopCaller()
 
         SeqDiagBuilder.activate(parentdir, 'ClassLoopCaller', 'call', None)  # activate sequence diagram building
+        entryPoint.call('str')
+
+        commands = SeqDiagBuilder.createSeqDiaqCommands('User')
+
+        with open("c:\\temp\\ess.txt", "w") as f:
+            f.write(commands)
+
+        self.assertEqual(len(SeqDiagBuilder.getWarningList()), 0)
+
+        self.assertEqual(
+'''@startuml
+
+actor User
+participant ClassLoopCaller
+participant ClassLoop
+participant ClassLeaf
+User -> ClassLoopCaller: call(p1)
+	activate ClassLoopCaller
+	ClassLoopCaller -> ClassLoop: doB(p1)
+		activate ClassLoop
+		loop 3 times
+			ClassLoop -> ClassLeaf: doC1(p1)
+				activate ClassLeaf
+				ClassLoop <-- ClassLeaf: 
+				deactivate ClassLeaf
+			ClassLoop -> ClassLeaf: doC2(p1)
+				activate ClassLeaf
+				ClassLoop <-- ClassLeaf: 
+				deactivate ClassLeaf
+		end
+		ClassLoopCaller <-- ClassLoop: 
+		deactivate ClassLoop
+	User <-- ClassLoopCaller: 
+	deactivate ClassLoopCaller
+@enduml''', commands)
+
+        SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
+
+
+    def testLoopTagNestedLoops(self):
+        '''
+        This test case tests the correct generation of a PlantUml loop
+        command using the :seqdia_loop and :seqdiag_loop_end tags added
+        in the body of a method in the situation where the method contains
+        a nested loop.
+        '''
+        entryPoint = ClassLoopNestedCaller()
+
+        SeqDiagBuilder.activate(parentdir, 'ClassLoopNestedCaller', 'call', None)  # activate sequence diagram building
+        entryPoint.call('str')
+
+        commands = SeqDiagBuilder.createSeqDiaqCommands('User')
+
+        with open("c:\\temp\\ess.txt", "w") as f:
+            f.write(commands)
+
+        self.assertEqual(len(SeqDiagBuilder.getWarningList()), 0)
+
+        self.assertEqual(
+'''@startuml
+
+actor User
+participant ClassLoopCaller
+participant ClassLoop
+participant ClassLeaf
+User -> ClassLoopCaller: call(p1)
+	activate ClassLoopCaller
+	ClassLoopCaller -> ClassLoop: doB(p1)
+		activate ClassLoop
+		loop 3 times
+			ClassLoop -> ClassLeaf: doC1(p1)
+				activate ClassLeaf
+				ClassLoop <-- ClassLeaf: 
+				deactivate ClassLeaf
+			ClassLoop -> ClassLeaf: doC2(p1)
+				activate ClassLeaf
+				ClassLoop <-- ClassLeaf: 
+				deactivate ClassLeaf
+		end
+		ClassLoopCaller <-- ClassLoop: 
+		deactivate ClassLoop
+	User <-- ClassLoopCaller: 
+	deactivate ClassLoopCaller
+@enduml''', commands)
+
+        SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
+
+
+    def testLoopTagWhereTwoLoops(self):
+        '''
+        This test case tests the correct generation of a PlantUml loop
+        command using the :seqdia_loop and :seqdiag_loop_end tags added
+        in the body of a method in the situation where the method contains
+        two non nested loops.
+        '''
+        entryPoint = ClassTwoLoopsCaller()
+
+        SeqDiagBuilder.activate(parentdir, 'ClassTwoLoopsCaller', 'call', None)  # activate sequence diagram building
         entryPoint.call('str')
 
         commands = SeqDiagBuilder.createSeqDiaqCommands('User')
