@@ -717,7 +717,6 @@ class SeqDiagBuilder:
                     commandStr = SeqDiagBuilder._handleSeqDiagForwardMesssageCommand(fromClass, flowEntry, classMethodReturnStack, maxSigArgNum, maxSigCharLen, maxNoteCharLen)
                     seqDiagCommandStr += commandStr
                     fromClass = flowEntry.toClass
-                    deepestReached = True
 
             while not classMethodReturnStack.isEmpty():
                 returnEntry = classMethodReturnStack.pop()
