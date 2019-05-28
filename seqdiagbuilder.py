@@ -5,6 +5,12 @@ import copy
 from inspect import signature
 import collections
 
+SEQDIAG_LOOP_START_END_TAG = ':seqdiag_loop_start_end'
+
+SEQDIAG_LOOP_END_TAG = ':seqdiag_loop_end'
+
+SEQDIAG_LOOP_START_TAG = ':seqdiag_loop_start'
+
 BIG_COMMENT_LENGTH = 100
 
 SEQDIAG_RETURN_TAG = ":seqdiag_return"
@@ -1044,9 +1050,11 @@ class SeqDiagBuilder:
                     lineNb = 0
 
                     for line in methodBodyLines[0]:
-                        if ':seqdiag_loop' in line:
+                        if SEQDIAG_LOOP_START_TAG in line:
                             loopIndexList.append([methodStartLineNumber + lineNb, line])
-                        elif ':seqdiag_loop_end' in line:
+                        elif SEQDIAG_LOOP_END_TAG in line:
+                            loopIndexList.append([methodStartLineNumber + lineNb, line])
+                        elif SEQDIAG_LOOP_START_END_TAG in line:
                             loopIndexList.append([methodStartLineNumber + lineNb, line])
                         lineNb += 1
 
