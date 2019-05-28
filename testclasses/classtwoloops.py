@@ -13,17 +13,16 @@ class ClassTwoLoops:
         a = 0
 
         for i in range(3):
-            #:seqdiag_loop 3 times
-            c.doC1(p1)
+            c.doC1(p1) #:seqdiag_loop_start 3 times
             a += 1 # dummy instruction
-            c.doC2(p1)
-            #:seqdiag_loop_end
+            c.doC2(p1) #:seqdiag_loop_end
+            a += 1 # dummy instruction
 
         for i in range(6):
-            #:seqdiag_loop 6 times
-            c.doC1(p1)
+            c.doC1(p1) #:seqdiag_loop_start_end 6 times
             a += 1 # dummy instruction
-            c.doC2(p1)
-            #:seqdiag_loop_end
+
+        c.doC2(p1)
+        a += 1 # dummy instruction
 
         print(a) # another dummy instruction

@@ -2,7 +2,7 @@ from testclasses.classloopnested import ClassLoopNested
 
 class ClassLoopNestedCaller:
     '''
-    ClassA is the entry point of our sequence diagram.
+    ClassLoopNestedCaller is the entry point of our sequence diagram.
     '''
 
     def call(self, p1):

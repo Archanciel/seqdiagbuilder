@@ -2,7 +2,7 @@ from testclasses.classtwoloops import ClassTwoLoops
 
 class ClassTwoLoopsCaller:
     '''
-    ClassA is the entry point of our sequence diagram.
+    ClassTwoLoopsCaller is the entry point of our sequence diagram.
     '''
 
     def call(self, p1):
