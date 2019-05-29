@@ -1,6 +1,6 @@
 from testclasses.classleaf import ClassLeaf
 
-class ClassLoopNestedInnerTwo:
+class ClassLoopNestedInnerTwoCalls:
     def doB(self, p1):
         '''
         This class is used to test the handling of the :seqdiag loop and
@@ -14,8 +14,9 @@ class ClassLoopNestedInnerTwo:
 
         for i in range(3):
             a += 1 # dummy instruction
+            c.doC3(p1) #:seqdiag_loop_start 3 times
             for i in range(5):
-                c.doC1(p1) #:seqdiag_loop_start 3 times :seqdiag_loop_start 5 times
+                c.doC1(p1) #:seqdiag_loop_start 5 times
                 a += 1 # dummy instruction
                 c.doC1(p1)  #:seqdiag_loop_end
             a += 1 # dummy instruction
