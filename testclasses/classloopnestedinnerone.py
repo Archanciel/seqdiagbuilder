@@ -1,10 +1,11 @@
 from testclasses.classleaf import ClassLeaf
 
-class ClassLoopNested:
+class ClassLoopNestedInnerOne:
     def doB(self, p1):
         '''
         This class is used to test the handling of the :seqdiag loop and
-        :seqdiag loop end tags with two nested loops.
+        :seqdiag loop end tags with two nested loops. The nested loop contains
+        only one call to a leaf method.
         :param p1:
         :return:
         '''
