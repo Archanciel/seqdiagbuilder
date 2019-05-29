@@ -1,5 +1,7 @@
+import inspect
+import os
+import sys
 import unittest
-import os, sys, inspect
 
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
@@ -13,10 +15,6 @@ from testclasses.isolatedclasswithinstancevariables import IsolatedClassWithInst
 from testclasses.foobarclasses import *
 from testclasses.subtestpackage.dsub import DSub
 from testclasses.subtestpackage.caller import Caller
-from testclasses.classlooponemethodcallcaller import ClassLoopOneMethodCallCaller
-from testclasses.classlooptwomethodcallcaller import ClassLoopTwoMethodCallCaller
-from testclasses.classloopnestedcaller import ClassLoopNestedCaller
-from testclasses.classtwoloopscaller import ClassTwoLoopsCaller
 
 
 class Client:
