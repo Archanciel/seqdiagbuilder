@@ -12,7 +12,8 @@ sys.path.insert(0,currentdir) # this instruction is necessary for successful imp
 from testclasses.foobarclasses import *
 from testclasses.classlooponemethodcallcaller import ClassLoopOneMethodCallCaller
 from testclasses.classlooptwomethodcallcaller import ClassLoopTwoMethodCallCaller
-from testclasses.classloopnestedcaller import ClassLoopNestedCaller
+from testclasses.classloopnestedinneronecaller import ClassLoopNestedInnerOneCaller
+from testclasses.classloopnestedinnertwocaller import ClassLoopNestedInnerTwoCaller
 from testclasses.classtwoloopscaller import ClassTwoLoopsCaller
 
 class TestSeqDiagBuilderLoopTag(unittest.TestCase):
@@ -114,20 +115,22 @@ User -> ClassLoopTwoMethodCallCaller: call(p1)
         SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
 
 
-    def testLoopTagNestedLoops(self):
+    def testLoopTagNestedLoopsWithOneCallInnerLoop(self):
         '''
         This test case tests the correct generation of a PlantUml loop
         command using the :seqdiag_loop tags added in the body of a method
-        containing a nested loop.
+        containing a nested loop. The nested loop (inner loop) itself
+        contains only one call to a leaf function. This means that the
+        :seqdiag loop start end tag is used.
         '''
-        entryPoint = ClassLoopNestedCaller()
+        entryPoint = ClassLoopNestedInnerOneCaller()
 
-        SeqDiagBuilder.activate(parentdir, 'ClassLoopNestedCaller', 'call', None)  # activate sequence diagram building
+        SeqDiagBuilder.activate(parentdir, 'ClassLoopNestedInnerOneCaller', 'call', None)  # activate sequence diagram building
         entryPoint.call('str')
 
         commands = SeqDiagBuilder.createSeqDiaqCommands('User')
 
-        with open("c:\\temp\\testLoopTagNestedLoops.txt", "w") as f:
+        with open("c:\\temp\\testLoopTagNestedLoopsWithOneCallInnerLoop.txt", "w") as f:
             f.write(commands)
 
         self.assertEqual(len(SeqDiagBuilder.getWarningList()), 0)
@@ -136,33 +139,92 @@ User -> ClassLoopTwoMethodCallCaller: call(p1)
 '''@startuml
 
 actor User
-participant ClassLoopNestedCaller
-participant ClassLoopNested
+participant ClassLoopNestedInnerOneCaller
+participant ClassLoopNestedInnerOne
 participant ClassLeaf
-User -> ClassLoopNestedCaller: call(p1)
-	activate ClassLoopNestedCaller
-	ClassLoopNestedCaller -> ClassLoopNested: doB(p1)
-		activate ClassLoopNested
+User -> ClassLoopNestedInnerOneCaller: call(p1)
+	activate ClassLoopNestedInnerOneCaller
+	ClassLoopNestedInnerOneCaller -> ClassLoopNestedInnerOne: doB(p1)
+		activate ClassLoopNestedInnerOne
 		loop 3 times
 			loop 5 times
-				ClassLoopNested -> ClassLeaf: doC1(p1)
+				ClassLoopNestedInnerOne -> ClassLeaf: doC1(p1)
 					activate ClassLeaf
-					ClassLoopNested <-- ClassLeaf: 
+					ClassLoopNestedInnerOne <-- ClassLeaf: 
 					deactivate ClassLeaf
 			end
-			ClassLoopNested -> ClassLeaf: doC2(p1)
+			ClassLoopNestedInnerOne -> ClassLeaf: doC2(p1)
 				activate ClassLeaf
-				ClassLoopNested <-- ClassLeaf: 
+				ClassLoopNestedInnerOne <-- ClassLeaf: 
 				deactivate ClassLeaf
 		end
-		ClassLoopNested -> ClassLeaf: doC1(p1)
+		ClassLoopNestedInnerOne -> ClassLeaf: doC1(p1)
 			activate ClassLeaf
-			ClassLoopNested <-- ClassLeaf: 
+			ClassLoopNestedInnerOne <-- ClassLeaf: 
 			deactivate ClassLeaf
-		ClassLoopNestedCaller <-- ClassLoopNested: 
-		deactivate ClassLoopNested
-	User <-- ClassLoopNestedCaller: 
-	deactivate ClassLoopNestedCaller
+		ClassLoopNestedInnerOneCaller <-- ClassLoopNestedInnerOne: 
+		deactivate ClassLoopNestedInnerOne
+	User <-- ClassLoopNestedInnerOneCaller: 
+	deactivate ClassLoopNestedInnerOneCaller
+@enduml''', commands)
+
+        SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
+
+    def testLoopTagNestedLoopsWithTwoCallsInnerLoop(self):
+        '''
+        This test case tests the correct generation of a PlantUml loop
+        command using the :seqdiag_loop tags added in the body of a method
+        containing a nested loop. The nested loop (inner loop) itself
+        contains two calls to a leaf function.
+        '''
+        entryPoint = ClassLoopNestedInnerTwoCaller()
+
+        SeqDiagBuilder.activate(parentdir, 'ClassLoopNestedInnerTwoCaller', 'call',
+                                None)  # activate sequence diagram building
+        entryPoint.call('str')
+
+        commands = SeqDiagBuilder.createSeqDiaqCommands('User')
+
+        with open("c:\\temp\\testLoopTagNestedLoopsWithTwoCallsInnerLoop.txt", "w") as f:
+            f.write(commands)
+
+        self.assertEqual(len(SeqDiagBuilder.getWarningList()), 0)
+
+        self.assertEqual(
+'''@startuml
+
+actor User
+participant ClassLoopNestedInnerTwoCaller
+participant ClassLoopNestedInnerTwo
+participant ClassLeaf
+User -> ClassLoopNestedInnerTwoCaller: call(p1)
+	activate ClassLoopNestedInnerTwoCaller
+	ClassLoopNestedInnerTwoCaller -> ClassLoopNestedInnerTwo: doB(p1)
+		activate ClassLoopNestedInnerTwo
+		loop 3 times
+			loop 5 times
+				ClassLoopNestedInnerTwo -> ClassLeaf: doC1(p1)
+					activate ClassLeaf
+					ClassLoopNestedInnerTwo <-- ClassLeaf: 
+					deactivate ClassLeaf
+				ClassLoopNestedInnerTwo -> ClassLeaf: doC1(p1)
+					activate ClassLeaf
+					ClassLoopNestedInnerTwo <-- ClassLeaf: 
+					deactivate ClassLeaf
+			end
+			ClassLoopNestedInnerTwo -> ClassLeaf: doC2(p1)
+				activate ClassLeaf
+				ClassLoopNestedInnerTwo <-- ClassLeaf: 
+				deactivate ClassLeaf
+		end
+		ClassLoopNestedInnerTwo -> ClassLeaf: doC1(p1)
+			activate ClassLeaf
+			ClassLoopNestedInnerTwo <-- ClassLeaf: 
+			deactivate ClassLeaf
+		ClassLoopNestedInnerTwoCaller <-- ClassLoopNestedInnerTwo: 
+		deactivate ClassLoopNestedInnerTwo
+	User <-- ClassLoopNestedInnerTwoCaller: 
+	deactivate ClassLoopNestedInnerTwoCaller
 @enduml''', commands)
 
         SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
