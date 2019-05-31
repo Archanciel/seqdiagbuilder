@@ -422,7 +422,7 @@ class A:
     def a2(self, a2_p1):
         '''
         :param a2_p1:
-        :seqdiag_return Aa2Return
+        :seqdiag_note method a2 note
         :return:
         '''
         b = B()
@@ -466,7 +466,8 @@ class A:
     def a7(self, a7_p1):
         '''
         :param a7_p1:
-        :seqdiag_return Aa6Return
+        :seqdiag_note method a7 note
+        :seqdiag_return Aa7Return
         :return:
         '''
         b = B()
@@ -687,6 +688,12 @@ participant B
         SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
 
     def testCreateSeqDiagCommandsOnTwoLevelCall(self):
+        '''
+        This test case although tests the #seqdiag_note used in a method
+        documentation.
+
+        :return:
+        '''
         entryPoint = A()
 
         SeqDiagBuilder.activate(parentdir, 'A', 'a2')  # activate sequence diagram building
@@ -696,7 +703,9 @@ participant B
 
         self.assertEqual(len(SeqDiagBuilder.getWarningList()), 0)
 
-        with open("c:\\temp\\ess.txt", "w") as f:
+        commandFile = "c:\\temp\\testCreateSeqDiagCommandsOnTwoLevelCall.txt"
+
+        with open(commandFile, "w") as f:
             f.write(commands)
 
         self.assertEqual(
@@ -714,15 +723,19 @@ participant B
 	end note
 	USER -> A: a2(a2_p1)
 		activate A
+		note right
+			method a2 note
+		end note
 		A -> B: b1(b1_p1)
 			activate B
 			A <-- B: return Bb1Return
 			deactivate B
-		USER <-- A: return Aa2Return
+		USER <-- A: 
 		deactivate A
 @enduml''', commands)
 
         SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
+        os.remove(commandFile)
 
 
     def testCreateSeqDiagCommandsOnThreeLevelCallingMidLevelMethodTwice(self):
@@ -1052,7 +1065,10 @@ participant DSub
 
     def testCreateSeqDiagCommandsOnThreeLevelCallingLastLevelMethodTwice(self):
         '''
-        Calling two level deep method which calls last Level method twice
+        Calling two level deep method which calls last Level method twice. This
+        test case although tests the #seqdiag_note used in a method
+        documentation.
+
         :return:
         '''
         entryPoint = A()
@@ -1064,7 +1080,8 @@ participant DSub
 
         self.assertEqual(len(SeqDiagBuilder.getWarningList()), 0)
 
-        with open("c:\\temp\\ess.txt", "w") as f:
+        commandFile = "c:\\temp\\testCreateSeqDiagCommandsOnThreeLevelCallingLastLevelMethodTwice.txt"
+        with open(commandFile, "w") as f:
             f.write(commands)
 
         self.assertEqual(
@@ -1083,6 +1100,9 @@ participant B
 participant C
 	USER -> A: a7(a7_p1)
 		activate A
+		note right
+			method a7 note
+		end note
 		A -> B: b3(b3_p1)
 			activate B
 			B -> C: c1(c1_p1)
@@ -1095,11 +1115,12 @@ participant C
 				deactivate C
 			A <-- B: return Bb3Return
 			deactivate B
-		USER <-- A: return Aa6Return
+		USER <-- A: return Aa7Return
 		deactivate A
 @enduml''', commands)
 
         SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
+        os.remove(commandFile)
 
 
     def testCreateSeqDiagCommandsOnTwoLevelCallCallingMethodTwice(self):
