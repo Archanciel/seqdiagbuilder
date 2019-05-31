@@ -22,6 +22,7 @@ class ClassLeaf:
     def doC3(self, p1):
         '''
         This the third leaf method of our sequence diagram.
+        :seqdiag_note doC3 method note
         '''
 
         # The next instruction causes SeqDiagBuilder to record the

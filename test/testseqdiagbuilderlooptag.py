@@ -263,9 +263,15 @@ User -> ClassLoopNestedInnerTwoTwoCallsCaller: call(p1)
 	activate ClassLoopNestedInnerTwoTwoCallsCaller
 	ClassLoopNestedInnerTwoTwoCallsCaller -> ClassLoopNestedInnerTwoCalls: doB(p1)
 		activate ClassLoopNestedInnerTwoCalls
+		note right
+			method doB note
+		end note
 		loop 3 times
 			ClassLoopNestedInnerTwoCalls -> ClassLeaf: doC3(p1)
 				activate ClassLeaf
+				note right
+					doC3 method note
+				end note
 				ClassLoopNestedInnerTwoCalls <-- ClassLeaf: 
 				deactivate ClassLeaf
 			loop 5 times

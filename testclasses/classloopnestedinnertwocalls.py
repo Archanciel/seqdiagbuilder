@@ -6,6 +6,7 @@ class ClassLoopNestedInnerTwoCalls:
         This class is used to test the handling of the :seqdiag loop and
         :seqdiag loop end tags with two nested loops. The nested loop contains
         two calls to a leaf method.
+        :seqdiag_note method doB note
         :param p1:
         :return:
         '''
