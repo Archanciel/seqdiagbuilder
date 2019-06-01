@@ -455,13 +455,13 @@ class SeqDiagBuilder:
     This build a svg file which can be displayed in a browsxer.
     '''
 
-    seqDiagWarningList = []
+    _seqDiagWarningList = []
     _projectPath = None
     _isActive = False
     _recordFlowCalled = False
     _seqDiagEntryClass = None
     _seqDiagEntryMethod = None
-    recordedFlowPath = None
+    _recordedFlowPath = None
     _participantDocOrderedDic = None
     _constructorArgProvider = None
     _loopIndexDictionary = None
@@ -492,7 +492,7 @@ class SeqDiagBuilder:
         SeqDiagBuilder._projectPath = projectPath
         SeqDiagBuilder._seqDiagEntryClass = entryClass
         SeqDiagBuilder._seqDiagEntryMethod = entryMethod
-        SeqDiagBuilder.recordedFlowPath = RecordedFlowPath(SeqDiagBuilder._seqDiagEntryClass, SeqDiagBuilder._seqDiagEntryMethod)
+        SeqDiagBuilder._recordedFlowPath = RecordedFlowPath(SeqDiagBuilder._seqDiagEntryClass, SeqDiagBuilder._seqDiagEntryMethod)
         SeqDiagBuilder._isActive = True
         SeqDiagBuilder._participantDocOrderedDic = collections.OrderedDict()
         SeqDiagBuilder._loopIndexDictionary = LoopIndexDictionary()
@@ -510,8 +510,8 @@ class SeqDiagBuilder:
         '''
         SeqDiagBuilder._seqDiagEntryClass = None
         SeqDiagBuilder._seqDiagEntryMethod = None
-        SeqDiagBuilder.recordedFlowPath = None
-        SeqDiagBuilder.seqDiagWarningList = []
+        SeqDiagBuilder._recordedFlowPath = None
+        SeqDiagBuilder._seqDiagWarningList = []
         SeqDiagBuilder._isActive = False
         SeqDiagBuilder._recordFlowCalled = False
         SeqDiagBuilder._participantDocOrderedDic = collections.OrderedDict()
@@ -528,7 +528,7 @@ class SeqDiagBuilder:
         '''
         commandFileHeaderSectionStr = "@startuml\n"
 
-        warningNb = len(SeqDiagBuilder.seqDiagWarningList)
+        warningNb = len(SeqDiagBuilder._seqDiagWarningList)
 
         if warningNb > 0:
             # building a header containing the warnings. If several warnings are issued, they are numbered.
@@ -538,7 +538,7 @@ class SeqDiagBuilder:
             if warningNb > 1:
                 warningIndex = 1
 
-            for warning in SeqDiagBuilder.seqDiagWarningList:
+            for warning in SeqDiagBuilder._seqDiagWarningList:
                 if warningIndex:
                     commandFileHeaderSectionStr += "<b><font color=red size=20> {}</font></b>\n".format(warningIndex)
                     warningIndex += 1
@@ -676,12 +676,12 @@ class SeqDiagBuilder:
         '''
         isFlowRecorded = True
 
-        if SeqDiagBuilder.recordedFlowPath == None:
+        if SeqDiagBuilder._recordedFlowPath == None:
             isEntryPointReached = False
             isFlowRecorded = False
             SeqDiagBuilder._issueNoFlowRecordedWarning(isEntryPointReached)
-        elif SeqDiagBuilder.recordedFlowPath.isEmpty():
-            isEntryPointReached = SeqDiagBuilder.recordedFlowPath.entryPointReached
+        elif SeqDiagBuilder._recordedFlowPath.isEmpty():
+            isEntryPointReached = SeqDiagBuilder._recordedFlowPath.entryPointReached
             isFlowRecorded = False
             SeqDiagBuilder._issueNoFlowRecordedWarning(isEntryPointReached)
 
@@ -696,14 +696,14 @@ class SeqDiagBuilder:
                 seqDiagCommandStr += "\nactor {}\n".format(actorName)
             seqDiagCommandStr += SeqDiagBuilder._buildClassNoteSection(SeqDiagBuilder._participantDocOrderedDic,
                                                                        maxNoteCharLen)
-            firstFlowEntry = SeqDiagBuilder.recordedFlowPath.flowEntryList[0]
+            firstFlowEntry = SeqDiagBuilder._recordedFlowPath.flowEntryList[0]
             firstFlowEntry.fromClass = actorName
             fromClass = firstFlowEntry.fromClass
             commandStr = SeqDiagBuilder._handleSeqDiagForwardMesssageCommand(fromClass, firstFlowEntry, classMethodReturnStack, maxSigArgNum, maxSigCharLen, maxNoteCharLen)
             seqDiagCommandStr += commandStr
             fromClass = firstFlowEntry.toClass
 
-            for flowEntry in SeqDiagBuilder.recordedFlowPath.flowEntryList[1:]:
+            for flowEntry in SeqDiagBuilder._recordedFlowPath.flowEntryList[1:]:
                 if not classMethodReturnStack.containsFromCall(flowEntry):
                     commandStr = SeqDiagBuilder._handleSeqDiagForwardMesssageCommand(fromClass, flowEntry, classMethodReturnStack, maxSigArgNum, maxSigCharLen, maxNoteCharLen)
                     seqDiagCommandStr += commandStr
@@ -880,7 +880,7 @@ class SeqDiagBuilder:
         if not SeqDiagBuilder._isActive:
             return
 
-        SeqDiagBuilder.recordedFlowPath.entryPointReached = False
+        SeqDiagBuilder._recordedFlowPath.entryPointReached = False
 
         # get the stack trace at this point of execution
         frameListLine = repr(traceback.extract_stack())
@@ -942,7 +942,7 @@ class SeqDiagBuilder:
                         fromClassName = toClassName
                         fromMethodName = toMethodName
                         toMethodCallLineNumber = "{}-{}".format(toMethodCallLineNumber, methodCallLineNumber)
-                        SeqDiagBuilder.recordedFlowPath.addIfNotIn(flowEntry)
+                        SeqDiagBuilder._recordedFlowPath.addIfNotIn(flowEntry)
 
 
     @staticmethod
@@ -988,12 +988,12 @@ class SeqDiagBuilder:
 
     @staticmethod
     def _issueWarning(warningStr):
-        SeqDiagBuilder.seqDiagWarningList.append(warningStr)
+        SeqDiagBuilder._seqDiagWarningList.append(warningStr)
 
 
     @staticmethod
     def getWarningList():
-        return SeqDiagBuilder.seqDiagWarningList
+        return SeqDiagBuilder._seqDiagWarningList
 
 
     @staticmethod
