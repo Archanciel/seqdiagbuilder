@@ -438,12 +438,65 @@ class ConstructorArgsProvider:
 
 class LoopIndexDictionary():
     '''
-
+    This class manages the seqdiag loop commands inserted in the body of the
+    methods called within the control flow recorded by SeqDiagBuilder. The
+    informations stored are the class and method name containing seqdiag loop
+    commands and their line number associated to the seqdiag loop command type:
+    start, startEnd and end.
     '''
     _loopIndexDic = None
 
-    def storeLoopCommands(self, methodBodyLines):
-        pass
+    def __init__(self):
+        self._loopIndexDic = {}
+
+    def storeLoopCommands(self, fromClassName, fromMethodName, methodStartLineNumber, methodBodyLines):
+        '''
+        Find in the passed methodBodyLines the seqdiag loop commands and
+        store them in the internal _loopIndexDic.
+        :param methodBodyLines:
+        :return:
+        '''
+        loopIndexList = []
+        lineNb = 0
+
+        for line in methodBodyLines[0]:
+            if SEQDIAG_LOOP_START_TAG in line:
+                loopCommandLineNb = methodStartLineNumber + lineNb
+                toClassName, toMethodName = self.extractTargetNames(methodBodyLines, line)
+                dicKey = self.buildKey(fromClassName, fromMethodName, methodStartLineNumber, toClassName, toMethodName)
+                self._loopIndexDic[dicKey] = SEQDIAG_LOOP_START_TAG
+                loopIndexList.append([loopCommandLineNb, line])
+            elif SEQDIAG_LOOP_END_TAG in line:
+                loopIndexList.append([loopCommandLineNb, line])
+            elif SEQDIAG_LOOP_START_END_TAG in line:
+                loopIndexList.append([loopCommandLineNb, line])
+            lineNb += 1
+
+        return
+
+    def buildKey(self, fromClassName, fromMethodName, methodStartLineNumber, toClassName, toMethodName):
+        '''
+        Builds the key, enforcing the internal format of the dictionary.
+        :param fromClassName:
+        :param fromMethodName:
+        :param methodStartLineNumber:
+        :param toClassName: 
+        :param toMethodName: 
+        :return: 
+        '''
+        return fromClassName + "." + fromMethodName + "->" + toClassName + "." + toMethodName + ": " + str(
+            methodStartLineNumber)
+
+    def extractTargetNames(self, methodBodyLines, line):
+        '''
+        Extrat from line the target class and method name. Uses the passed
+        methodBodyLines to determine the target class name, i.e. the type of
+        the variable to which the method message is sent.
+        :param methodBodyLines:
+        :param line:
+        :return:
+        '''
+        return 'dummyToC', 'dummyToM'
 
 
 class SeqDiagBuilder:
@@ -1052,18 +1105,7 @@ class SeqDiagBuilder:
                     methodDoc = methodObj.__doc__
                     methodBodyLines = inspect.getsourcelines(methodObj)
 
-                    SeqDiagBuilder._loopIndexDictionary.storeLoopCommands(methodBodyLines)
-                    loopIndexList = []
-                    lineNb = 0
-
-                    for line in methodBodyLines[0]:
-                        if SEQDIAG_LOOP_START_TAG in line:
-                            loopIndexList.append([methodStartLineNumber + lineNb, line])
-                        elif SEQDIAG_LOOP_END_TAG in line:
-                            loopIndexList.append([methodStartLineNumber + lineNb, line])
-                        elif SEQDIAG_LOOP_START_END_TAG in line:
-                            loopIndexList.append([methodStartLineNumber + lineNb, line])
-                        lineNb += 1
+                    SeqDiagBuilder._loopIndexDictionary.storeLoopCommands(className, methodName, methodStartLineNumber, methodBodyLines)
 
                     if methodDoc:
                         # get method return type from method documentation
