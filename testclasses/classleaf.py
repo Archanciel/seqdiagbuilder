@@ -29,10 +29,20 @@ class ClassLeaf:
         # whole control flow which conducted to call the present method.
         SeqDiagBuilder.recordFlow()
 
+    def doCWithNote(self, p1):
+        '''
+        This the first leaf method of our sequence diagram.
+        :seqdiag_note doCWithNote method note
+        '''
+
+        # The next instruction causes SeqDiagBuilder to record the
+        # whole control flow which conducted to call the present method.
+        SeqDiagBuilder.recordFlow()
+
     def doCLoop(self, p1):
         '''
         This the 4th leaf method of our sequence diagram.
-        :seqdiag_note doC3 method note
+        :seqdiag_note doCLoop method note
         '''
         a = 0
 
@@ -44,7 +54,7 @@ class ClassLeaf:
     def doCLoopStartEnd(self, p1):
         '''
         This the 5th leaf method of our sequence diagram.
-        :seqdiag_note doC3 method note
+        :seqdiag_note doCLoopStartEnd method note
         '''
         a = 0
 

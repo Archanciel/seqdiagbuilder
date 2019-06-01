@@ -123,7 +123,7 @@ User -> ClassLoopTwoMethodCallCaller: call(p1)
         command using the :seqdiag_loop tags added in the body of a method
         containing a nested loop. The nested loop (inner loop) itself
         contains only one call to a leaf function. This means that the
-        :seqdiag loop start end tag is used.
+        :seqdiag loop start end tag is used there.
         '''
         entryPoint = ClassLoopNestedInnerOneCaller()
 
@@ -150,8 +150,11 @@ User -> ClassLoopNestedInnerOneCaller: call(p1)
 		activate ClassLoopNestedInnerOne
 		loop 3 times
 			loop 5 times
-				ClassLoopNestedInnerOne -> ClassLeaf: doC1(p1)
+				ClassLoopNestedInnerOne -> ClassLeaf: doCWithNote(p1)
 					activate ClassLeaf
+					note right
+						doCWithNote method note
+					end note
 					ClassLoopNestedInnerOne <-- ClassLeaf: 
 					deactivate ClassLeaf
 			end
@@ -210,7 +213,7 @@ User -> ClassLoopMultiNestedLoopCaller: call(p1)
 						ClassMidLoop -> ClassLeaf: doCLoop(p1)
 							activate ClassLeaf
 							note right
-								doC3 method note
+								doCLoop method note
 							end note
 							loop 2 times
 								ClassLeaf -> ClassLeaf: doC1(p1)
@@ -227,7 +230,7 @@ User -> ClassLoopMultiNestedLoopCaller: call(p1)
 						ClassMidLoop -> ClassLeaf: doCLoopStartEnd(p1)
 							activate ClassLeaf
 							note right
-								doC3 method note
+								doCLoopStartEnd method note
 							end note
 							loop 3 times
 								ClassLeaf -> ClassLeaf: doC1(p1)
