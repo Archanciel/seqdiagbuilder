@@ -96,10 +96,11 @@ class FlowEntry:
         return self.equalFrom(entry) and self.toMethodCalledFromLineNumber != entry.toMethodCalledFromLineNumber
 
 
-    def getIndentNumber(self):
+    def getCallDepth(self):
         '''
-        Calculate the number of time the Plant UML command must be indented in function
-        of the call depth level of the FlowEntry
+        Calculate current call depth. This info will be used to determine the
+        number of time the Plant UML command must be indented aswell as for
+        managing loop end command insertion.
         :return:
         '''
         return self.toMethodCalledFromLineNumber.count('-')
@@ -435,6 +436,16 @@ class ConstructorArgsProvider:
         return firstKeyArgs
 
 
+class LoopIndexDictionary():
+    '''
+
+    '''
+    _loopIndexDic = None
+
+    def storeLoopCommands(self, methodBodyLines):
+        pass
+
+
 class SeqDiagBuilder:
     '''
     This class contains a static utility methods used to build a sequence diagram from the
@@ -453,6 +464,7 @@ class SeqDiagBuilder:
     recordedFlowPath = None
     _participantDocOrderedDic = None
     _constructorArgProvider = None
+    _loopIndexDictionary = None
 
     @staticmethod
     def activate(projectPath, entryClass, entryMethod, classArgDic = None):
@@ -483,6 +495,7 @@ class SeqDiagBuilder:
         SeqDiagBuilder.recordedFlowPath = RecordedFlowPath(SeqDiagBuilder._seqDiagEntryClass, SeqDiagBuilder._seqDiagEntryMethod)
         SeqDiagBuilder._isActive = True
         SeqDiagBuilder._participantDocOrderedDic = collections.OrderedDict()
+        SeqDiagBuilder._loopIndexDictionary = LoopIndexDictionary()
 
         if classArgDic:
             SeqDiagBuilder._constructorArgProvider = ConstructorArgsProvider(classArgDic)
@@ -503,6 +516,7 @@ class SeqDiagBuilder:
         SeqDiagBuilder._recordFlowCalled = False
         SeqDiagBuilder._participantDocOrderedDic = collections.OrderedDict()
         SeqDiagBuilder._constructorArgProvider = None
+        SeqDiagBuilder._loopIndexDictionary = None
 
 
     @staticmethod
@@ -798,9 +812,11 @@ class SeqDiagBuilder:
         toMethod = flowEntry.toMethod
         toSignature = flowEntry.createSignature(maxSigArgNum, maxSigCharLen)
         toMethodNote = flowEntry.toMethodNote
-        indentStr = SeqDiagBuilder._getForwardIndent(flowEntry)
+        callDepth = flowEntry.getCallDepth()
+        indentStr = callDepth * TAB_CHAR
         commandStr = SeqDiagBuilder._addForwardSeqDiagCommand(fromClass, toClass, toMethod, toSignature, indentStr)
 
+        # adding loop command
         # adding method note
         if toMethodNote != '':
             toMethodNoteLineList = SeqDiagBuilder._splitNoteToLines(toMethodNote, maxNoteCharLen * 1.5)
@@ -817,22 +833,13 @@ class SeqDiagBuilder:
 
 
     @staticmethod
-    def _getForwardIndent(flowEntry):
-        '''
-        Returns the forward ident string.
-        :param flowEntry:
-        :return:
-        '''
-        return flowEntry.getIndentNumber() * TAB_CHAR
-
-    @staticmethod
     def _getReturnIndent(returnEntry):
         '''
         Returns the return ident string .
         :param returnEntry:
         :return:
         '''
-        return (returnEntry.getIndentNumber() + 1) * TAB_CHAR
+        return (returnEntry.getCallDepth() + 1) * TAB_CHAR
 
     @staticmethod
     def _addForwardSeqDiagCommand(fromClass, toClass, method, signature, indentStr):
@@ -1045,6 +1052,7 @@ class SeqDiagBuilder:
                     methodDoc = methodObj.__doc__
                     methodBodyLines = inspect.getsourcelines(methodObj)
 
+                    SeqDiagBuilder._loopIndexDictionary.storeLoopCommands(methodBodyLines)
                     loopIndexList = []
                     lineNb = 0
 
