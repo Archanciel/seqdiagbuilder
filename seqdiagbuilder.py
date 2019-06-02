@@ -504,12 +504,14 @@ class LoopIndexDictionary():
     def extractLoopTimeNumber(self, seqdiagLoopTag, instructionLine):
         pattern = seqdiagLoopTag + r' ([\w ]*)'
         match = re.search(pattern, instructionLine)
+
+        if not match:
+            return None
+
         loopTimeNumber = match.group(1)
 
         if loopTimeNumber:
             return loopTimeNumber.strip()
-        else:
-            return ''
 
 
     def addKeyValue(self, dicKey, seqdiagLoopTag, loopTimeNumber):
