@@ -423,7 +423,7 @@ class ConstructorArgsProvider:
                 return args
             else:
                 # here, the ctor argument(s) are reusable and need not be removed from the classArgDic
-                return self.classArgDic.get(className, None)
+                return self.classArgDic.getLoopCommandListForKey(className, None)
 
         # here, the keyList contains more than one key, which means that several sets of ctor
         # arguments were specified for className, which means that at each instanciation, the used
@@ -484,7 +484,7 @@ class LoopIndexDictionary():
         :param fromMethodName:
         :param toMethodName:
         :param methodCallLineNumber:
-        :return:
+        :return: dictionary key
         '''
         return fromClassName + "." + fromMethodName + "->" + toMethodName + ": " + str(
             methodCallLineNumber)
@@ -502,6 +502,13 @@ class LoopIndexDictionary():
         return match.group(1)
 
     def extractLoopTimeNumber(self, seqdiagLoopTag, instructionLine):
+        '''
+        Extracts the loop time number from a line which is typically
+        :seqdiag_loop_start 100 times. In this example, returns '100 times'.
+        :param seqdiagLoopTag:
+        :param instructionLine:
+        :return: if no loop timÉs info is defined, returns None
+        '''
         pattern = seqdiagLoopTag + r' ([\w ]*)'
         match = re.search(pattern, instructionLine)
 
@@ -515,6 +522,22 @@ class LoopIndexDictionary():
 
 
     def addKeyValue(self, dicKey, seqdiagLoopTag, loopTimeNumber):
+        '''
+        Add to the internal dictionary the seqdiagLoopTag and loopTimeNumber
+        for the passed dicKey.
+
+        The value associated to a key is a list of two entries lists. This
+        is adapted to the case where two seqdiag loop tags are on the same
+        line, like, for example,
+        #:seqdiag_loop_start 3 times :seqdiag_loop_start_end 5 times.
+        Each seqdiag loop command is composed of two elements: the command
+        itself and the loop times info (may be None).
+
+        :param dicKey:
+        :param seqdiagLoopTag:
+        :param loopTimeNumber: may be None
+        :return:
+        '''
         loopTagTimeList = [seqdiagLoopTag, loopTimeNumber]
 
         if dicKey in self._loopIndexDic:
@@ -522,7 +545,17 @@ class LoopIndexDictionary():
         else:
             self._loopIndexDic[dicKey] = [loopTagTimeList]
 
-    def get(self, key):
+    def getLoopCommandListForKey(self, key):
+        '''
+        Return a list containing one or more 2 element list representing
+        a seqdiag loop command. In case more than one seqdiag loop command
+        are defined on the instruction line, the returned list contains more
+        than one sublist. Each seqdiag loop command is represented by a 2
+        element list. Example: [':seqdiag_loop_start_end', '5 times'] or
+        [':seqdiag_loop_start_end', None]
+        :param key: key according to format ensured y the buildKey(b method.
+        :return:
+        '''
         if key in self._loopIndexDic:
             return self._loopIndexDic[key]
         else:

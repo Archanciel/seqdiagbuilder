@@ -30,13 +30,13 @@ class TestLoopIndexDictionary(unittest.TestCase):
         key_17 = loopIdxDic.buildKey(className, methodName, 'doCWithNote', 17)
 
         self.assertIsNotNone(key_17)
-        value_17 = loopIdxDic.get(key_17)
+        value_17 = loopIdxDic.getLoopCommandListForKey(key_17)
         self.assertEqual(len(value_17), 2)
         self.assertEqual(value_17[0], [':seqdiag_loop_start', '3 times'], [':seqdiag_loop_start_end', '5 times'])
 
         key_20 = loopIdxDic.buildKey(className, methodName, 'doC2', 20)
         self.assertIsNotNone(key_20)
-        value_20 = loopIdxDic.get(key_20)
+        value_20 = loopIdxDic.getLoopCommandListForKey(key_20)
         self.assertEqual(value_20[0], [':seqdiag_loop_end', None])
 
     def testLoopIndexDictionaryClassLoopNestedInnerOneNoTimeInfo(self):
@@ -58,13 +58,13 @@ class TestLoopIndexDictionary(unittest.TestCase):
         key_17 = loopIdxDic.buildKey(className, methodName, 'doCWithNote', 17)
 
         self.assertIsNotNone(key_17)
-        value_17 = loopIdxDic.get(key_17)
+        value_17 = loopIdxDic.getLoopCommandListForKey(key_17)
         self.assertEqual(len(value_17), 2)
         self.assertEqual(value_17[0], [':seqdiag_loop_start', None], [':seqdiag_loop_start_end', None])
 
         key_20 = loopIdxDic.buildKey(className, methodName, 'doC2', 20)
         self.assertIsNotNone(key_20)
-        value_20 = loopIdxDic.get(key_20)
+        value_20 = loopIdxDic.getLoopCommandListForKey(key_20)
         self.assertEqual(value_20[0], [':seqdiag_loop_end', None])
 
 if __name__ == '__main__':
