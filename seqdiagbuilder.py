@@ -449,54 +449,82 @@ class LoopIndexDictionary():
     def __init__(self):
         self._loopIndexDic = {}
 
-    def storeLoopCommands(self, fromClassName, fromMethodName, methodStartLineNumber, methodBodyLines):
+    def storeLoopCommands(self, fromClassName, fromMethodName, currentMethodStartLineNumber, methodBodyLines):
         '''
         Find in the passed methodBodyLines the seqdiag loop commands and
         store them in the internal _loopIndexDic.
-        :param methodBodyLines:
         :return:
         '''
-        loopIndexList = []
         lineNb = 0
 
         for line in methodBodyLines[0]:
-            if SEQDIAG_LOOP_START_TAG in line:
-                loopCommandLineNb = methodStartLineNumber + lineNb
-                toClassName, toMethodName = self.extractTargetNames(methodBodyLines, line)
-                dicKey = self.buildKey(fromClassName, fromMethodName, methodStartLineNumber, toClassName, toMethodName)
-                self._loopIndexDic[dicKey] = SEQDIAG_LOOP_START_TAG
-                loopIndexList.append([loopCommandLineNb, line])
-            elif SEQDIAG_LOOP_END_TAG in line:
-                loopIndexList.append([loopCommandLineNb, line])
-            elif SEQDIAG_LOOP_START_END_TAG in line:
-                loopIndexList.append([loopCommandLineNb, line])
+            if (SEQDIAG_LOOP_START_TAG in line) or (SEQDIAG_LOOP_END_TAG in line) or (SEQDIAG_LOOP_START_END_TAG in line):
+                # adding to the currentMethodStartLineNumber the current line
+                # number gives the line number on whichsthe seqdiag loop
+                # command is located
+                loopCommandLineNb = currentMethodStartLineNumber + lineNb
+                toMethodName = self.extractTargetMethodName(line)
+                dicKey = self.buildKey(fromClassName, fromMethodName, toMethodName, loopCommandLineNb)
+
+                if SEQDIAG_LOOP_START_TAG in line:
+                    loopTimeNumber = self.extractLoopTimeNumber(SEQDIAG_LOOP_START_TAG, line)
+                    self.addKeyValue(dicKey, SEQDIAG_LOOP_START_TAG, loopTimeNumber)
+                if SEQDIAG_LOOP_START_END_TAG in line:
+                    loopTimeNumber = self.extractLoopTimeNumber(SEQDIAG_LOOP_START_END_TAG, line)
+                    self.addKeyValue(dicKey, SEQDIAG_LOOP_START_END_TAG, loopTimeNumber)
+                if SEQDIAG_LOOP_END_TAG in line:
+                    self.addKeyValue(dicKey, SEQDIAG_LOOP_END_TAG, None)
             lineNb += 1
 
-        return
-
-    def buildKey(self, fromClassName, fromMethodName, methodStartLineNumber, toClassName, toMethodName):
+    def buildKey(self, fromClassName, fromMethodName, toMethodName, methodCallLineNumber):
         '''
-        Builds the key, enforcing the internal format of the dictionary.
+        Builds the dictionary key, enforcing the internal format of the
+        dictionary.
         :param fromClassName:
         :param fromMethodName:
-        :param methodStartLineNumber:
-        :param toClassName: 
-        :param toMethodName: 
-        :return: 
-        '''
-        return fromClassName + "." + fromMethodName + "->" + toClassName + "." + toMethodName + ": " + str(
-            methodStartLineNumber)
-
-    def extractTargetNames(self, methodBodyLines, line):
-        '''
-        Extrat from line the target class and method name. Uses the passed
-        methodBodyLines to determine the target class name, i.e. the type of
-        the variable to which the method message is sent.
-        :param methodBodyLines:
-        :param line:
+        :param toMethodName:
+        :param methodCallLineNumber:
         :return:
         '''
-        return 'dummyToC', 'dummyToM'
+        return fromClassName + "." + fromMethodName + "->" + toMethodName + ": " + str(
+            methodCallLineNumber)
+
+    def extractTargetMethodName(self, seqdiagTagLine):
+        '''
+        Extract from the seqdiag loop command line the target method name.
+
+        :param seqdiagTagLine: line on which the seqdiag loop command is located
+        :return: target method name
+        '''
+        pattern = r'.([\w _]+)\('
+        match = re.search(pattern, seqdiagTagLine)
+
+        return match.group(1)
+
+    def extractLoopTimeNumber(self, seqdiagLoopTag, instructionLine):
+        pattern = seqdiagLoopTag + r' ([\w ]*)'
+        match = re.search(pattern, instructionLine)
+        loopTimeNumber = match.group(1)
+
+        if loopTimeNumber:
+            return loopTimeNumber.strip()
+        else:
+            return ''
+
+
+    def addKeyValue(self, dicKey, seqdiagLoopTag, loopTimeNumber):
+        loopTagTimeList = [seqdiagLoopTag, loopTimeNumber]
+
+        if dicKey in self._loopIndexDic:
+            self._loopIndexDic[dicKey].append(loopTagTimeList)
+        else:
+            self._loopIndexDic[dicKey] = [loopTagTimeList]
+
+    def get(self, key):
+        if key in self._loopIndexDic:
+            return self._loopIndexDic[key]
+        else:
+            return None
 
 
 class SeqDiagBuilder:
