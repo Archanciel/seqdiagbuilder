@@ -423,7 +423,7 @@ class ConstructorArgsProvider:
                 return args
             else:
                 # here, the ctor argument(s) are reusable and need not be removed from the classArgDic
-                return self.classArgDic.getLoopCommandListForKey(className, None)
+                return self.classArgDic.get(className, None)
 
         # here, the keyList contains more than one key, which means that several sets of ctor
         # arguments were specified for className, which means that at each instanciation, the used
