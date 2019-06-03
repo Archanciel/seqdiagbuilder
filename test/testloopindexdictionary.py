@@ -13,6 +13,20 @@ from seqdiagbuilder import LoopIndexDictionary
 from seqdiagbuilder import SEQDIAG_LOOP_START_TAG, SEQDIAG_LOOP_START_END_TAG, SEQDIAG_LOOP_END_TAG
 
 class TestLoopIndexDictionary(unittest.TestCase):
+    def testBuildKey(self):
+        '''
+        Test the correct working of the LoopIndexDictionary.
+        :return:
+        '''
+        loopIdxDic = LoopIndexDictionary()
+        fromClassName = 'ClassLoopNestedInnerOne'
+        fromMethodName = 'doB'
+        toMethodName = 'doCWithNote'
+        key = loopIdxDic.buildKey(fromClassName, fromMethodName, toMethodName, 17)
+
+        self.assertIsNotNone(key)
+        self.assertEqual(key, 'ClassLoopNestedInnerOne.doB->doCWithNote: 17')
+
     def testLoopIndexDictionaryClassLoopNestedInnerOne(self):
         '''
         Test the correct working of the LoopIndexDictionary.
@@ -20,24 +34,19 @@ class TestLoopIndexDictionary(unittest.TestCase):
         '''
         loopIdxDic = LoopIndexDictionary()
         sourcePathFileName = parentdir + "\\testclasses\\classloopnestedinnerone.py"
-        className = 'ClassLoopNestedInnerOne'
-        methodName = 'doB'
+        fromClassName = 'ClassLoopNestedInnerOne'
+        fromMethodName = 'doB'
 
         with open(sourcePathFileName, "r") as f:
             contentList = f.readlines()
-            methodDefLineIndex = [i for (i, entry) in enumerate(contentList) if methodName in entry][0]
-            loopIdxDic.storeLoopCommands(className, methodName, methodDefLineIndex + 1, [contentList[methodDefLineIndex:]])
+            methodDefLineIndex = [i for (i, entry) in enumerate(contentList) if fromMethodName in entry][0]
+            loopIdxDic.storeLoopCommands(fromClassName, fromMethodName, methodDefLineIndex + 1, [contentList[methodDefLineIndex:]])
 
-        key_17 = loopIdxDic.buildKey(className, methodName, 'doCWithNote', 17)
-
-        self.assertIsNotNone(key_17)
-        value_17 = loopIdxDic.getLoopCommandListForKey(key_17)
+        value_17 = loopIdxDic.getLoopCommandListForKey(fromClassName, fromMethodName, 'doCWithNote', 17)
         self.assertEqual(len(value_17), 2)
         self.assertEqual(value_17[0], [':seqdiag_loop_start', '3 times'], [':seqdiag_loop_start_end', '5 times'])
 
-        key_20 = loopIdxDic.buildKey(className, methodName, 'doC2', 20)
-        self.assertIsNotNone(key_20)
-        value_20 = loopIdxDic.getLoopCommandListForKey(key_20)
+        value_20 = loopIdxDic.getLoopCommandListForKey(fromClassName, fromMethodName, 'doC2', 20)
         self.assertEqual(value_20[0], [':seqdiag_loop_end', None])
 
     def testLoopIndexDictionaryClassLoopNestedInnerOneNoTimeInfo(self):
@@ -48,24 +57,19 @@ class TestLoopIndexDictionary(unittest.TestCase):
         '''
         loopIdxDic = LoopIndexDictionary()
         sourcePathFileName = parentdir + "\\testclasses\\classloopnestedinneronefortestloopidxdic.py"
-        className = 'ClassLoopNestedInnerOneForTestLoopIdxDic'
-        methodName = 'doB'
+        fromClassName = 'ClassLoopNestedInnerOneForTestLoopIdxDic'
+        fromMethodName = 'doB'
 
         with open(sourcePathFileName, "r") as f:
             contentList = f.readlines()
-            methodDefLineIndex = [i for (i, entry) in enumerate(contentList) if methodName in entry][0]
-            loopIdxDic.storeLoopCommands(className, methodName, methodDefLineIndex + 1, [contentList[methodDefLineIndex:]])
+            methodDefLineIndex = [i for (i, entry) in enumerate(contentList) if fromMethodName in entry][0]
+            loopIdxDic.storeLoopCommands(fromClassName, fromMethodName, methodDefLineIndex + 1, [contentList[methodDefLineIndex:]])
 
-        key_17 = loopIdxDic.buildKey(className, methodName, 'doCWithNote', 17)
-
-        self.assertIsNotNone(key_17)
-        value_17 = loopIdxDic.getLoopCommandListForKey(key_17)
+        value_17 = loopIdxDic.getLoopCommandListForKey(fromClassName, fromMethodName, 'doCWithNote', 17)
         self.assertEqual(len(value_17), 2)
         self.assertEqual(value_17[0], [':seqdiag_loop_start', None], [':seqdiag_loop_start_end', None])
 
-        key_20 = loopIdxDic.buildKey(className, methodName, 'doC2', 20)
-        self.assertIsNotNone(key_20)
-        value_20 = loopIdxDic.getLoopCommandListForKey(key_20)
+        value_20 = loopIdxDic.getLoopCommandListForKey(fromClassName, fromMethodName, 'doC2', 20)
         self.assertEqual(value_20[0], [':seqdiag_loop_end', None])
 
     def testExtractLoopTimeNumberOneLoopTagOnInstructionLine(self):
@@ -128,7 +132,6 @@ class TestLoopIndexDictionary(unittest.TestCase):
 
         loopTime = loopIdxDic.extractLoopTimeNumber(SEQDIAG_LOOP_START_END_TAG, instructionLine)
         self.assertEqual(loopTime, '5 times')
-
 
 if __name__ == '__main__':
     unittest.main()

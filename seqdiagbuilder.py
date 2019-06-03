@@ -545,7 +545,7 @@ class LoopIndexDictionary():
         else:
             self._loopIndexDic[dicKey] = [loopTagTimeList]
 
-    def getLoopCommandListForKey(self, key):
+    def getLoopCommandListForKey(self, fromClassName, fromMethodName, toMethodName, lineNb):
         '''
         Return a list containing one or more 2 element list representing
         a seqdiag loop command. In case more than one seqdiag loop command
@@ -553,9 +553,15 @@ class LoopIndexDictionary():
         than one sublist. Each seqdiag loop command is represented by a 2
         element list. Example: [':seqdiag_loop_start_end', '5 times'] or
         [':seqdiag_loop_start_end', None]
-        :param key: key according to format ensured y the buildKey(b method.
+
+        :param fromClassName:
+        :param fromMethodName:
+        :param toMethodName:
+        :param lineNb:
         :return:
         '''
+        key = self.buildKey(fromClassName, fromMethodName, toMethodName, lineNb)
+
         if key in self._loopIndexDic:
             return self._loopIndexDic[key]
         else:
