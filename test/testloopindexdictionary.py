@@ -10,6 +10,7 @@ sys.path.insert(0,currentdir) # this instruction is necessary for successful imp
                               # the test is executed standalone
 
 from seqdiagbuilder import LoopIndexDictionary
+from seqdiagbuilder import SEQDIAG_LOOP_START_TAG, SEQDIAG_LOOP_START_END_TAG, SEQDIAG_LOOP_END_TAG
 
 class TestLoopIndexDictionary(unittest.TestCase):
     def testLoopIndexDictionaryClassLoopNestedInnerOne(self):
@@ -66,6 +67,68 @@ class TestLoopIndexDictionary(unittest.TestCase):
         self.assertIsNotNone(key_20)
         value_20 = loopIdxDic.getLoopCommandListForKey(key_20)
         self.assertEqual(value_20[0], [':seqdiag_loop_end', None])
+
+    def testExtractLoopTimeNumberOneLoopTagOnInstructionLine(self):
+        '''
+        Tests instruction line with only one seqdiag loop tag.
+        :return:
+        '''
+        loopIdxDic = LoopIndexDictionary()
+
+        instructionLine = SEQDIAG_LOOP_START_TAG + ' 3 times'
+        loopTime = loopIdxDic.extractLoopTimeNumber(SEQDIAG_LOOP_START_TAG, instructionLine)
+        self.assertEqual(loopTime, '3 times')
+
+        instructionLine = SEQDIAG_LOOP_START_TAG + '\t3 times'
+        loopTime = loopIdxDic.extractLoopTimeNumber(SEQDIAG_LOOP_START_TAG, instructionLine)
+        self.assertEqual(loopTime, '3 times')
+
+        instructionLine = SEQDIAG_LOOP_START_TAG + '  3 times'
+        loopTime = loopIdxDic.extractLoopTimeNumber(SEQDIAG_LOOP_START_TAG, instructionLine)
+        self.assertEqual(loopTime, '3 times')
+
+        instructionLine = SEQDIAG_LOOP_START_TAG + ' 3 '
+        loopTime = loopIdxDic.extractLoopTimeNumber(SEQDIAG_LOOP_START_TAG, instructionLine)
+        self.assertEqual(loopTime, '3')
+
+    def testExtractLoopTimeNumberTwoLoopTagOnInstructionLine(self):
+        '''
+        Tests instruction line with two seqdiag loop tags.
+        :return:
+        '''
+        loopIdxDic = LoopIndexDictionary()
+
+        instructionLine = SEQDIAG_LOOP_START_TAG + ' 3 times' + SEQDIAG_LOOP_START_END_TAG + ' 5 times'
+        loopTime = loopIdxDic.extractLoopTimeNumber(SEQDIAG_LOOP_START_TAG, instructionLine)
+        self.assertEqual(loopTime, '3 times')
+
+        loopTime = loopIdxDic.extractLoopTimeNumber(SEQDIAG_LOOP_START_END_TAG, instructionLine)
+        self.assertEqual(loopTime, '5 times')
+
+        # adding tab before times info
+        instructionLine = SEQDIAG_LOOP_START_TAG + '\t3 times' + SEQDIAG_LOOP_START_END_TAG + '   5 times'
+        loopTime = loopIdxDic.extractLoopTimeNumber(SEQDIAG_LOOP_START_TAG, instructionLine)
+        self.assertEqual(loopTime, '3 times')
+
+        loopTime = loopIdxDic.extractLoopTimeNumber(SEQDIAG_LOOP_START_END_TAG, instructionLine)
+        self.assertEqual(loopTime, '5 times')
+
+        # adding tab before seqdiag loop command
+        instructionLine = SEQDIAG_LOOP_START_TAG + '\t3 times' + "\t" + SEQDIAG_LOOP_START_END_TAG + '   5 times'
+        loopTime = loopIdxDic.extractLoopTimeNumber(SEQDIAG_LOOP_START_TAG, instructionLine)
+        self.assertEqual(loopTime, '3 times')
+
+        loopTime = loopIdxDic.extractLoopTimeNumber(SEQDIAG_LOOP_START_END_TAG, instructionLine)
+        self.assertEqual(loopTime, '5 times')
+
+        # adding spaces before seqdiag loop command
+        instructionLine = "   " + SEQDIAG_LOOP_START_TAG + '\t3 times' + "\t" + SEQDIAG_LOOP_START_END_TAG + '   5 times'
+        loopTime = loopIdxDic.extractLoopTimeNumber(SEQDIAG_LOOP_START_TAG, instructionLine)
+        self.assertEqual(loopTime, '3 times')
+
+        loopTime = loopIdxDic.extractLoopTimeNumber(SEQDIAG_LOOP_START_END_TAG, instructionLine)
+        self.assertEqual(loopTime, '5 times')
+
 
 if __name__ == '__main__':
     unittest.main()

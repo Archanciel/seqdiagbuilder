@@ -509,7 +509,7 @@ class LoopIndexDictionary():
         :param instructionLine:
         :return: if no loop timÉs info is defined, returns None
         '''
-        pattern = seqdiagLoopTag + r' ([\w ]*)'
+        pattern = seqdiagLoopTag + r'[\s]+([\w ]*)'
         match = re.search(pattern, instructionLine)
 
         if not match:
