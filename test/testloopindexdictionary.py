@@ -133,5 +133,16 @@ class TestLoopIndexDictionary(unittest.TestCase):
         loopTime = loopIdxDic.extractLoopTimeNumber(SEQDIAG_LOOP_START_END_TAG, instructionLine)
         self.assertEqual(loopTime, '5 times')
 
+    def testExtractLoopCommandsFromLine(self):
+        loopIdxDic = LoopIndexDictionary()
+
+        instructionLine = SEQDIAG_LOOP_START_TAG + ' 3 times' + SEQDIAG_LOOP_START_END_TAG + ' 5 times'
+        loopCommandList = loopIdxDic.extractLoopCommandsFromLine(instructionLine)
+        self.assertEqual([':seqdiag_loop_start 3 times', ':seqdiag_loop_start_end 5 times'], loopCommandList)
+
+        instructionLine = SEQDIAG_LOOP_START_TAG + ' 3 times' + SEQDIAG_LOOP_START_END_TAG + ' 5 times' + SEQDIAG_LOOP_START_END_TAG + ' 50 times' + SEQDIAG_LOOP_START_TAG + ' 30 times'
+        loopCommandList = loopIdxDic.extractLoopCommandsFromLine(instructionLine)
+        self.assertEqual([':seqdiag_loop_start 3 times', ':seqdiag_loop_start_end 5 times', ':seqdiag_loop_start_end 50 times', ':seqdiag_loop_start 30 times'], loopCommandList)
+
 if __name__ == '__main__':
     unittest.main()

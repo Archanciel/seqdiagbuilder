@@ -476,6 +476,16 @@ class LoopIndexDictionary():
                     self.addKeyValue(dicKey, SEQDIAG_LOOP_END_TAG, None)
             lineNb += 1
 
+    def extractLoopCommandsFromLine(self, line):
+        subPatt = r"[\s]+[\d]+[\s]+times[\s]*"
+        pattern = r":seqdiag_start" + subPatt + r"|:seqdiag_start_end" + subPatt
+        pattern = SEQDIAG_LOOP_START_TAG + subPatt + "|" + SEQDIAG_LOOP_START_END_TAG + subPatt
+
+        commandList = re.findall(pattern, line)
+        purgedCommandList = [c.strip() for c in commandList]
+
+        return purgedCommandList
+
     def buildKey(self, fromClassName, fromMethodName, toMethodName, methodCallLineNumber):
         '''
         Builds the dictionary key, enforcing the internal format of the
