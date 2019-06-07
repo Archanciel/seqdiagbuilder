@@ -14,7 +14,7 @@ class ClassLoopNestedInnerOneForTestLoopIdxDic:
         for i in range(3):
             a += 1 # dummy instruction
             for i in range(5):
-                c.doCWithNote(p1) #:seqdiag_loop_start :seqdiag_loop_start_end
+                c.doCWithNote(p1) #:seqdiag_loop_start 3 times :seqdiag_loop_start_end 5 times
                 a += 1 # dummy instruction
             a += 1 # dummy instruction
             c.doC2(p1) #:seqdiag_loop_end

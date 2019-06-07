@@ -464,7 +464,7 @@ class LoopIndexDictionary():
                 # command is located
                 loopCommandLineNb = currentMethodStartLineNumber + lineNb
                 toMethodName = self.extractTargetMethodName(line)
-                dicKey = self.buildKey(fromClassName, fromMethodName, toMethodName, loopCommandLineNb)
+                dicKey = self._buildKey(fromClassName, fromMethodName, toMethodName, loopCommandLineNb)
 
                 if SEQDIAG_LOOP_START_TAG in line:
                     loopTimeNumber = self.extractLoopTimeNumber(SEQDIAG_LOOP_START_TAG, line)
@@ -476,17 +476,21 @@ class LoopIndexDictionary():
                     self.addKeyValue(dicKey, SEQDIAG_LOOP_END_TAG, None)
             lineNb += 1
 
-    def extractLoopCommandsFromLine(self, line):
-        subPatt = r"[\s]+[\d]+[\s]+times[\s]*"
-        pattern = r":seqdiag_start" + subPatt + r"|:seqdiag_start_end" + subPatt
+    def extractLoopCommandsFromLine(self, lineStr):
+        '''
+        This method returns a list of seqdiag loop commands defined on the passed lineStr
+        :param lineStr:
+        :return:
+        '''
+        subPatt = r"[\s]+[\d]+[\s]+time[s]?[\s]*"
         pattern = SEQDIAG_LOOP_START_TAG + subPatt + "|" + SEQDIAG_LOOP_START_END_TAG + subPatt
 
-        commandList = re.findall(pattern, line)
+        commandList = re.findall(pattern, lineStr)
         purgedCommandList = [c.strip() for c in commandList]
 
         return purgedCommandList
 
-    def buildKey(self, fromClassName, fromMethodName, toMethodName, methodCallLineNumber):
+    def _buildKey(self, fromClassName, fromMethodName, toMethodName, methodCallLineNumber):
         '''
         Builds the dictionary key, enforcing the internal format of the
         dictionary.
@@ -555,7 +559,7 @@ class LoopIndexDictionary():
         else:
             self._loopIndexDic[dicKey] = [loopTagTimeList]
 
-    def getLoopCommandListForKey(self, fromClassName, fromMethodName, toMethodName, lineNb):
+    def getLoopCommandList(self, fromClassName, fromMethodName, toMethodName, lineNb):
         '''
         Return a list containing one or more 2 element list representing
         a seqdiag loop command. In case more than one seqdiag loop command
@@ -568,9 +572,11 @@ class LoopIndexDictionary():
         :param fromMethodName:
         :param toMethodName:
         :param lineNb:
-        :return:
+        :return: list containing one or more 2 element list representing a
+                 seqdiag loop command or None if no entry found for the input
+                 parms provided
         '''
-        key = self.buildKey(fromClassName, fromMethodName, toMethodName, lineNb)
+        key = self._buildKey(fromClassName, fromMethodName, toMethodName, lineNb)
 
         if key in self._loopIndexDic:
             return self._loopIndexDic[key]
