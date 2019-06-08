@@ -458,7 +458,8 @@ class LoopIndexDictionary():
         lineNb = 0
 
         for line in methodBodyLines[0]:
-            if (SEQDIAG_LOOP_START_TAG in line) or (SEQDIAG_LOOP_END_TAG in line) or (SEQDIAG_LOOP_START_END_TAG in line):
+            loopCommandTupleList = self.extractLoopCommandsFromLine(line)
+            if loopCommandTupleList:
                 # adding to the currentMethodStartLineNumber the current line
                 # number gives the line number on whichsthe seqdiag loop
                 # command is located
@@ -466,30 +467,33 @@ class LoopIndexDictionary():
                 toMethodName = self.extractTargetMethodName(line)
                 dicKey = self._buildKey(fromClassName, fromMethodName, toMethodName, loopCommandLineNb)
 
-                if SEQDIAG_LOOP_START_TAG in line:
-                    loopTimeNumber = self.extractLoopTimeNumber(SEQDIAG_LOOP_START_TAG, line)
-                    self.addKeyValue(dicKey, SEQDIAG_LOOP_START_TAG, loopTimeNumber)
-                if SEQDIAG_LOOP_START_END_TAG in line:
-                    loopTimeNumber = self.extractLoopTimeNumber(SEQDIAG_LOOP_START_END_TAG, line)
-                    self.addKeyValue(dicKey, SEQDIAG_LOOP_START_END_TAG, loopTimeNumber)
-                if SEQDIAG_LOOP_END_TAG in line:
-                    self.addKeyValue(dicKey, SEQDIAG_LOOP_END_TAG, None)
+                for loopCommandTuple in loopCommandTupleList:
+                    loopCommandComment = loopCommandTuple[1]
+                    self.addKeyValue(dicKey, loopCommandTuple[0], loopCommandComment)
             lineNb += 1
 
     def extractLoopCommandsFromLine(self, lineStr):
         '''
         This method returns a list of seqdiag loop commands defined on the passed lineStr.
-        What is returned in fact is a list of 2 elements tuples. Each tuple
-        contains 2 strings: one for the seqdiag loop command and one for the
-        seqdiag loop command comment.
+        What is returned in fact is a list of 2 elements sub list. Each sub list
+        contains 2 strings: one for the seqdiag loop command itself and one for the
+        seqdiag loop command comment (may be an empty string !.
         :param lineStr:
-        :return:
+        :return: list of list(s) denoting loop commands or None if no loop command
+                 found on the passed lineStr
         '''
         pattern = r"(:[\w]+)\s*([\w ]*)"
 
-        commandList = re.findall(pattern, lineStr)
+        commandTupleList = re.findall(pattern, lineStr)
+        listOfCommandList = [list(elem) for elem in commandTupleList]
 
-        return commandList
+        for commandList in listOfCommandList:
+            commandList[1] = commandList[1].strip()
+
+        if listOfCommandList == []:
+            listOfCommandList = None
+
+        return listOfCommandList
 
     def _buildKey(self, fromClassName, fromMethodName, toMethodName, methodCallLineNumber):
         '''
@@ -515,26 +519,6 @@ class LoopIndexDictionary():
         match = re.search(pattern, seqdiagTagLine)
 
         return match.group(1)
-
-    def extractLoopTimeNumber(self, seqdiagLoopTag, instructionLine):
-        '''
-        Extracts the loop time number from a line which is typically
-        :seqdiag_loop_start 100 times. In this example, returns '100 times'.
-        :param seqdiagLoopTag:
-        :param instructionLine:
-        :return: if no loop timÉs info is defined, returns None
-        '''
-        pattern = seqdiagLoopTag + r'[\s]+([\w ]*)'
-        match = re.search(pattern, instructionLine)
-
-        if not match:
-            return None
-
-        loopTimeNumber = match.group(1)
-
-        if loopTimeNumber:
-            return loopTimeNumber.strip()
-
 
     def addKeyValue(self, dicKey, seqdiagLoopTag, loopTimeNumber):
         '''

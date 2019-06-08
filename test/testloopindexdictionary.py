@@ -27,7 +27,7 @@ class TestLoopIndexDictionary(unittest.TestCase):
         self.assertIsNotNone(key)
         self.assertEqual(key, 'ClassLoopNestedInnerOne.doB->doCWithNote: 17')
 
-    def testLoopIndexDictionaryClassLoopNestedInnerOne(self):
+    def testStoreLoopCommandsClassLoopNestedInnerOne(self):
         '''
         Test the correct working of the LoopIndexDictionary on a source file containing loop
         commands.
@@ -48,7 +48,7 @@ class TestLoopIndexDictionary(unittest.TestCase):
         self.assertEqual(value_17[0], [':seqdiag_loop_start', '3 times'], [':seqdiag_loop_start_end', '5 times'])
 
         value_20 = loopIdxDic.getLoopCommandList(fromClassName, fromMethodName, 'doC2', 20)
-        self.assertEqual(value_20[0], [':seqdiag_loop_end', None])
+        self.assertEqual(value_20[0], [':seqdiag_loop_end', ''])
 
     def testLoopIndexDictionaryClassLoopNestedInnerOneNoTimeInfo(self):
         '''
@@ -71,73 +71,7 @@ class TestLoopIndexDictionary(unittest.TestCase):
         self.assertEqual(value_17[0], [':seqdiag_loop_start', '3 times'], [':seqdiag_loop_start_end', '5 times'])
 
         value_20 = loopIdxDic.getLoopCommandList(fromClassName, fromMethodName, 'doC2', 20)
-        self.assertEqual(value_20[0], [':seqdiag_loop_end', None])
-
-    def testExtractLoopTimeNumberOneLoopTagOnInstructionLine(self):
-        '''
-        Tests the extractLoopTimeNumber() on instruction line with only one seqdiag loop tag.
-        :return:
-        '''
-        loopIdxDic = LoopIndexDictionary()
-
-        # using 1 space to separate time from loop start tag
-        instructionLine = SEQDIAG_LOOP_START_TAG + ' 3 times'
-        loopTime = loopIdxDic.extractLoopTimeNumber(SEQDIAG_LOOP_START_TAG, instructionLine)
-        self.assertEqual(loopTime, '3 times')
-
-        # using 1 tab to separate time from loop start tag, time with no 's' !
-        instructionLine = SEQDIAG_LOOP_START_TAG + '\t3 time'
-        loopTime = loopIdxDic.extractLoopTimeNumber(SEQDIAG_LOOP_START_TAG, instructionLine)
-        self.assertEqual(loopTime, '3 time')
-
-        # using 2 spaces to separate time from loop start end tag
-        instructionLine = SEQDIAG_LOOP_START_END_TAG + '  3 times'
-        loopTime = loopIdxDic.extractLoopTimeNumber(SEQDIAG_LOOP_START_END_TAG, instructionLine)
-        self.assertEqual(loopTime, '3 times')
-
-        # not using 'times' word
-        instructionLine = SEQDIAG_LOOP_START_TAG + ' 3 '
-        loopTime = loopIdxDic.extractLoopTimeNumber(SEQDIAG_LOOP_START_TAG, instructionLine)
-        self.assertEqual(loopTime, '3')
-
-    def testExtractLoopTimeNumberTwoLoopTagOnInstructionLine(self):
-        '''
-        Tests the extractLoopTimeNumber() on instruction line with two seqdiag loop tags.
-        :return:
-        '''
-        loopIdxDic = LoopIndexDictionary()
-
-        # adding space before times info
-        instructionLine = SEQDIAG_LOOP_START_TAG + ' 3 times' + SEQDIAG_LOOP_START_END_TAG + ' 5 times'
-        loopTime = loopIdxDic.extractLoopTimeNumber(SEQDIAG_LOOP_START_TAG, instructionLine)
-        self.assertEqual(loopTime, '3 times')
-
-        loopTime = loopIdxDic.extractLoopTimeNumber(SEQDIAG_LOOP_START_END_TAG, instructionLine)
-        self.assertEqual(loopTime, '5 times')
-
-        # adding tab before times info
-        instructionLine = SEQDIAG_LOOP_START_TAG + '\t3 times' + SEQDIAG_LOOP_START_END_TAG + '   5 times'
-        loopTime = loopIdxDic.extractLoopTimeNumber(SEQDIAG_LOOP_START_TAG, instructionLine)
-        self.assertEqual(loopTime, '3 times')
-
-        loopTime = loopIdxDic.extractLoopTimeNumber(SEQDIAG_LOOP_START_END_TAG, instructionLine)
-        self.assertEqual(loopTime, '5 times')
-
-        # adding tab before seqdiag loop command
-        instructionLine = SEQDIAG_LOOP_START_TAG + '\t3 times' + "\t" + SEQDIAG_LOOP_START_END_TAG + '   5 times'
-        loopTime = loopIdxDic.extractLoopTimeNumber(SEQDIAG_LOOP_START_TAG, instructionLine)
-        self.assertEqual(loopTime, '3 times')
-
-        loopTime = loopIdxDic.extractLoopTimeNumber(SEQDIAG_LOOP_START_END_TAG, instructionLine)
-        self.assertEqual(loopTime, '5 times')
-
-        # adding spaces before seqdiag loop command
-        instructionLine = "   " + SEQDIAG_LOOP_START_TAG + '\t3 times' + "\t" + SEQDIAG_LOOP_START_END_TAG + '   5 times'
-        loopTime = loopIdxDic.extractLoopTimeNumber(SEQDIAG_LOOP_START_TAG, instructionLine)
-        self.assertEqual(loopTime, '3 times')
-
-        loopTime = loopIdxDic.extractLoopTimeNumber(SEQDIAG_LOOP_START_END_TAG, instructionLine)
-        self.assertEqual(loopTime, '5 times')
+        self.assertEqual(value_20[0], [':seqdiag_loop_end', ''])
 
     def testExtractLoopCommandsFromLine(self):
         '''
@@ -149,28 +83,33 @@ class TestLoopIndexDictionary(unittest.TestCase):
         # instruction line containing 1 seqdiag loop start command
         instructionLine = SEQDIAG_LOOP_START_TAG + ' 3 times'
         loopCommandList = loopIdxDic.extractLoopCommandsFromLine(instructionLine)
-        self.assertEqual([(':seqdiag_loop_start', '3 times')], loopCommandList)
+        self.assertEqual([[':seqdiag_loop_start', '3 times']], loopCommandList)
 
         # instruction line containing 1 seqdiag loop end ommand
         instructionLine = SEQDIAG_LOOP_END_TAG
         loopCommandList = loopIdxDic.extractLoopCommandsFromLine(instructionLine)
-        self.assertEqual([(':seqdiag_loop_end', '')], loopCommandList)
+        self.assertEqual([[':seqdiag_loop_end', '']], loopCommandList)
 
         # instruction line containing 2 seqdiag loop commands
-        instructionLine = SEQDIAG_LOOP_START_TAG + ' 3 times' + SEQDIAG_LOOP_START_END_TAG + ' 5 times'
+        instructionLine = SEQDIAG_LOOP_START_TAG + ' 3 times ' + SEQDIAG_LOOP_START_END_TAG + ' 5 times'
         loopCommandList = loopIdxDic.extractLoopCommandsFromLine(instructionLine)
-        self.assertEqual([(':seqdiag_loop_start', '3 times'), (':seqdiag_loop_start_end',  '5 times')], loopCommandList)
+        self.assertEqual([[':seqdiag_loop_start', '3 times'], [':seqdiag_loop_start_end',  '5 times']], loopCommandList)
 
         # instruction line containing 2 seqdiag loop end ommand
         instructionLine = SEQDIAG_LOOP_END_TAG + ' ' + SEQDIAG_LOOP_END_TAG
         loopCommandList = loopIdxDic.extractLoopCommandsFromLine(instructionLine)
-        self.assertEqual([(':seqdiag_loop_end', ''), (':seqdiag_loop_end', '')], loopCommandList)
+        self.assertEqual([[':seqdiag_loop_end', ''], [':seqdiag_loop_end', '']], loopCommandList)
 
         # instruction line containing several seqdiag loop commands, some
         # specifying time with no 's'
-        instructionLine = SEQDIAG_LOOP_START_TAG + ' three time' + SEQDIAG_LOOP_START_END_TAG + ' 5 times' + SEQDIAG_LOOP_START_END_TAG + '     at least fifty time' + SEQDIAG_LOOP_START_TAG + ' 30 times'
+        instructionLine = SEQDIAG_LOOP_START_TAG + ' three time ' + SEQDIAG_LOOP_START_END_TAG + ' 5 times ' + SEQDIAG_LOOP_START_END_TAG + '     at least fifty time ' + SEQDIAG_LOOP_START_TAG + ' 30 times'
         loopCommandList = loopIdxDic.extractLoopCommandsFromLine(instructionLine)
-        self.assertEqual([(':seqdiag_loop_start', 'three time'), (':seqdiag_loop_start_end', '5 times'), (':seqdiag_loop_start_end', 'at least fifty time'), (':seqdiag_loop_start', '30 times')], loopCommandList)
+        self.assertEqual([[':seqdiag_loop_start', 'three time'], [':seqdiag_loop_start_end', '5 times'], [':seqdiag_loop_start_end', 'at least fifty time'], [':seqdiag_loop_start', '30 times']], loopCommandList)
+
+        # instruction line containing no seqdiag loop command
+        instructionLine = 'if a > 45'
+        loopCommandList = loopIdxDic.extractLoopCommandsFromLine(instructionLine)
+        self.assertIsNone(loopCommandList)
 
 if __name__ == '__main__':
     unittest.main()
