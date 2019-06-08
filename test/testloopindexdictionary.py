@@ -141,53 +141,36 @@ class TestLoopIndexDictionary(unittest.TestCase):
 
     def testExtractLoopCommandsFromLine(self):
         '''
-        Testing legal seqdiag loop commands with loop time specification
+        Testing seqdiag loop commands extraction from a string line.
         :return:
         '''
         loopIdxDic = LoopIndexDictionary()
 
-        # instruction line containing 1 seqdiag loop command
+        # instruction line containing 1 seqdiag loop start command
         instructionLine = SEQDIAG_LOOP_START_TAG + ' 3 times'
         loopCommandList = loopIdxDic.extractLoopCommandsFromLine(instructionLine)
-        self.assertEqual([':seqdiag_loop_start 3 times'], loopCommandList)
+        self.assertEqual([(':seqdiag_loop_start', '3 times')], loopCommandList)
+
+        # instruction line containing 1 seqdiag loop end ommand
+        instructionLine = SEQDIAG_LOOP_END_TAG
+        loopCommandList = loopIdxDic.extractLoopCommandsFromLine(instructionLine)
+        self.assertEqual([(':seqdiag_loop_end', '')], loopCommandList)
 
         # instruction line containing 2 seqdiag loop commands
         instructionLine = SEQDIAG_LOOP_START_TAG + ' 3 times' + SEQDIAG_LOOP_START_END_TAG + ' 5 times'
         loopCommandList = loopIdxDic.extractLoopCommandsFromLine(instructionLine)
-        self.assertEqual([':seqdiag_loop_start 3 times', ':seqdiag_loop_start_end 5 times'], loopCommandList)
+        self.assertEqual([(':seqdiag_loop_start', '3 times'), (':seqdiag_loop_start_end',  '5 times')], loopCommandList)
+
+        # instruction line containing 2 seqdiag loop end ommand
+        instructionLine = SEQDIAG_LOOP_END_TAG + ' ' + SEQDIAG_LOOP_END_TAG
+        loopCommandList = loopIdxDic.extractLoopCommandsFromLine(instructionLine)
+        self.assertEqual([(':seqdiag_loop_end', ''), (':seqdiag_loop_end', '')], loopCommandList)
 
         # instruction line containing several seqdiag loop commands, some
         # specifying time with no 's'
-        instructionLine = SEQDIAG_LOOP_START_TAG + ' 3 time' + SEQDIAG_LOOP_START_END_TAG + ' 5 times' + SEQDIAG_LOOP_START_END_TAG + ' 50 time' + SEQDIAG_LOOP_START_TAG + ' 30 times'
+        instructionLine = SEQDIAG_LOOP_START_TAG + ' three time' + SEQDIAG_LOOP_START_END_TAG + ' 5 times' + SEQDIAG_LOOP_START_END_TAG + '     at least fifty time' + SEQDIAG_LOOP_START_TAG + ' 30 times'
         loopCommandList = loopIdxDic.extractLoopCommandsFromLine(instructionLine)
-        self.assertEqual([':seqdiag_loop_start 3 time', ':seqdiag_loop_start_end 5 times', ':seqdiag_loop_start_end 50 time', ':seqdiag_loop_start 30 times'], loopCommandList)
-
-
-    def testExtractLoopCommandsFromLineWithNoTimeSpecification(self):
-        '''
-        Testing illegal seqdiag loop commands with no loop time specification.
-        The illegal loop comm-nds are ignored !
-        :return:
-        '''
-        loopIdxDic = LoopIndexDictionary()
-
-        # instruction line containing 1 seqdiag loop command
-        instructionLine = SEQDIAG_LOOP_START_TAG
-        loopCommandList = loopIdxDic.extractLoopCommandsFromLine(instructionLine)
-        self.assertEqual([], loopCommandList)
-
-        # instruction line containing 2 seqdiag loop commands
-        instructionLine = SEQDIAG_LOOP_START_TAG + ' 3 times' + SEQDIAG_LOOP_START_END_TAG
-        loopCommandList = loopIdxDic.extractLoopCommandsFromLine(instructionLine)
-        self.assertEqual([':seqdiag_loop_start 3 times'], loopCommandList)
-
-        # instruction line containing several seqdiag loop commands
-        instructionLine = SEQDIAG_LOOP_START_TAG + ' ' + SEQDIAG_LOOP_START_END_TAG + ' 5 times' + SEQDIAG_LOOP_START_END_TAG + ' ' + SEQDIAG_LOOP_START_TAG + ' 30 times'
-        loopCommandList = loopIdxDic.extractLoopCommandsFromLine(instructionLine)
-        self.assertEqual(
-            [':seqdiag_loop_start_end 5 times',
-             ':seqdiag_loop_start 30 times'], loopCommandList)
-
+        self.assertEqual([(':seqdiag_loop_start', 'three time'), (':seqdiag_loop_start_end', '5 times'), (':seqdiag_loop_start_end', 'at least fifty time'), (':seqdiag_loop_start', '30 times')], loopCommandList)
 
 if __name__ == '__main__':
     unittest.main()

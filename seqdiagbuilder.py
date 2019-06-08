@@ -478,17 +478,18 @@ class LoopIndexDictionary():
 
     def extractLoopCommandsFromLine(self, lineStr):
         '''
-        This method returns a list of seqdiag loop commands defined on the passed lineStr
+        This method returns a list of seqdiag loop commands defined on the passed lineStr.
+        What is returned in fact is a list of 2 elements tuples. Each tuple
+        contains 2 strings: one for the seqdiag loop command and one for the
+        seqdiag loop command comment.
         :param lineStr:
         :return:
         '''
-        subPatt = r"[\s]+[\d]+[\s]+time[s]?[\s]*"
-        pattern = SEQDIAG_LOOP_START_TAG + subPatt + "|" + SEQDIAG_LOOP_START_END_TAG + subPatt
+        pattern = r"(:[\w]+)\s*([\w ]*)"
 
         commandList = re.findall(pattern, lineStr)
-        purgedCommandList = [c.strip() for c in commandList]
 
-        return purgedCommandList
+        return commandList
 
     def _buildKey(self, fromClassName, fromMethodName, toMethodName, methodCallLineNumber):
         '''
