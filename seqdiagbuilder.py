@@ -482,9 +482,9 @@ class LoopIndexDictionary():
         :return: list of list(s) denoting loop commands or None if no loop command
                  found on the passed lineStr
         '''
-        pattern = r"(:[\w]+)\s*([\w ]*)"
+        seqdiagLoopPattern = r"(:seqdiag_loop[\w]+)\s*([\w ]*)"
 
-        commandTupleList = re.findall(pattern, lineStr)
+        commandTupleList = re.findall(seqdiagLoopPattern, lineStr)
         listOfCommandList = [list(elem) for elem in commandTupleList]
 
         for commandList in listOfCommandList:
