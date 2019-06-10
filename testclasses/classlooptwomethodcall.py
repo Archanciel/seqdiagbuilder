@@ -1,11 +1,14 @@
 from testclasses.classleaf import ClassLeaf
 
 class ClassLoopTwoMethodCall:
+    '''
+    This class is used to test the handling of the :seqdiag loop and
+    :seqdiag loop end tags with a loop inside which two methods are
+    called.
+    '''
+
     def doB(self, p1):
         '''
-        This class is used to test the handling of the :seqdiag loop and
-        :seqdiag loop end tags with a loop inside which two methods are
-        called.
         :param p1:
         :return:
         '''

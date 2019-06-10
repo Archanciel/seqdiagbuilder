@@ -85,17 +85,27 @@ class TestLoopIndexDictionary(unittest.TestCase):
         loopCommandList = loopIdxDic.extractLoopCommandsFromLine(instructionLine)
         self.assertEqual([[':seqdiag_loop_start', '3 times']], loopCommandList)
 
-        # instruction line containing 1 seqdiag loop end ommand
+        # instruction line containing 1 seqdiag loop start end command
+        instructionLine = SEQDIAG_LOOP_START_END_TAG + ' 3 times'
+        loopCommandList = loopIdxDic.extractLoopCommandsFromLine(instructionLine)
+        self.assertEqual([[':seqdiag_loop_start_end', '3 times']], loopCommandList)
+
+        # instruction line containing 1 seqdiag loop end command
         instructionLine = SEQDIAG_LOOP_END_TAG
         loopCommandList = loopIdxDic.extractLoopCommandsFromLine(instructionLine)
         self.assertEqual([[':seqdiag_loop_end', '']], loopCommandList)
 
-        # instruction line containing 2 seqdiag loop commands
-        instructionLine = SEQDIAG_LOOP_START_TAG + ' 3 times ' + SEQDIAG_LOOP_START_END_TAG + ' 5 times'
+        # instruction line containing 2 seqdiag loop start commands
+        instructionLine = SEQDIAG_LOOP_START_TAG + ' 3 times ' + SEQDIAG_LOOP_START_TAG + ' 5 times'
         loopCommandList = loopIdxDic.extractLoopCommandsFromLine(instructionLine)
-        self.assertEqual([[':seqdiag_loop_start', '3 times'], [':seqdiag_loop_start_end',  '5 times']], loopCommandList)
+        self.assertEqual([[':seqdiag_loop_start', '3 times'], [':seqdiag_loop_start',  '5 times']], loopCommandList)
 
-        # instruction line containing 2 seqdiag loop end ommand
+        # instruction line containing 2 seqdiag loop start end commands
+        instructionLine = SEQDIAG_LOOP_START_END_TAG + ' 3 times ' + SEQDIAG_LOOP_START_END_TAG + ' 5 times'
+        loopCommandList = loopIdxDic.extractLoopCommandsFromLine(instructionLine)
+        self.assertEqual([[':seqdiag_loop_start_end', '3 times'], [':seqdiag_loop_start_end',  '5 times']], loopCommandList)
+
+        # instruction line containing 2 seqdiag loop end command
         instructionLine = SEQDIAG_LOOP_END_TAG + ' ' + SEQDIAG_LOOP_END_TAG
         loopCommandList = loopIdxDic.extractLoopCommandsFromLine(instructionLine)
         self.assertEqual([[':seqdiag_loop_end', ''], [':seqdiag_loop_end', '']], loopCommandList)

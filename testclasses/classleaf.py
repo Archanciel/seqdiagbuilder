@@ -61,3 +61,13 @@ class ClassLeaf:
         for i in range(3):
             self.doC1(p1)  #:seqdiag_loop_start_end 3 times
             a += 1  # dummy instruction
+
+    def doC4NotRecordedInFlow(self, p1):
+        '''
+        This method is not monitored by SeqDiagBuilder.recordFlow(). It
+        is used to test putting a seqdiag loop command on a method call
+        not monitored by SeqDiagBuilder.
+        :seqdiag_note doC4NotRecordedInFlow method note
+        '''
+        a = 0
+        a += 1
