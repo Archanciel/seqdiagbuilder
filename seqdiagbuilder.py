@@ -464,7 +464,7 @@ class LoopIndexDictionary():
                 # number gives the line number on whichsthe seqdiag loop
                 # command is located
                 loopCommandLineNb = currentMethodStartLineNumber + lineNb
-                toMethodName = self.extractTargetMethodName(line)
+                toMethodName = self.extractTargetMethodNameFromLoopCommandLine(line)
                 dicKey = self._buildKey(fromClassName, fromMethodName, toMethodName, loopCommandLineNb)
 
                 for loopCommandTuple in loopCommandTupleList:
@@ -508,7 +508,7 @@ class LoopIndexDictionary():
         return fromClassName + "." + fromMethodName + "->" + toMethodName + ": " + str(
             methodCallLineNumber)
 
-    def extractTargetMethodName(self, seqdiagTagLine):
+    def extractTargetMethodNameFromLoopCommandLine(self, seqdiagTagLine):
         '''
         Extract from the seqdiag loop command line the target method name.
 
