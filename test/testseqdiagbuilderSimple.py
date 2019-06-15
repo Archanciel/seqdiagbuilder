@@ -36,6 +36,29 @@ class TestSeqDiagBuilderSimple(unittest.TestCase):
         self.assertFalse(fe1 == fe7)
 
 
+    def testFlowEntryGetToMethodCallLineNumber(self):
+        fe1 = FlowEntry( fromClass='fromClass',
+                         fromMethod='fromMethod',
+                         toClass='toClass',
+                         toMethod='toMethod', toMethodCalledFromLineNumber='12-34-21')
+
+        self.assertEqual(fe1.getToMethodCallLineNumber(), '21')
+
+        fe2 = FlowEntry( fromClass='fromClass',
+                         fromMethod='fromMethod',
+                         toClass='toClass',
+                         toMethod='toMethod', toMethodCalledFromLineNumber='12')
+
+        self.assertEqual(fe2.getToMethodCallLineNumber(), '12')
+
+        fe3 = FlowEntry( fromClass='fromClass',
+                         fromMethod='fromMethod',
+                         toClass='toClass',
+                         toMethod='toMethod', toMethodCalledFromLineNumber='')
+
+        self.assertEqual(fe3.getToMethodCallLineNumber(), '')
+
+
     @unittest.skip
     def testFlowEntryToString(self):
         fe1 = FlowEntry('A', 'e', 'B', 'f', '95', '(a, b)', 'f_RetType')

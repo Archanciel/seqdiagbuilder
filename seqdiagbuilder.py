@@ -239,6 +239,16 @@ class FlowEntry:
         return "{}.{}, {}.{}{}, {}, {}, {}, {}".format(self.fromClass, self.fromMethod, self.toClass, self.toMethod, self.toSignature, self.toMethodCalledFromLineNumber, self.toMethodNote, self.toReturnType, self.toMethodReturnNote)
 
 
+    def getToMethodCallLineNumber(self):
+        '''
+        Returns the line number in fromMethod of the call to toMethod.
+        :return:
+        '''
+        lineNumberList = self.toMethodCalledFromLineNumber.split('-')
+
+        return lineNumberList[-1]
+
+
 class RecordedFlowPath:
     '''
     This class stores in a flowEntryList of FlowEntry the succession of embedded method calls whic occurred
@@ -937,6 +947,11 @@ class SeqDiagBuilder:
         toMethodNote = flowEntry.toMethodNote
         callDepth = flowEntry.getCallDepth()
         indentStr = callDepth * TAB_CHAR
+        commandStr = SeqDiagBuilder._handledSeqDiagLoopCommand(fromClassName=fromClass,
+                                                               fromMethodName=flowEntry.fromMethod,
+                                                               toMethodName=toMethod,
+                                                               toMethodCallLineNb=flowEntry.getToMethodCallLineNumber(),
+                                                               indentStr=indentStr)
         commandStr = SeqDiagBuilder._addForwardSeqDiagCommand(fromClass, toClass, toMethod, toSignature, indentStr)
 
         # adding loop command
@@ -974,6 +989,18 @@ class SeqDiagBuilder:
                                                           indentStr + TAB_CHAR,
                                                           toClass)
 
+
+    @staticmethod
+    def _handledSeqDiagLoopCommand(fromClassName, fromMethodName, toMethodName, toMethodCallLineNb, indentStr):
+        # return "{}{} -> {}: {}{}\n{}activate {}\n".format(indentStr,
+        #                                                   fromClassName,
+        #                                                   toClass,
+        #                                                   method,
+        #                                                   signature,
+        #                                                   indentStr + TAB_CHAR,
+        #                                                   toClass)
+        seqdiagLoopCommandList = SeqDiagBuilder._loopIndexDictionary.getLoopCommandList(fromClassName, fromMethodName, toMethodName, toMethodCallLineNb)
+        return
 
     @staticmethod
     def _addReturnSeqDiagCommand(fromClass, toClass, returnType, indentStr):

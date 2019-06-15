@@ -50,10 +50,10 @@ class TestLoopIndexDictionary(unittest.TestCase):
         value_20 = loopIdxDic.getLoopCommandList(fromClassName, fromMethodName, 'doC2', 20)
         self.assertEqual(value_20[0], [':seqdiag_loop_end', ''])
 
-    def testLoopIndexDictionaryClassLoopNestedInnerOneNoTimeInfo(self):
+    def testGetLoopCommandList(self):
         '''
         Test the correct working of the LoopIndexDictionary for loop tags
-        with no time info.
+        with and without time info.
         :return:
         '''
         loopIdxDic = LoopIndexDictionary()
