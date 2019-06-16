@@ -477,9 +477,15 @@ class LoopIndexDictionary():
                 toMethodName = self.extractTargetMethodNameFromLoopCommandLine(line)
                 dicKey = self._buildKey(fromClassName, fromMethodName, toMethodName, loopCommandLineNb)
 
+                # this test is necessary since we only want to store the seqdiag commands once for
+                # a line of code containing them.
+                if dicKey in self._loopIndexDic:
+                    continue
+
                 for loopCommandTuple in loopCommandTupleList:
                     loopCommandComment = loopCommandTuple[1]
                     self.addKeyValue(dicKey, loopCommandTuple[0], loopCommandComment)
+
             lineNb += 1
 
     def extractLoopCommandsFromLine(self, lineStr):
