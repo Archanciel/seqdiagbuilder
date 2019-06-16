@@ -953,12 +953,12 @@ class SeqDiagBuilder:
         toMethodNote = flowEntry.toMethodNote
         callDepth = flowEntry.getCallDepth()
         indentStr = callDepth * TAB_CHAR
-        commandStr = SeqDiagBuilder._handledSeqDiagLoopCommand(fromClassName=fromClass,
-                                                               fromMethodName=flowEntry.fromMethod,
-                                                               toMethodName=toMethod,
-                                                               toMethodCallLineNb=flowEntry.getToMethodCallLineNumber(),
-                                                               indentStr=indentStr)
-        commandStr = SeqDiagBuilder._addForwardSeqDiagCommand(fromClass, toClass, toMethod, toSignature, indentStr)
+        commandStr, indentStr = SeqDiagBuilder._handledSeqDiagLoopCommand(fromClassName=fromClass,
+                                                                          fromMethodName=flowEntry.fromMethod,
+                                                                          toMethodName=toMethod,
+                                                                          toMethodCallLineNb=flowEntry.getToMethodCallLineNumber(),
+                                                                          indentStr=indentStr)
+        commandStr += SeqDiagBuilder._addForwardSeqDiagCommand(fromClass, toClass, toMethod, toSignature, indentStr)
 
         # adding loop command
         # adding method note
@@ -1005,8 +1005,17 @@ class SeqDiagBuilder:
         #                                                   signature,
         #                                                   indentStr + TAB_CHAR,
         #                                                   toClass)
+        command = ''
         seqdiagLoopCommandList = SeqDiagBuilder._loopIndexDictionary.getLoopCommandList(fromClassName, fromMethodName, toMethodName, toMethodCallLineNb)
-        return
+
+        if seqdiagLoopCommandList:
+            for seqdiagLoopCommand in seqdiagLoopCommandList:
+                seqdiagCommand = seqdiagLoopCommand[0]
+                seqdiagCommandComment = seqdiagLoopCommand[1]
+                command += "{}loop {}\n".format(indentStr, seqdiagCommandComment)
+                indentStr += '\t'
+
+        return command, indentStr
 
     @staticmethod
     def _addReturnSeqDiagCommand(fromClass, toClass, returnType, indentStr):
