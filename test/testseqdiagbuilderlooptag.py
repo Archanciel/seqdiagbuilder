@@ -19,6 +19,8 @@ from testclasses.classtwoloopscaller import ClassTwoLoopsCaller
 from testclasses.classloopmultinestedloopcaller import ClassLoopMultiNestedLoopCaller
 from testclasses.classloopnestedinnerwosamelooptagononelinecaller import ClassLoopNestedInnerTwoSameLoopTagOnOneLineCaller
 from testclasses.classlooptagonmethodnotinrecordflowcaller import ClassLoopTagOnMethodNotInRecordFlowCaller
+from testclasses.classloopmultinestedloopstartendendonsamelinecaller import ClassLoopMultiNestedLoopStartEndEndOnSameLineCaller
+
 
 class TestSeqDiagBuilderLoopTag(unittest.TestCase):
     def setUp(self):
@@ -335,6 +337,65 @@ User -> ClassLoopMultiNestedLoopCaller: call(p1)
 		deactivate ClassLoopMultiNestedLoop
 	User <-- ClassLoopMultiNestedLoopCaller: 
 	deactivate ClassLoopMultiNestedLoopCaller
+@enduml''', commands)
+
+        SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
+
+    def testLoopTagMultiNestedLoopsStartEndEndOnSameLine(self):
+        '''
+        This test case tests the correct generation of multi nested
+        PlantUml loop in a special situation where there's a seqdiag loop
+        start end and a seqdiag loop end on the same line.
+        '''
+        entryPoint = ClassLoopMultiNestedLoopStartEndEndOnSameLineCaller()
+
+        SeqDiagBuilder.activate(parentdir, 'ClassLoopMultiNestedLoopStartEndEndOnSameLineCaller', 'call',
+                                None)  # activate sequence diagram building
+        entryPoint.call('str')
+
+        commands = SeqDiagBuilder.createSeqDiaqCommands('User')
+
+        with open("c:\\temp\\testLoopTagMultiNestedLoopsStartEndEndOnSameLine.txt", "w") as f:
+            f.write(commands)
+
+        self.assertEqual(len(SeqDiagBuilder.getWarningList()), 0)
+
+        self.assertEqual(
+'''@startuml
+
+actor User
+participant ClassLoopMultiNestedLoopStartEndEndOnSameLineCaller
+participant ClassLoopMultiNestedLoopStartEndEndOnSameLine
+participant ClassLeaf
+User -> ClassLoopMultiNestedLoopStartEndEndOnSameLineCaller: call(p1)
+	activate ClassLoopMultiNestedLoopStartEndEndOnSameLineCaller
+	ClassLoopMultiNestedLoopStartEndEndOnSameLineCaller -> ClassLoopMultiNestedLoopStartEndEndOnSameLine: doB(p1)
+		activate ClassLoopMultiNestedLoopStartEndEndOnSameLine
+		loop 3 times
+			loop 2 times
+				ClassLoopMultiNestedLoopStartEndEndOnSameLine -> ClassLeaf: doC1(p1)
+					activate ClassLeaf
+				ClassLoopMultiNestedLoopStartEndEndOnSameLine <-- ClassLeaf: 
+				deactivate ClassLeaf
+			end
+			loop 2 times
+				ClassLoopMultiNestedLoopStartEndEndOnSameLine -> ClassLeaf: doC2(p1)
+					activate ClassLeaf
+				ClassLoopMultiNestedLoopStartEndEndOnSameLine <-- ClassLeaf: 
+				deactivate ClassLeaf
+			end
+		end
+		ClassLoopMultiNestedLoopStartEndEndOnSameLine -> ClassLeaf: doC3(p1)
+			activate ClassLeaf
+			note right
+				doC3 method note
+			end note
+			ClassLoopMultiNestedLoopStartEndEndOnSameLine <-- ClassLeaf: 
+			deactivate ClassLeaf
+		ClassLoopMultiNestedLoopStartEndEndOnSameLineCaller <-- ClassLoopMultiNestedLoopStartEndEndOnSameLine: 
+		deactivate ClassLoopMultiNestedLoopStartEndEndOnSameLine
+	User <-- ClassLoopMultiNestedLoopStartEndEndOnSameLineCaller: 
+	deactivate ClassLoopMultiNestedLoopStartEndEndOnSameLineCaller
 @enduml''', commands)
 
         SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
