@@ -864,7 +864,10 @@ class SeqDiagBuilder:
                         returnEntry = classMethodReturnStack.pop()
                         # handle deepest or leaf return message, the one which did not
                         # generate an entry in the classMethodReturnStack
-                        commandStr = SeqDiagBuilder._handleSeqDiagReturnMesssageCommand(returnEntry, maxSigArgNum, maxSigCharLen)
+                        commandStr = SeqDiagBuilder._handleSeqDiagReturnMesssageCommand(returnEntry=returnEntry,
+                                                                                        maxArgNum=maxSigArgNum,
+                                                                                        maxReturnTypeCharLen=maxSigCharLen,
+                                                                                        loopDepth=loopDepth)
                         seqDiagCommandStr += commandStr
 
                         # handle return message for the method which called the
@@ -875,7 +878,10 @@ class SeqDiagBuilder:
                             fromClass = flowEntry.fromClass
                             continue
                         returnEntry = classMethodReturnStack.pop()
-                        commandStr = SeqDiagBuilder._handleSeqDiagReturnMesssageCommand(returnEntry, maxSigArgNum, maxSigCharLen)
+                        commandStr = SeqDiagBuilder._handleSeqDiagReturnMesssageCommand(returnEntry=returnEntry,
+                                                                                        maxArgNum=maxSigArgNum,
+                                                                                        maxReturnTypeCharLen=maxSigCharLen,
+                                                                                        loopDepth=loopDepth)
                         seqDiagCommandStr += commandStr
                         fromClass = returnEntry.fromClass
                     commandStr, loopDepth = SeqDiagBuilder._handleSeqDiagForwardMesssageCommand(fromClass,
@@ -890,7 +896,10 @@ class SeqDiagBuilder:
 
             while not classMethodReturnStack.isEmpty():
                 returnEntry = classMethodReturnStack.pop()
-                commandStr = SeqDiagBuilder._handleSeqDiagReturnMesssageCommand(returnEntry, maxSigArgNum, maxSigCharLen)
+                commandStr = SeqDiagBuilder._handleSeqDiagReturnMesssageCommand(returnEntry=returnEntry,
+                                                                                maxArgNum=maxSigArgNum,
+                                                                                maxReturnTypeCharLen=maxSigCharLen,
+                                                                                loopDepth=loopDepth)
                 seqDiagCommandStr += commandStr
         else:
             # adding dummy line to stick to Plantuml command file syntax and prevent
@@ -930,23 +939,23 @@ class SeqDiagBuilder:
 
 
     @staticmethod
-    def _handleSeqDiagReturnMesssageCommand(returnEntry, maxArgNum, maxReturnTypeCharLen):
+    def _handleSeqDiagReturnMesssageCommand(returnEntry, maxArgNum, maxReturnTypeCharLen, loopDepth):
         fromClass = returnEntry.toClass
         toClass = returnEntry.fromClass
         toReturnType = returnEntry.createReturnType(maxArgNum, maxReturnTypeCharLen)
         toMethodReturnNote = returnEntry.toReturnNote
         indentStr = SeqDiagBuilder._getReturnIndent(returnEntry)
-        commandStr = SeqDiagBuilder._addReturnSeqDiagCommand(fromClass, toClass, toReturnType, indentStr)
+        commandStr = SeqDiagBuilder._addReturnSeqDiagCommand(fromClass, toClass, toReturnType, indentStr + loopDepth * TAB_CHAR)
 
         # adding return note
         if toMethodReturnNote != '':
             toMethoReturndNoteLineList = SeqDiagBuilder._splitNoteToLines(toMethodReturnNote, maxReturnTypeCharLen * 1.5)
-            noteSection = '{}note right\n'.format(indentStr)
+            noteSection = '{}note right\n'.format(indentStr + loopDepth * TAB_CHAR)
 
             for noteLine in toMethoReturndNoteLineList:
-                noteSection += '{}{}{}\n'.format(indentStr, TAB_CHAR, noteLine)
+                noteSection += '{}{}{}\n'.format(indentStr + loopDepth * TAB_CHAR, TAB_CHAR, noteLine)
 
-            noteSection += '{}end note\n'.format(indentStr)
+            noteSection += '{}end note\n'.format(indentStr + loopDepth * TAB_CHAR)
             commandStr += noteSection
 
         return commandStr
