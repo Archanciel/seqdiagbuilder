@@ -9,16 +9,16 @@ sys.path.insert(0, parentdir)
 sys.path.insert(0,currentdir) # this instruction is necessary for successful importation of utilityfortest module when
                               # the test is executed standalone
 
-from seqdiagbuilder import LoopIndexDictionary
+from seqdiagbuilder import LoopCommandManager
 from seqdiagbuilder import SEQDIAG_LOOP_START_TAG, SEQDIAG_LOOP_START_END_TAG, SEQDIAG_LOOP_END_TAG
 
-class TestLoopIndexDictionary(unittest.TestCase):
+class TestLoopCommandManager(unittest.TestCase):
     def test_buildKey(self):
         '''
-        Test that the LoopIndexDictionary key is correctly built.
+        Test that the LoopCommandManager key is correctly built.
         :return:
         '''
-        loopIdxDic = LoopIndexDictionary()
+        loopIdxDic = LoopCommandManager()
         fromClassName = 'ClassLoopNestedInnerOne'
         fromMethodName = 'doB'
         toMethodName = 'doCWithNote'
@@ -29,11 +29,11 @@ class TestLoopIndexDictionary(unittest.TestCase):
 
     def testStoreLoopCommandsClassLoopNestedInnerOne(self):
         '''
-        Test the correct working of the LoopIndexDictionary on a source file containing loop
+        Test the correct working of the LoopCommandManager on a source file containing loop
         commands.
         :return:
         '''
-        loopIdxDic = LoopIndexDictionary()
+        loopIdxDic = LoopCommandManager()
         sourcePathFileName = parentdir + "\\testclasses\\classloopnestedinnerone.py"
         fromClassName = 'ClassLoopNestedInnerOne'
         fromMethodName = 'doB'
@@ -52,11 +52,11 @@ class TestLoopIndexDictionary(unittest.TestCase):
 
     def testGetLoopCommandList(self):
         '''
-        Test the correct working of the LoopIndexDictionary for loop tags
+        Test the correct working of the LoopCommandManager for loop tags
         with and without time info.
         :return:
         '''
-        loopIdxDic = LoopIndexDictionary()
+        loopIdxDic = LoopCommandManager()
         sourcePathFileName = parentdir + "\\testclasses\\classloopnestedinneronefortestloopidxdic.py"
         fromClassName = 'ClassLoopNestedInnerOneForTestLoopIdxDic'
         fromMethodName = 'doB'
@@ -78,7 +78,7 @@ class TestLoopIndexDictionary(unittest.TestCase):
         Testing seqdiag loop commands extraction from a string line.
         :return:
         '''
-        loopIdxDic = LoopIndexDictionary()
+        loopIdxDic = LoopCommandManager()
 
         # instruction line containing 1 seqdiag loop start command
         instructionLine = SEQDIAG_LOOP_START_TAG + ' 3 times'

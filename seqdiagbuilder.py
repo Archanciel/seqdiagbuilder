@@ -318,10 +318,9 @@ class RecordedFlowPath:
         return outStr
 
 
-class SeqDiagCommandStack:
+class Stack:
     '''
-    This flowEntryList stores the embedded calls used to build the sequence diagram commands. It is
-    used to build the return commands of the diagram.
+    Stack base class
     '''
 
 
@@ -336,14 +335,8 @@ class SeqDiagCommandStack:
             return self.stack.pop()
 
 
-    def push(self, flowEntry):
-        '''
-        Push on the flowEntryList a 2 elements flowEntryList, the first element being the couple <class name>.<toMethod name>
-        and the second one being the string denoting the information returned to the caller by the toMethod.
-        :param flowEntry:
-        :return:
-        '''
-        self.stack.append(flowEntry)
+    def push(self, entry):
+        self.stack.append(entry)
 
         return self.stack
 
@@ -363,6 +356,11 @@ class SeqDiagCommandStack:
         return self.size() == 0
 
 
+class SeqDiagCommandStack(Stack):
+    '''
+    This flowEntryList stores the embedded calls used to build the sequence diagram commands. It is
+    used to build the return commands of the diagram.
+    '''
     def containsFromCall(self, flowEntry):
         '''
         Return True if the passed flow entry is in the SeqDiagCommandStack.
@@ -374,6 +372,15 @@ class SeqDiagCommandStack:
                 return True
 
         return False
+
+
+class LoopCommandStack(Stack):
+    '''
+    Stacks the seqdiag loop start and seqdiag loop start end commands so that
+    when required, an end UML tag can be added into the PlantUML sequence diagram
+    command file.
+    '''
+
 
 
 class ConstructorArgsProvider:
@@ -446,7 +453,7 @@ class ConstructorArgsProvider:
         return firstKeyArgs
 
 
-class LoopIndexDictionary():
+class LoopCommandManager():
     '''
     This class manages the seqdiag loop commands inserted in the body of the
     methods called within the control flow recorded by SeqDiagBuilder. The
@@ -455,9 +462,11 @@ class LoopIndexDictionary():
     start, startEnd and end.
     '''
     _loopIndexDic = None
+    _loopCommandStack = None
 
     def __init__(self):
         self._loopIndexDic = {}
+        self._loopCommandStack = LoopCommandStack()
 
     def storeLoopCommands(self, fromClassName, fromMethodName, currentMethodStartLineNumber, methodBodyLines):
         '''
@@ -584,6 +593,11 @@ class LoopIndexDictionary():
         else:
             return None
 
+    def stackLoopEndCommand(self, fromClassName, fromMethodName, toMethodName, toMethodCallLineNb):
+        startCommandInfo = self._buildKey(fromClassName, fromMethodName, toMethodName, toMethodCallLineNb)
+
+        self._loopCommandStack.push(startCommandInfo)
+
 
 class SeqDiagBuilder:
     '''
@@ -634,7 +648,7 @@ class SeqDiagBuilder:
         SeqDiagBuilder._recordedFlowPath = RecordedFlowPath(SeqDiagBuilder._seqDiagEntryClass, SeqDiagBuilder._seqDiagEntryMethod)
         SeqDiagBuilder._isActive = True
         SeqDiagBuilder._participantDocOrderedDic = collections.OrderedDict()
-        SeqDiagBuilder._loopIndexDictionary = LoopIndexDictionary()
+        SeqDiagBuilder._loopIndexDictionary = LoopCommandManager()
 
         if classArgDic:
             SeqDiagBuilder._constructorArgProvider = ConstructorArgsProvider(classArgDic)
@@ -1038,7 +1052,8 @@ class SeqDiagBuilder:
     @staticmethod
     def _handledSeqDiagLoopCommand(fromClassName, fromMethodName, toMethodName, toMethodCallLineNb, indentStr, loopDepth):
         command = ''
-        seqdiagLoopCommandList = SeqDiagBuilder._loopIndexDictionary.getLoopCommandList(fromClassName, fromMethodName, toMethodName, toMethodCallLineNb)
+        loopCommandMgr = SeqDiagBuilder._loopIndexDictionary
+        seqdiagLoopCommandList = loopCommandMgr.getLoopCommandList(fromClassName, fromMethodName, toMethodName, toMethodCallLineNb)
 
         if seqdiagLoopCommandList:
             for seqdiagLoopCommand in seqdiagLoopCommandList:
@@ -1048,6 +1063,8 @@ class SeqDiagBuilder:
                     command += "{}loop {}\n".format(indentStr + loopDepth * TAB_CHAR, seqdiagCommandComment)
                     loopDepth += 1
                     indentStr = loopDepth * TAB_CHAR
+                    if seqdiagCommand == SEQDIAG_LOOP_START_END_TAG or seqdiagCommand == SEQDIAG_LOOP_END_TAG:
+                        loopCommandMgr.stackLoopEndCommand(fromClassName, fromMethodName, toMethodName, toMethodCallLineNb)
 
         return command, loopDepth
 

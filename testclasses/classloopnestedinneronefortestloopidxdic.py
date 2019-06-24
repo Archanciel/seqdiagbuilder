@@ -2,7 +2,7 @@ from testclasses.classleaf import ClassLeaf
 
 class ClassLoopNestedInnerOneForTestLoopIdxDic:
     '''
-    This class is used to test the LoopIndexDictionary. The loop tag have
+    This class is used to test the LoopCommandManager. The loop tag have
     no time info.
 
     '''
