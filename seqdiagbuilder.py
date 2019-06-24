@@ -838,13 +838,24 @@ class SeqDiagBuilder:
             firstFlowEntry = SeqDiagBuilder._recordedFlowPath.flowEntryList[0]
             firstFlowEntry.fromClass = actorName
             fromClass = firstFlowEntry.fromClass
-            commandStr, _ = SeqDiagBuilder._handleSeqDiagForwardMesssageCommand(fromClass, firstFlowEntry, classMethodReturnStack, maxSigArgNum, maxSigCharLen, maxNoteCharLen)
+            loopDepth = 0
+            commandStr, loopDepth = SeqDiagBuilder._handleSeqDiagForwardMesssageCommand(fromClass,
+                                                                                        firstFlowEntry,
+                                                                                        classMethodReturnStack, maxSigArgNum,
+                                                                                        maxSigCharLen,
+                                                                                        maxNoteCharLen,
+                                                                                        loopDepth)
             seqDiagCommandStr += commandStr
             fromClass = firstFlowEntry.toClass
 
             for flowEntry in SeqDiagBuilder._recordedFlowPath.flowEntryList[1:]:
                 if not classMethodReturnStack.containsFromCall(flowEntry):
-                    commandStr, _ = SeqDiagBuilder._handleSeqDiagForwardMesssageCommand(fromClass, flowEntry, classMethodReturnStack, maxSigArgNum, maxSigCharLen, maxNoteCharLen)
+                    commandStr, loopDepth = SeqDiagBuilder._handleSeqDiagForwardMesssageCommand(fromClass, flowEntry,
+                                                                                                classMethodReturnStack,
+                                                                                                maxSigArgNum,
+                                                                                                maxSigCharLen,
+                                                                                                maxNoteCharLen,
+                                                                                                loopDepth)
                     seqDiagCommandStr += commandStr
                     fromClass = flowEntry.toClass
                 else:
@@ -867,7 +878,13 @@ class SeqDiagBuilder:
                         commandStr = SeqDiagBuilder._handleSeqDiagReturnMesssageCommand(returnEntry, maxSigArgNum, maxSigCharLen)
                         seqDiagCommandStr += commandStr
                         fromClass = returnEntry.fromClass
-                    commandStr, _ = SeqDiagBuilder._handleSeqDiagForwardMesssageCommand(fromClass, flowEntry, classMethodReturnStack, maxSigArgNum, maxSigCharLen, maxNoteCharLen)
+                    commandStr, loopDepth = SeqDiagBuilder._handleSeqDiagForwardMesssageCommand(fromClass,
+                                                                                                flowEntry,
+                                                                                                classMethodReturnStack,
+                                                                                                maxSigArgNum,
+                                                                                                maxSigCharLen,
+                                                                                                maxNoteCharLen,
+                                                                                                loopDepth)
                     seqDiagCommandStr += commandStr
                     fromClass = flowEntry.toClass
 
@@ -936,9 +953,11 @@ class SeqDiagBuilder:
 
 
     @staticmethod
-    def _handleSeqDiagForwardMesssageCommand(fromClass, flowEntry, classMethodReturnStack, maxSigArgNum, maxSigCharLen, maxNoteCharLen):
+    def _handleSeqDiagForwardMesssageCommand(fromClass, flowEntry, classMethodReturnStack, maxSigArgNum, maxSigCharLen,
+                                             maxNoteCharLen, loopDepth):
         '''
         Controls the creation of the Plant UML call commands.
+        :param loopDepth:
         :param fromClass:
         :param flowEntry:
         :param classMethodReturnStack:
@@ -953,11 +972,13 @@ class SeqDiagBuilder:
         toMethodNote = flowEntry.toMethodNote
         callDepth = flowEntry.getCallDepth()
         indentStr = callDepth * TAB_CHAR
-        commandStr, indentStr = SeqDiagBuilder._handledSeqDiagLoopCommand(fromClassName=fromClass,
+        loopDepth = 0
+        commandStr, loopDepth = SeqDiagBuilder._handledSeqDiagLoopCommand(fromClassName=fromClass,
                                                                           fromMethodName=flowEntry.fromMethod,
                                                                           toMethodName=toMethod,
                                                                           toMethodCallLineNb=flowEntry.getToMethodCallLineNumber(),
-                                                                          indentStr=indentStr)
+                                                                          indentStr=indentStr,
+                                                                          loopDepth=loopDepth)
 
         forwardCommand, indentStr  = SeqDiagBuilder._addForwardSeqDiagCommand(fromClass, toClass, toMethod, toSignature, indentStr)
         commandStr += forwardCommand
@@ -966,15 +987,15 @@ class SeqDiagBuilder:
         # adding method note
         if toMethodNote != '':
             toMethodNoteLineList = SeqDiagBuilder._splitNoteToLines(toMethodNote, maxNoteCharLen * 1.5)
-            noteSection = '{}note right\n'.format(indentStr)
+            noteSection = '{}note right\n'.format(indentStr + loopDepth * TAB_CHAR)
 
             for noteLine in toMethodNoteLineList:
-                noteSection += '{}{}{}\n'.format(indentStr, TAB_CHAR, noteLine)
+                noteSection += '{}{}{}\n'.format(indentStr + loopDepth * TAB_CHAR, TAB_CHAR, noteLine)
 
-            noteSection += '{}end note\n'.format(indentStr)
+            noteSection += '{}end note\n'.format(indentStr + loopDepth * TAB_CHAR)
             commandStr += noteSection
 
-        return commandStr, indentStr
+        return commandStr, loopDepth
 
 
     @staticmethod
@@ -1002,7 +1023,7 @@ class SeqDiagBuilder:
 
 
     @staticmethod
-    def _handledSeqDiagLoopCommand(fromClassName, fromMethodName, toMethodName, toMethodCallLineNb, indentStr):
+    def _handledSeqDiagLoopCommand(fromClassName, fromMethodName, toMethodName, toMethodCallLineNb, indentStr, loopDepth):
         command = ''
         seqdiagLoopCommandList = SeqDiagBuilder._loopIndexDictionary.getLoopCommandList(fromClassName, fromMethodName, toMethodName, toMethodCallLineNb)
 
@@ -1012,9 +1033,10 @@ class SeqDiagBuilder:
                 if seqdiagCommand == SEQDIAG_LOOP_START_TAG or seqdiagCommand == SEQDIAG_LOOP_START_END_TAG:
                     seqdiagCommandComment = seqdiagLoopCommand[1]
                     command += "{}loop {}\n".format(indentStr, seqdiagCommandComment)
-                    indentStr += TAB_CHAR
+                    loopDepth += 1
+                    indentStr += loopDepth * TAB_CHAR
 
-        return command, indentStr
+        return command, loopDepth
 
     @staticmethod
     def _addReturnSeqDiagCommand(fromClass, toClass, returnType, indentStr):
