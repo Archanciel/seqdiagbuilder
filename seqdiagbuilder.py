@@ -980,7 +980,12 @@ class SeqDiagBuilder:
                                                                           indentStr=indentStr,
                                                                           loopDepth=loopDepth)
 
-        forwardCommand, indentStr  = SeqDiagBuilder._addForwardSeqDiagCommand(fromClass, toClass, toMethod, toSignature, indentStr)
+        forwardCommand, indentStr  = SeqDiagBuilder._addForwardSeqDiagCommand(fromClass=fromClass,
+                                                                              toClass=toClass,
+                                                                              method=toMethod,
+                                                                              signature=toSignature,
+                                                                              indentStr=indentStr,
+                                                                              loopDepth=loopDepth)
         commandStr += forwardCommand
 
         # adding loop command
@@ -1008,15 +1013,15 @@ class SeqDiagBuilder:
         return (returnEntry.getCallDepth() + 1) * TAB_CHAR
 
     @staticmethod
-    def _addForwardSeqDiagCommand(fromClass, toClass, method, signature, indentStr):
+    def _addForwardSeqDiagCommand(fromClass, toClass, method, signature, indentStr, loopDepth):
         beforeActivateIndentStr = indentStr + TAB_CHAR
 
-        command = "{}{} -> {}: {}{}\n{}activate {}\n".format(indentStr,
+        command = "{}{} -> {}: {}{}\n{}activate {}\n".format(indentStr + loopDepth * TAB_CHAR,
                                                              fromClass,
                                                              toClass,
                                                              method,
                                                              signature,
-                                                             beforeActivateIndentStr,
+                                                             beforeActivateIndentStr + loopDepth * TAB_CHAR,
                                                              toClass)
 
         return command, beforeActivateIndentStr
