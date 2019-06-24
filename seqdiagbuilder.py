@@ -981,7 +981,6 @@ class SeqDiagBuilder:
         toMethodNote = flowEntry.toMethodNote
         callDepth = flowEntry.getCallDepth()
         indentStr = callDepth * TAB_CHAR
-        loopDepth = 0
         commandStr, loopDepth = SeqDiagBuilder._handledSeqDiagLoopCommand(fromClassName=fromClass,
                                                                           fromMethodName=flowEntry.fromMethod,
                                                                           toMethodName=toMethod,
@@ -1046,9 +1045,9 @@ class SeqDiagBuilder:
                 seqdiagCommand = seqdiagLoopCommand[0]
                 if seqdiagCommand == SEQDIAG_LOOP_START_TAG or seqdiagCommand == SEQDIAG_LOOP_START_END_TAG:
                     seqdiagCommandComment = seqdiagLoopCommand[1]
-                    command += "{}loop {}\n".format(indentStr, seqdiagCommandComment)
+                    command += "{}loop {}\n".format(indentStr + loopDepth * TAB_CHAR, seqdiagCommandComment)
                     loopDepth += 1
-                    indentStr += loopDepth * TAB_CHAR
+                    indentStr = loopDepth * TAB_CHAR
 
         return command, loopDepth
 
