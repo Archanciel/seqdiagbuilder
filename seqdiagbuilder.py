@@ -594,9 +594,15 @@ class LoopCommandManager():
             return None
 
     def stackLoopEndCommand(self, fromClassName, fromMethodName, toMethodName, toMethodCallLineNb):
-        startCommandInfo = self._buildKey(fromClassName, fromMethodName, toMethodName, toMethodCallLineNb)
+        loopCommandInfo = self._buildKey(fromClassName, fromMethodName, toMethodName, toMethodCallLineNb)
 
-        self._loopCommandStack.push(startCommandInfo)
+        self._loopCommandStack.push(loopCommandInfo)
+
+    def peekLoopEndEntry(self, fromClassName, fromMethodName, toMethodName, toMethodCallLineNb):
+        loopCommandInfo = self._buildKey(fromClassName, fromMethodName, toMethodName, toMethodCallLineNb)
+
+        return loopCommandInfo == self._loopCommandStack.peek()
+
 
 
 class SeqDiagBuilder:
@@ -959,6 +965,11 @@ class SeqDiagBuilder:
         toReturnType = returnEntry.createReturnType(maxArgNum, maxReturnTypeCharLen)
         toMethodReturnNote = returnEntry.toReturnNote
         indentStr = SeqDiagBuilder._getReturnIndent(returnEntry)
+        loopCommandMgr = SeqDiagBuilder._loopIndexDictionary
+        isLoopEnd = loopCommandMgr.peekLoopEndEntry(fromClassName=toClass,
+                                                    fromMethodName=returnEntry.fromMethod,
+                                                    toMethodName=returnEntry.toMethod,
+                                                    toMethodCallLineNb=returnEntry.getToMethodCallLineNumber())
         commandStr = SeqDiagBuilder._addReturnSeqDiagCommand(fromClass, toClass, toReturnType, indentStr + loopDepth * TAB_CHAR)
 
         # adding return note
@@ -1063,8 +1074,8 @@ class SeqDiagBuilder:
                     command += "{}loop {}\n".format(indentStr + loopDepth * TAB_CHAR, seqdiagCommandComment)
                     loopDepth += 1
                     indentStr = loopDepth * TAB_CHAR
-                    if seqdiagCommand == SEQDIAG_LOOP_START_END_TAG or seqdiagCommand == SEQDIAG_LOOP_END_TAG:
-                        loopCommandMgr.stackLoopEndCommand(fromClassName, fromMethodName, toMethodName, toMethodCallLineNb)
+                if seqdiagCommand == SEQDIAG_LOOP_START_END_TAG or seqdiagCommand == SEQDIAG_LOOP_END_TAG:
+                    loopCommandMgr.stackLoopEndCommand(fromClassName, fromMethodName, toMethodName, toMethodCallLineNb)
 
         return command, loopDepth
 
