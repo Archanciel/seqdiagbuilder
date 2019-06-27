@@ -598,11 +598,17 @@ class LoopCommandManager():
 
         self._loopCommandStack.push(loopCommandInfo)
 
+    def unstackTopLoopEndCommand(self):
+        '''
+        Unstacks the last (top) stacked loop end command info.
+        :return:
+        '''
+        self._loopCommandStack.pop()
+
     def peekLoopEndEntry(self, fromClassName, fromMethodName, toMethodName, toMethodCallLineNb):
         loopCommandInfo = self._buildKey(fromClassName, fromMethodName, toMethodName, toMethodCallLineNb)
 
         return loopCommandInfo == self._loopCommandStack.peek()
-
 
 
 class SeqDiagBuilder:
@@ -888,6 +894,19 @@ class SeqDiagBuilder:
                                                                                         maxArgNum=maxSigArgNum,
                                                                                         maxReturnTypeCharLen=maxSigCharLen,
                                                                                         loopDepth=loopDepth)
+
+                        loopCommandMgr = SeqDiagBuilder._loopIndexDictionary
+                        isLoopEnd = loopCommandMgr.peekLoopEndEntry(fromClassName=returnEntry.fromClass,
+                                                                    fromMethodName=returnEntry.fromMethod,
+                                                                    toMethodName=returnEntry.toMethod,
+                                                                    toMethodCallLineNb=returnEntry.getToMethodCallLineNumber())
+
+                        if isLoopEnd:
+                            identStr = SeqDiagBuilder._getReturnIndent(returnEntry=returnEntry)
+                            commandStr += identStr + 'end\n'
+                            loopDepth -= 1
+                            loopCommandMgr.unstackTopLoopEndCommand()
+
                         seqDiagCommandStr += commandStr
 
                         # handle return message for the method which called the
@@ -962,15 +981,11 @@ class SeqDiagBuilder:
     def _handleSeqDiagReturnMesssageCommand(returnEntry, maxArgNum, maxReturnTypeCharLen, loopDepth):
         fromClass = returnEntry.toClass
         toClass = returnEntry.fromClass
+        indentStr = SeqDiagBuilder._getReturnIndent(returnEntry=returnEntry)
         toReturnType = returnEntry.createReturnType(maxArgNum, maxReturnTypeCharLen)
-        toMethodReturnNote = returnEntry.toReturnNote
-        indentStr = SeqDiagBuilder._getReturnIndent(returnEntry)
-        loopCommandMgr = SeqDiagBuilder._loopIndexDictionary
-        isLoopEnd = loopCommandMgr.peekLoopEndEntry(fromClassName=toClass,
-                                                    fromMethodName=returnEntry.fromMethod,
-                                                    toMethodName=returnEntry.toMethod,
-                                                    toMethodCallLineNb=returnEntry.getToMethodCallLineNumber())
         commandStr = SeqDiagBuilder._addReturnSeqDiagCommand(fromClass, toClass, toReturnType, indentStr + loopDepth * TAB_CHAR)
+
+        toMethodReturnNote = returnEntry.toReturnNote
 
         # adding return note
         if toMethodReturnNote != '':
@@ -1043,6 +1058,7 @@ class SeqDiagBuilder:
         :param returnEntry:
         :return:
         '''
+
         return (returnEntry.getCallDepth() + 1) * TAB_CHAR
 
     @staticmethod
