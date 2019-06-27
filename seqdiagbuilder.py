@@ -902,7 +902,7 @@ class SeqDiagBuilder:
                                                                     toMethodCallLineNb=returnEntry.getToMethodCallLineNumber())
 
                         if isLoopEnd:
-                            identStr = SeqDiagBuilder._getReturnIndent(returnEntry=returnEntry)
+                            identStr = SeqDiagBuilder._getReturnIndent(returnEntry=returnEntry, loopDepth=loopDepth)
                             commandStr += identStr + 'end\n'
                             loopDepth -= 1
                             loopCommandMgr.unstackTopLoopEndCommand()
@@ -981,7 +981,7 @@ class SeqDiagBuilder:
     def _handleSeqDiagReturnMesssageCommand(returnEntry, maxArgNum, maxReturnTypeCharLen, loopDepth):
         fromClass = returnEntry.toClass
         toClass = returnEntry.fromClass
-        indentStr = SeqDiagBuilder._getReturnIndent(returnEntry=returnEntry)
+        indentStr = SeqDiagBuilder._getReturnIndent(returnEntry=returnEntry, loopDepth=0)
         toReturnType = returnEntry.createReturnType(maxArgNum, maxReturnTypeCharLen)
         commandStr = SeqDiagBuilder._addReturnSeqDiagCommand(fromClass, toClass, toReturnType, indentStr + loopDepth * TAB_CHAR)
 
@@ -1052,14 +1052,16 @@ class SeqDiagBuilder:
 
 
     @staticmethod
-    def _getReturnIndent(returnEntry):
+    def _getReturnIndent(returnEntry, loopDepth):
         '''
         Returns the return ident string .
         :param returnEntry:
         :return:
         '''
+        if loopDepth > 1:
+            loopDepth -= 2
 
-        return (returnEntry.getCallDepth() + 1) * TAB_CHAR
+        return (returnEntry.getCallDepth() + 1 - loopDepth) * TAB_CHAR
 
     @staticmethod
     def _addForwardSeqDiagCommand(fromClass, toClass, method, signature, indentStr, loopDepth):
