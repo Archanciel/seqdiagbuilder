@@ -865,31 +865,33 @@ class SeqDiagBuilder:
             firstFlowEntry.fromClass = actorName
             fromClass = firstFlowEntry.fromClass
             loopDepth = 0
-            commandStr, loopDepth = SeqDiagBuilder._handleSeqDiagForwardMesssageCommand(fromClass,
-                                                                                        firstFlowEntry,
-                                                                                        classMethodReturnStack, maxSigArgNum,
-                                                                                        maxSigCharLen,
-                                                                                        maxNoteCharLen,
-                                                                                        loopDepth)
-            seqDiagCommandStr += commandStr
+            forwardCommandStr, loopDepth = SeqDiagBuilder._handleSeqDiagForwardMesssageCommand(fromClass=fromClass,
+                                                                                               flowEntry=firstFlowEntry,
+                                                                                               classMethodReturnStack=classMethodReturnStack,
+                                                                                               maxSigArgNum=maxSigArgNum,
+                                                                                               maxSigCharLen=maxSigCharLen,
+                                                                                               maxNoteCharLen=maxNoteCharLen,
+                                                                                               loopDepth=loopDepth)
+            seqDiagCommandStr += forwardCommandStr
             fromClass = firstFlowEntry.toClass
 
             for flowEntry in SeqDiagBuilder._recordedFlowPath.flowEntryList[1:]:
                 if not classMethodReturnStack.containsFromCall(flowEntry):
-                    loopStartCommandStr, loopDepth = SeqDiagBuilder._handledSeqDiagLoopCommand(fromClassName=fromClass,
-                                                                                               fromMethodName=flowEntry.fromMethod,
-                                                                                               toMethodName=flowEntry.toMethod,
-                                                                                               toMethodCallLineNb=flowEntry.getToMethodCallLineNumber(),
-                                                                                               callDepth=flowEntry.getCallDepth(),
-                                                                                               loopDepth=loopDepth)
+                    loopStartCommandStr, loopDepth = SeqDiagBuilder._handledSeqDiagLoopStartCommand(fromClassName=fromClass,
+                                                                                                    fromMethodName=flowEntry.fromMethod,
+                                                                                                    toMethodName=flowEntry.toMethod,
+                                                                                                    toMethodCallLineNb=flowEntry.getToMethodCallLineNumber(),
+                                                                                                    callDepth=flowEntry.getCallDepth(),
+                                                                                                    loopDepth=loopDepth)
                     seqDiagCommandStr += loopStartCommandStr
 
-                    forwardCommandStr, loopDepth = SeqDiagBuilder._handleSeqDiagForwardMesssageCommand(fromClass, flowEntry,
-                                                                                                classMethodReturnStack,
-                                                                                                maxSigArgNum,
-                                                                                                maxSigCharLen,
-                                                                                                maxNoteCharLen,
-                                                                                                loopDepth)
+                    forwardCommandStr, loopDepth = SeqDiagBuilder._handleSeqDiagForwardMesssageCommand(fromClass=fromClass,
+                                                                                                       flowEntry=flowEntry,
+                                                                                                       classMethodReturnStack=classMethodReturnStack,
+                                                                                                       maxSigArgNum=maxSigArgNum,
+                                                                                                       maxSigCharLen=maxSigCharLen,
+                                                                                                       maxNoteCharLen=maxNoteCharLen,
+                                                                                                       loopDepth=loopDepth)
                     seqDiagCommandStr += forwardCommandStr
                     fromClass = flowEntry.toClass
                 else:
@@ -921,27 +923,27 @@ class SeqDiagBuilder:
 
                         returnEntry = classMethodReturnStack.pop()
                         returnCommandStr = SeqDiagBuilder._handleSeqDiagReturnMesssageCommand(returnEntry=returnEntry,
-                                                                                        maxArgNum=maxSigArgNum,
-                                                                                        maxReturnTypeCharLen=maxSigCharLen,
-                                                                                        loopDepth=loopDepth)
+                                                                                              maxArgNum=maxSigArgNum,
+                                                                                              maxReturnTypeCharLen=maxSigCharLen,
+                                                                                              loopDepth=loopDepth)
                         seqDiagCommandStr += returnCommandStr
                         fromClass = returnEntry.fromClass
 
-                    loopStartCommandStr, loopDepth = SeqDiagBuilder._handledSeqDiagLoopCommand(fromClassName=fromClass,
-                                                                                          fromMethodName=flowEntry.fromMethod,
-                                                                                          toMethodName=flowEntry.toMethod,
-                                                                                          toMethodCallLineNb=flowEntry.getToMethodCallLineNumber(),
-                                                                                          callDepth=flowEntry.getCallDepth(),
-                                                                                          loopDepth=loopDepth)
+                    loopStartCommandStr, loopDepth = SeqDiagBuilder._handledSeqDiagLoopStartCommand(fromClassName=fromClass,
+                                                                                                    fromMethodName=flowEntry.fromMethod,
+                                                                                                    toMethodName=flowEntry.toMethod,
+                                                                                                    toMethodCallLineNb=flowEntry.getToMethodCallLineNumber(),
+                                                                                                    callDepth=flowEntry.getCallDepth(),
+                                                                                                    loopDepth=loopDepth)
                     seqDiagCommandStr += loopStartCommandStr
 
-                    forwardCommandStr, loopDepth = SeqDiagBuilder._handleSeqDiagForwardMesssageCommand(fromClass,
-                                                                                                flowEntry,
-                                                                                                classMethodReturnStack,
-                                                                                                maxSigArgNum,
-                                                                                                maxSigCharLen,
-                                                                                                maxNoteCharLen,
-                                                                                                loopDepth)
+                    forwardCommandStr, loopDepth = SeqDiagBuilder._handleSeqDiagForwardMesssageCommand(fromClass=fromClass,
+                                                                                                       flowEntry=flowEntry,
+                                                                                                       classMethodReturnStack=classMethodReturnStack,
+                                                                                                       maxSigArgNum=maxSigArgNum,
+                                                                                                       maxSigCharLen=maxSigCharLen,
+                                                                                                       maxNoteCharLen=maxNoteCharLen,
+                                                                                                       loopDepth=loopDepth)
                     seqDiagCommandStr += forwardCommandStr
                     fromClass = flowEntry.toClass
 
@@ -962,7 +964,8 @@ class SeqDiagBuilder:
         return seqDiagCommandStr
 
     @staticmethod
-    def _handleLoopEndCommand(loopDepth, returnEntry):
+    def _handleLoopEndCommand(loopDepth,
+                              returnEntry):
         loopEndCommandStr = ''
         loopCommandMgr = SeqDiagBuilder._loopIndexDictionary
         isLoopEnd = loopCommandMgr.peekLoopEndEntry(fromClassName=returnEntry.fromClass,
@@ -1006,7 +1009,10 @@ class SeqDiagBuilder:
 
 
     @staticmethod
-    def _handleSeqDiagReturnMesssageCommand(returnEntry, maxArgNum, maxReturnTypeCharLen, loopDepth):
+    def _handleSeqDiagReturnMesssageCommand(returnEntry,
+                                            maxArgNum,
+                                            maxReturnTypeCharLen,
+                                            loopDepth):
         fromClass = returnEntry.toClass
         toClass = returnEntry.fromClass
         indentStr = SeqDiagBuilder._getReturnIndent(returnEntry=returnEntry, loopDepth=0)
@@ -1030,8 +1036,13 @@ class SeqDiagBuilder:
 
 
     @staticmethod
-    def _handleSeqDiagForwardMesssageCommand(fromClass, flowEntry, classMethodReturnStack, maxSigArgNum, maxSigCharLen,
-                                             maxNoteCharLen, loopDepth):
+    def _handleSeqDiagForwardMesssageCommand(fromClass,
+                                             flowEntry,
+                                             classMethodReturnStack,
+                                             maxSigArgNum,
+                                             maxSigCharLen,
+                                             maxNoteCharLen,
+                                             loopDepth):
         '''
         Controls the creation of the Plant UML call commands.
         :param loopDepth:
@@ -1099,8 +1110,12 @@ class SeqDiagBuilder:
 
 
     @staticmethod
-    def _handledSeqDiagLoopCommand(fromClassName, fromMethodName, toMethodName, toMethodCallLineNb, callDepth,
-                                   loopDepth):
+    def _handledSeqDiagLoopStartCommand(fromClassName,
+                                        fromMethodName,
+                                        toMethodName,
+                                        toMethodCallLineNb,
+                                        callDepth,
+                                        loopDepth):
         indentStr = callDepth * TAB_CHAR
         loopCommandStr = ''
         loopCommandMgr = SeqDiagBuilder._loopIndexDictionary
