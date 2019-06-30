@@ -567,14 +567,14 @@ User -> ClassTwoLoopsCaller: call(p1)
 			ClassTwoLoops -> ClassLeaf: doC2(p1)
 				activate ClassLeaf
 				ClassTwoLoops <-- ClassLeaf: 
+				deactivate ClassLeaf
 		end
-		deactivate ClassLeaf
 		loop 6 times
 			ClassTwoLoops -> ClassLeaf: doC1(p1)
 				activate ClassLeaf
 				ClassTwoLoops <-- ClassLeaf: 
+				deactivate ClassLeaf
 		end
-		deactivate ClassLeaf
 		ClassTwoLoops -> ClassLeaf: doC2(p1)
 			activate ClassLeaf
 			ClassTwoLoops <-- ClassLeaf: 
