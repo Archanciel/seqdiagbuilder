@@ -14,7 +14,7 @@ from testclasses.classlooponemethodcallcaller import ClassLoopOneMethodCallCalle
 from testclasses.classlooptwomethodcallcaller import ClassLoopTwoMethodCallCaller
 from testclasses.classloopnestedinneronecaller import ClassLoopNestedInnerOneCaller
 from testclasses.classloopnestedinnertwotwocallstwoloopstarttagsonsamelinecaller import ClassLoopNestedInnerTwoTwoCallsTwoLoopStartTagsOnSameLineCaller
-from testclasses.classloopnestedinnertwotwocallscaller import ClassLoopNestedInnerTwoTwoCallsCaller
+from testclasses.classloopnestedinnertwocallscaller import ClassLoopNestedInnerTwoCallsCaller
 from testclasses.classtwoloopscaller import ClassTwoLoopsCaller
 from testclasses.classloopmultinestedloopcaller import ClassLoopMultiNestedLoopCaller
 from testclasses.classloopnestedinnerwosamelooptagononelinecaller import ClassLoopNestedInnerTwoSameLoopTagOnOneLineCaller
@@ -467,9 +467,9 @@ User -> ClassLoopNestedInnerTwoTwoCallsTwoLoopStartTagsOnSameLineCaller: call(p1
         containing a nested loop. The nested loop (inner loop) itself
         contains two calls to a leaf function.
         '''
-        entryPoint = ClassLoopNestedInnerTwoTwoCallsCaller()
+        entryPoint = ClassLoopNestedInnerTwoCallsCaller()
 
-        SeqDiagBuilder.activate(parentdir, 'ClassLoopNestedInnerTwoTwoCallsCaller',
+        SeqDiagBuilder.activate(parentdir, 'ClassLoopNestedInnerTwoCallsCaller',
                                 'call',
                                 None)  # activate sequence diagram building
         entryPoint.call('str')
@@ -485,12 +485,12 @@ User -> ClassLoopNestedInnerTwoTwoCallsTwoLoopStartTagsOnSameLineCaller: call(p1
 '''@startuml
 
 actor User
-participant ClassLoopNestedInnerTwoTwoCallsCaller
+participant ClassLoopNestedInnerTwoCallsCaller
 participant ClassLoopNestedInnerTwoCalls
 participant ClassLeaf
-User -> ClassLoopNestedInnerTwoTwoCallsCaller: call(p1)
-	activate ClassLoopNestedInnerTwoTwoCallsCaller
-	ClassLoopNestedInnerTwoTwoCallsCaller -> ClassLoopNestedInnerTwoCalls: doB(p1)
+User -> ClassLoopNestedInnerTwoCallsCaller: call(p1)
+	activate ClassLoopNestedInnerTwoCallsCaller
+	ClassLoopNestedInnerTwoCallsCaller -> ClassLoopNestedInnerTwoCalls: doB(p1)
 		activate ClassLoopNestedInnerTwoCalls
 		note right
 			method doB note
@@ -522,10 +522,10 @@ User -> ClassLoopNestedInnerTwoTwoCallsCaller: call(p1)
 			activate ClassLeaf
 			ClassLoopNestedInnerTwoCalls <-- ClassLeaf: 
 			deactivate ClassLeaf
-		ClassLoopNestedInnerTwoTwoCallsCaller <-- ClassLoopNestedInnerTwoCalls: 
+		ClassLoopNestedInnerTwoCallsCaller <-- ClassLoopNestedInnerTwoCalls: 
 		deactivate ClassLoopNestedInnerTwoCalls
-	User <-- ClassLoopNestedInnerTwoTwoCallsCaller: 
-	deactivate ClassLoopNestedInnerTwoTwoCallsCaller
+	User <-- ClassLoopNestedInnerTwoCallsCaller: 
+	deactivate ClassLoopNestedInnerTwoCallsCaller
 @enduml''', commands)
 
         SeqDiagBuilder.deactivate()  # deactivate sequence diagram building

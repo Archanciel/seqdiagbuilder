@@ -1,8 +1,8 @@
 from testclasses.classloopnestedinnertwocalls import ClassLoopNestedInnerTwoCalls
 
-class ClassLoopNestedInnerTwoTwoCallsCaller:
+class ClassLoopNestedInnerTwoCallsCaller:
     '''
-    ClassLoopNestedInnerTwoTwoCallsCaller is the entry point of our sequence diagram.
+    ClassLoopNestedInnerTwoCallsCaller is the entry point of our sequence diagram.
     '''
 
     def call(self, p1):

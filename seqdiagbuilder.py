@@ -474,20 +474,21 @@ class LoopCommandManager():
         store them in the internal _loopIndexDic.
         :return:
         '''
-        lineNb = 0
+        methodBodyLineNb = -1
 
-        for line in methodBodyLines[0]:
+        for methodBodyLineNb, line in enumerate(methodBodyLines[0]):
             loopCommandTupleList = self.extractLoopCommandsFromLine(line)
             if loopCommandTupleList:
                 # adding to the currentMethodStartLineNumber the current line
                 # number gives the line number on whichsthe seqdiag loop
                 # command is located
-                loopCommandLineNb = currentMethodStartLineNumber + lineNb
+                loopCommandLineNb = currentMethodStartLineNumber + methodBodyLineNb
                 toMethodName = self.extractTargetMethodNameFromLoopCommandLine(line)
                 dicKey = self._buildKey(fromClassName, fromMethodName, toMethodName, loopCommandLineNb)
 
-                # this test is necessary since we only want to store the seqdiag commands once for
-                # a line of code containing them.
+                # Since the storeLoopCommands() method is called at every for loop
+                # execution, this test is necessary since we only want to store the
+                # seqdiag commands once for a line of code containing them.
                 if dicKey in self._loopIndexDic:
                     continue
 
@@ -495,24 +496,26 @@ class LoopCommandManager():
                     loopCommandComment = loopCommandTuple[1]
                     self.addKeyValue(dicKey, loopCommandTuple[0], loopCommandComment)
 
-            lineNb += 1
-
     def extractLoopCommandsFromLine(self, lineStr):
         '''
         This method returns a list of seqdiag loop commands defined on the passed lineStr.
-        What is returned in fact is a list of 2 elements sub list. Each sub list
+        What is returned in fact is a list of 2 elements sub lists. Each sub list
         contains 2 strings: one for the seqdiag loop command itself and one for the
-        seqdiag loop command comment (may be an empty string !.
+        seqdiag loop command comment (may be an empty string !).
         :param lineStr:
         :return: list of list(s) denoting loop commands or None if no loop command
-                 found on the passed lineStr
+                 was found on the passed lineStr
         '''
         seqdiagLoopPattern = r"(:seqdiag_loop[\w]+)\s*([\w ]*)"
 
         commandTupleList = re.findall(seqdiagLoopPattern, lineStr)
+
+        # converting list of tuples into a list of lists so that
+        # it is possible to modify the elements (see stripping below !)
         listOfCommandList = [list(elem) for elem in commandTupleList]
 
         for commandList in listOfCommandList:
+            # stripping any end space from the comment part of the seqdiag loop command
             commandList[1] = commandList[1].strip()
 
         if listOfCommandList == []:
@@ -545,29 +548,31 @@ class LoopCommandManager():
 
         return match.group(1)
 
-    def addKeyValue(self, dicKey, seqdiagLoopTag, loopTimeNumber):
+    def addKeyValue(self, dicKey, seqdiagLoopTag, seqdiagLoopComment):
         '''
-        Add to the internal dictionary the seqdiagLoopTag and loopTimeNumber
+        Add to the internal dictionary the seqdiagLoopTag and seqdiagLoopComment
         for the passed dicKey.
 
         The value associated to a key is a list of two entries lists. This
-        is adapted to the case where two seqdiag loop tags are on the same
+        is adapted to the case where more than one seqdiag loop tags are on the same
         line, like, for example,
         #:seqdiag_loop_start 3 times :seqdiag_loop_start_end 5 times.
         Each seqdiag loop command is composed of two elements: the command
-        itself and the loop times info (may be None).
+        itself and the loop comment (which generally indicates the loop execution
+        time and may be None).
 
         :param dicKey:
         :param seqdiagLoopTag:
-        :param loopTimeNumber: may be None
+        :param seqdiagLoopComment: may be None. Generally indicates the loop
+                                   execution time
         :return:
         '''
-        loopTagTimeList = [seqdiagLoopTag, loopTimeNumber]
+        loopTagEntryList = [seqdiagLoopTag, seqdiagLoopComment]
 
         if dicKey in self._loopIndexDic:
-            self._loopIndexDic[dicKey].append(loopTagTimeList)
+            self._loopIndexDic[dicKey].append(loopTagEntryList)
         else:
-            self._loopIndexDic[dicKey] = [loopTagTimeList]
+            self._loopIndexDic[dicKey] = [loopTagEntryList]
 
     def getLoopCommandList(self, fromClassName, fromMethodName, toMethodName, lineNb):
         '''
@@ -900,13 +905,14 @@ class SeqDiagBuilder:
                         returnEntry = classMethodReturnStack.pop()
                         # handle deepest or leaf return message, the one which did not
                         # generate an entry in the classMethodReturnStack
-                        returnCmmandStr = SeqDiagBuilder._handleSeqDiagReturnMesssageCommand(returnEntry=returnEntry,
+                        returnCommandStr = SeqDiagBuilder._handleSeqDiagReturnMesssageCommand(returnEntry=returnEntry,
+
                                                                                         maxArgNum=maxSigArgNum,
                                                                                         maxReturnTypeCharLen=maxSigCharLen,
                                                                                         loopDepth=loopDepth)
 
 
-                        seqDiagCommandStr += returnCmmandStr
+                        seqDiagCommandStr += returnCommandStr
 
                         loopEndCommandStr, loopDepth = SeqDiagBuilder._handleLoopEndCommand(loopDepth=loopDepth,
                                                                                             returnEntry=returnEntry)
@@ -954,6 +960,11 @@ class SeqDiagBuilder:
                                                                                       maxReturnTypeCharLen=maxSigCharLen,
                                                                                       loopDepth=loopDepth)
                 seqDiagCommandStr += returnCommandStr
+
+                loopEndCommandStr, loopDepth = SeqDiagBuilder._handleLoopEndCommand(loopDepth=loopDepth,
+                                                                                    returnEntry=returnEntry)
+
+                seqDiagCommandStr += loopEndCommandStr
         else:
             # adding dummy line to stick to Plantuml command file syntax and prevent
             # error messages in built diagram
