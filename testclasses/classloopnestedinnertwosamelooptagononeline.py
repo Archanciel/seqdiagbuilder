@@ -13,7 +13,7 @@ class ClassLoopNestedInnerTwoSameLoopTagOnOneLine:
 
         for i in range(3):
             a += 1 # dummy instruction
-            for i in range(5):
+            for j in range(5):
                 c.doCWithNote(p1) #:seqdiag_loop_start_end 3 times :seqdiag_loop_start_end 5 times
 
         c.doC1(p1)
