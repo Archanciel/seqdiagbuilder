@@ -375,14 +375,14 @@ User -> ClassLoopMultiNestedLoopStartEndEndOnSameLineCaller: call(p1)
 			loop 2 times
 				ClassLoopMultiNestedLoopStartEndEndOnSameLine -> ClassLeaf: doC1(p1)
 					activate ClassLeaf
-				ClassLoopMultiNestedLoopStartEndEndOnSameLine <-- ClassLeaf: 
-				deactivate ClassLeaf
+					ClassLoopMultiNestedLoopStartEndEndOnSameLine <-- ClassLeaf: 
+					deactivate ClassLeaf
 			end
 			loop 2 times
 				ClassLoopMultiNestedLoopStartEndEndOnSameLine -> ClassLeaf: doC2(p1)
 					activate ClassLeaf
-				ClassLoopMultiNestedLoopStartEndEndOnSameLine <-- ClassLeaf: 
-				deactivate ClassLeaf
+					ClassLoopMultiNestedLoopStartEndEndOnSameLine <-- ClassLeaf: 
+					deactivate ClassLeaf
 			end
 		end
 		ClassLoopMultiNestedLoopStartEndEndOnSameLine -> ClassLeaf: doC3(p1)

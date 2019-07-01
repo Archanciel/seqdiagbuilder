@@ -506,5 +506,64 @@ User -> ClassLoopNestedInnerTwoSameLoopTagOnOneLineCaller: call(p1)
 
         SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
 
+    def testLoopTagMultiNestedLoopsStartEndEndOnSameLine(self):
+        '''
+        This test case tests the correct generation of multi nested
+        PlantUml loop in a special situation where there's a seqdiag loop
+        start end and a seqdiag loop end on the same line.
+        '''
+        entryPoint = ClassLoopMultiNestedLoopStartEndEndOnSameLineCaller()
+
+        SeqDiagBuilder.activate(parentdir, 'ClassLoopMultiNestedLoopStartEndEndOnSameLineCaller', 'call',
+                                None)  # activate sequence diagram building
+        entryPoint.call('str')
+
+        commands = SeqDiagBuilder.createSeqDiaqCommands('User')
+
+        with open("c:\\temp\\testLoopTagMultiNestedLoopsStartEndEndOnSameLine.txt", "w") as f:
+            f.write(commands)
+
+        self.assertEqual(len(SeqDiagBuilder.getWarningList()), 0)
+
+        self.assertEqual(
+'''@startuml
+
+actor User
+participant ClassLoopMultiNestedLoopStartEndEndOnSameLineCaller
+participant ClassLoopMultiNestedLoopStartEndEndOnSameLine
+participant ClassLeaf
+User -> ClassLoopMultiNestedLoopStartEndEndOnSameLineCaller: call(p1)
+	activate ClassLoopMultiNestedLoopStartEndEndOnSameLineCaller
+	ClassLoopMultiNestedLoopStartEndEndOnSameLineCaller -> ClassLoopMultiNestedLoopStartEndEndOnSameLine: doB(p1)
+		activate ClassLoopMultiNestedLoopStartEndEndOnSameLine
+		loop 3 times
+			loop 2 times
+				ClassLoopMultiNestedLoopStartEndEndOnSameLine -> ClassLeaf: doC1(p1)
+					activate ClassLeaf
+					ClassLoopMultiNestedLoopStartEndEndOnSameLine <-- ClassLeaf: 
+					deactivate ClassLeaf
+			end
+			loop 2 times
+				ClassLoopMultiNestedLoopStartEndEndOnSameLine -> ClassLeaf: doC2(p1)
+					activate ClassLeaf
+					ClassLoopMultiNestedLoopStartEndEndOnSameLine <-- ClassLeaf: 
+					deactivate ClassLeaf
+			end
+		end
+		ClassLoopMultiNestedLoopStartEndEndOnSameLine -> ClassLeaf: doC3(p1)
+			activate ClassLeaf
+			note right
+				doC3 method note
+			end note
+			ClassLoopMultiNestedLoopStartEndEndOnSameLine <-- ClassLeaf: 
+			deactivate ClassLeaf
+		ClassLoopMultiNestedLoopStartEndEndOnSameLineCaller <-- ClassLoopMultiNestedLoopStartEndEndOnSameLine: 
+		deactivate ClassLoopMultiNestedLoopStartEndEndOnSameLine
+	User <-- ClassLoopMultiNestedLoopStartEndEndOnSameLineCaller: 
+	deactivate ClassLoopMultiNestedLoopStartEndEndOnSameLineCaller
+@enduml''', commands)
+
+        SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
+
 if __name__ == '__main__':
     unittest.main()
