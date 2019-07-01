@@ -983,11 +983,16 @@ class SeqDiagBuilder:
                                                     fromMethodName=returnEntry.fromMethod,
                                                     toMethodName=returnEntry.toMethod,
                                                     toMethodCallLineNb=returnEntry.getToMethodCallLineNumber())
-        if isLoopEnd:
+        while isLoopEnd: # using while cares for the case where multiple seqdiag loop start end
+                         # commands are located on the same line
             identStr = SeqDiagBuilder._getReturnIndent(returnEntry=returnEntry, loopDepth=loopDepth)
             loopEndCommandStr += identStr + 'end\n'
             loopDepth -= 1
             loopCommandMgr.unstackTopLoopEndCommand()
+            isLoopEnd = loopCommandMgr.peekLoopEndEntry(fromClassName=returnEntry.fromClass,
+                                                        fromMethodName=returnEntry.fromMethod,
+                                                        toMethodName=returnEntry.toMethod,
+                                                        toMethodCallLineNb=returnEntry.getToMethodCallLineNumber())
 
         return loopEndCommandStr, loopDepth
 
