@@ -1025,6 +1025,7 @@ class SeqDiagBuilder:
 
         seqDiagCommandStr += "@enduml"
 
+        # temporary code replacing correct error msg handlin
         if SeqDiagBuilder._loopCommandMgr:
             unconsumedLoopCommandList = SeqDiagBuilder._loopCommandMgr.getUnconsumedLoopCommandList()
 
