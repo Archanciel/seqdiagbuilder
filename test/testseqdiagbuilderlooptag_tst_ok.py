@@ -22,7 +22,7 @@ from testclasses.classlooptagonmethodnotinrecordflowcaller import ClassLoopTagOn
 from testclasses.classloopmultinestedloopstartendendonsamelinecaller import ClassLoopMultiNestedLoopStartEndEndOnSameLineCaller
 
 
-class TestSeqDiagBuilderLoopTag(unittest.TestCase):
+class TestSeqDiagBuilderLoopTagOk(unittest.TestCase):
     def setUp(self):
         SeqDiagBuilder.deactivate()
 
