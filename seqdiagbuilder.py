@@ -460,6 +460,19 @@ class LoopCommandManager():
     informations stored are the class and method name containing seqdiag loop
     commands and their line number associated to the seqdiag loop command type:
     start, startEnd and end.
+
+    The concept behind the LoopCommandManager is that it is used at 2 steps of
+    SeqDiagBuilder working: at execution flow record time and when generating
+    the PlantUML command file. At flow record time, the current source file is
+    parsed in order to add in the LoopCommandManager internal dictionary the
+    instruction lines on which a seqdiag loop annotation exists.
+
+    Later, at PlantUML command file generation time, the info stored in the
+    internal dictionary is used to add loop and end commands.
+
+    Each time a loop command is added, the instruction line info is stacked
+    into the internal stack so it can be unstacked after method call return
+    in order to add an end command.
     '''
     _loopIndexDic = None
     _loopCommandStack = None
@@ -474,8 +487,6 @@ class LoopCommandManager():
         store them in the internal _loopIndexDic.
         :return:
         '''
-        methodBodyLineNb = -1
-
         for methodBodyLineNb, line in enumerate(methodBodyLines[0]):
             loopCommandTupleList = self.extractLoopCommandsFromLine(line)
             if loopCommandTupleList:
@@ -550,16 +561,19 @@ class LoopCommandManager():
 
     def addKeyValue(self, dicKey, seqdiagLoopTag, seqdiagLoopComment):
         '''
-        Add to the internal dictionary the seqdiagLoopTag and seqdiagLoopComment
+        Add to the internal dictionary the seqdiag loop tag and seqdiag loop comment
         for the passed dicKey.
 
         The value associated to a key is a list of two entries lists. This
-        is adapted to the case where more than one seqdiag loop tags are on the same
+        is adapted to the case where more than one seqdiag loop tag are on the same
         line, like, for example,
+
         #:seqdiag_loop_start 3 times :seqdiag_loop_start_end 5 times.
-        Each seqdiag loop command is composed of two elements: the command
-        itself and the loop comment (which generally indicates the loop execution
-        time and may be None).
+
+        Each seqdiag loop command is composed of three elements: the command
+        itself, the loop comment (which generally indicates the loop execution
+        time and may be None) and a boolean which indicates if the entry has been
+        consumed at seqdiag loop tag generation time in the Plant UML command file.
 
         :param dicKey:
         :param seqdiagLoopTag:
@@ -567,7 +581,7 @@ class LoopCommandManager():
                                    execution time
         :return:
         '''
-        loopTagEntryList = [seqdiagLoopTag, seqdiagLoopComment]
+        loopTagEntryList = [seqdiagLoopTag, seqdiagLoopComment, False]
 
         if dicKey in self._loopIndexDic:
             self._loopIndexDic[dicKey].append(loopTagEntryList)
@@ -615,6 +629,45 @@ class LoopCommandManager():
 
         return loopCommandInfo == self._loopCommandStack.peek()
 
+    def consumeLoopCommand(self, loopCommandIndex, fromClassName, fromMethodName, toMethodName, toMethodCallLineNb):
+        '''
+        Sets the 3rd element of the loopCommandIndex sub list in the loop command list attached to
+        the passed key components to True.
+
+        A precondition of the method is that there's a loop command list in the internal dictionary.
+        So, no test is done on the existence of the list.
+
+        :param loopCommandIndex: index of the loop command  sub list
+        :param fromClassName:
+        :param fromMethodName:
+        :param toMethodName:
+        :param toMethodCallLineNb:
+
+        :return:
+        '''
+        key = self._buildKey(fromClassName, fromMethodName, toMethodName, toMethodCallLineNb)
+        loopCommandList = self._loopIndexDic[key]
+        loopCommandList[loopCommandIndex][2] = True
+
+    def getUnconsumedLoopCommandList(self):
+        '''
+        Returns a list of loop command entries stored in the internal loop command
+        dictionary which have NOT been consumed at PlantUML command file generation.
+        If all entries were consumed, None is returned.
+
+        :return:
+        '''
+        unconsumedLoopCommandList = []
+
+        for loopCommandKey, loopCommandValue in self._loopIndexDic.items():
+            for loopCommandEntry in loopCommandValue:
+                if not loopCommandEntry[2]:
+                    unconsumedLoopCommandList.append(loopCommandKey)
+
+        if unconsumedLoopCommandList == []:
+            return  None
+        else:
+            return unconsumedLoopCommandList
 
 class SeqDiagBuilder:
     '''
@@ -634,7 +687,7 @@ class SeqDiagBuilder:
     _recordedFlowPath = None
     _participantDocOrderedDic = None
     _constructorArgProvider = None
-    _loopIndexDictionary = None
+    _loopCommandMgr = None
 
     @staticmethod
     def activate(projectPath, entryClass, entryMethod, classArgDic = None):
@@ -665,7 +718,7 @@ class SeqDiagBuilder:
         SeqDiagBuilder._recordedFlowPath = RecordedFlowPath(SeqDiagBuilder._seqDiagEntryClass, SeqDiagBuilder._seqDiagEntryMethod)
         SeqDiagBuilder._isActive = True
         SeqDiagBuilder._participantDocOrderedDic = collections.OrderedDict()
-        SeqDiagBuilder._loopIndexDictionary = LoopCommandManager()
+        SeqDiagBuilder._loopCommandMgr = LoopCommandManager()
 
         if classArgDic:
             SeqDiagBuilder._constructorArgProvider = ConstructorArgsProvider(classArgDic)
@@ -686,7 +739,7 @@ class SeqDiagBuilder:
         SeqDiagBuilder._recordFlowCalled = False
         SeqDiagBuilder._participantDocOrderedDic = collections.OrderedDict()
         SeqDiagBuilder._constructorArgProvider = None
-        SeqDiagBuilder._loopIndexDictionary = None
+        SeqDiagBuilder._loopCommandMgr = None
 
 
     @staticmethod
@@ -972,13 +1025,19 @@ class SeqDiagBuilder:
 
         seqDiagCommandStr += "@enduml"
 
+        if SeqDiagBuilder._loopCommandMgr:
+            unconsumedLoopCommandList = SeqDiagBuilder._loopCommandMgr.getUnconsumedLoopCommandList()
+
+            if unconsumedLoopCommandList:
+                raise Exception(', '.join(unconsumedLoopCommandList))
+
         return seqDiagCommandStr
 
     @staticmethod
     def _handleLoopEndCommand(loopDepth,
                               returnEntry):
         loopEndCommandStr = ''
-        loopCommandMgr = SeqDiagBuilder._loopIndexDictionary
+        loopCommandMgr = SeqDiagBuilder._loopCommandMgr
         isLoopEnd = loopCommandMgr.peekLoopEndEntry(fromClassName=returnEntry.fromClass,
                                                     fromMethodName=returnEntry.fromMethod,
                                                     toMethodName=returnEntry.toMethod,
@@ -1134,20 +1193,23 @@ class SeqDiagBuilder:
                                         loopDepth):
         indentStr = callDepth * TAB_CHAR
         loopCommandStr = ''
-        loopCommandMgr = SeqDiagBuilder._loopIndexDictionary
+        loopCommandMgr = SeqDiagBuilder._loopCommandMgr
         seqdiagLoopCommandList = loopCommandMgr.getLoopCommandList(fromClassName, fromMethodName, toMethodName, toMethodCallLineNb)
 
         if seqdiagLoopCommandList:
-            for seqdiagLoopCommand in seqdiagLoopCommandList:
+            for commandIndex, seqdiagLoopCommand in enumerate(seqdiagLoopCommandList):
                 seqdiagCommand = seqdiagLoopCommand[0]
+
                 if seqdiagCommand == SEQDIAG_LOOP_START_TAG or seqdiagCommand == SEQDIAG_LOOP_START_END_TAG:
                     indentStr += loopDepth * TAB_CHAR
                     seqdiagCommandComment = seqdiagLoopCommand[1]
                     loopCommandStr += "{}loop {}\n".format(indentStr, seqdiagCommandComment)
                     loopDepth += 1
+
                 if seqdiagCommand == SEQDIAG_LOOP_START_END_TAG or seqdiagCommand == SEQDIAG_LOOP_END_TAG:
                     loopCommandMgr.stackLoopEndCommand(fromClassName, fromMethodName, toMethodName, toMethodCallLineNb)
 
+                loopCommandMgr.consumeLoopCommand(commandIndex, fromClassName, fromMethodName, toMethodName, toMethodCallLineNb)
         return loopCommandStr, loopDepth
 
     @staticmethod
@@ -1350,7 +1412,7 @@ class SeqDiagBuilder:
                     methodDoc = methodObj.__doc__
                     methodBodyLines = inspect.getsourcelines(methodObj)
 
-                    SeqDiagBuilder._loopIndexDictionary.storeLoopCommands(className, methodName, methodStartLineNumber, methodBodyLines)
+                    SeqDiagBuilder._loopCommandMgr.storeLoopCommands(className, methodName, methodStartLineNumber, methodBodyLines)
 
                     if methodDoc:
                         # get method return type from method documentation
