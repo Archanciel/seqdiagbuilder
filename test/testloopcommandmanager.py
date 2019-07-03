@@ -147,7 +147,7 @@ class TestLoopCommandManager(unittest.TestCase):
         loopCommandMgr.consumeLoopCommand(1, fromClassName, fromMethodName, 'doCWithNote', 17)
 
         unconsumedLoopCommandList = loopCommandMgr.getUnconsumedLoopCommandList()
-        self.assertEqual(unconsumedLoopCommandList, ['ClassLoopNestedInnerOneForTestLoopIdxDic.doB->doC2: 20'])
+        self.assertEqual(unconsumedLoopCommandList, [['ClassLoopNestedInnerOneForTestLoopIdxDic.doB->doC2: 20', [':seqdiag_loop_end', '', False]]])
 
     def testGetUnconsumedLoopCommandListTwoUnconsumedCommandsOnDifferentLines(self):
         loopCommandMgr = LoopCommandManager()
@@ -163,7 +163,7 @@ class TestLoopCommandManager(unittest.TestCase):
         loopCommandMgr.consumeLoopCommand(0, fromClassName, fromMethodName, 'doCWithNote', 17)
 
         unconsumedLoopCommandList = loopCommandMgr.getUnconsumedLoopCommandList()
-        self.assertEqual(unconsumedLoopCommandList, ['ClassLoopNestedInnerOneForTestLoopIdxDic.doB->doCWithNote: 17', 'ClassLoopNestedInnerOneForTestLoopIdxDic.doB->doC2: 20'])
+        self.assertEqual(unconsumedLoopCommandList, [['ClassLoopNestedInnerOneForTestLoopIdxDic.doB->doCWithNote: 17', [':seqdiag_loop_start', '3 times', True]], ['ClassLoopNestedInnerOneForTestLoopIdxDic.doB->doC2: 20', [':seqdiag_loop_end', '', False]]])
 
     def testGetUnconsumedLoopCommandListTwoUnconsumedCommandsOnSameLines(self):
         loopCommandMgr = LoopCommandManager()
@@ -179,7 +179,7 @@ class TestLoopCommandManager(unittest.TestCase):
         loopCommandMgr.consumeLoopCommand(0, fromClassName, fromMethodName, 'doC2', 20)
 
         unconsumedLoopCommandList = loopCommandMgr.getUnconsumedLoopCommandList()
-        self.assertEqual(unconsumedLoopCommandList, ['ClassLoopNestedInnerOneForTestLoopIdxDic.doB->doCWithNote: 17', 'ClassLoopNestedInnerOneForTestLoopIdxDic.doB->doCWithNote: 17'])
+        self.assertEqual(unconsumedLoopCommandList, [['ClassLoopNestedInnerOneForTestLoopIdxDic.doB->doCWithNote: 17', [':seqdiag_loop_start', '3 times', False]], ['ClassLoopNestedInnerOneForTestLoopIdxDic.doB->doCWithNote: 17', [':seqdiag_loop_start', '3 times', False]]])
 
     def testExtractLoopCommandsFromLine(self):
         '''

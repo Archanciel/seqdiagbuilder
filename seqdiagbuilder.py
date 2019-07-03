@@ -547,6 +547,31 @@ class LoopCommandManager():
         return fromClassName + "." + fromMethodName + "->" + toMethodName + ": " + str(
             methodCallLineNumber)
 
+    def splitKey(self, keyStr):
+        '''
+        Split the internal dictionary keyStr into its components and return them.
+        :param fromClassName:
+        :param fromMethodName:
+        :param toMethodName:
+        :param methodCallLineNumber:
+        :return: dictionary keyStr
+        '''
+        keyPattern = r'(\w+).(\w+)->(\w+): (\d+)'
+
+        match = re.match(keyPattern, keyStr)
+        fromClassName = ''
+        fromMethodName = ''
+        toMethodName = ''
+        methodCallLineNumber = ''
+
+        if match:
+            fromClassName = match.groups()[0]
+            fromMethodName = match.groups()[1]
+            toMethodName = match.groups()[2]
+            methodCallLineNumber = match.groups()[3]
+
+        return fromClassName, fromMethodName, toMethodName, methodCallLineNumber
+
     def extractTargetMethodNameFromLoopCommandLine(self, seqdiagTagLine):
         '''
         Extract from the seqdiag loop command line the target method name.
@@ -662,7 +687,7 @@ class LoopCommandManager():
         for loopCommandKey, loopCommandValue in self._loopIndexDic.items():
             for loopCommandEntry in loopCommandValue:
                 if not loopCommandEntry[2]:
-                    unconsumedLoopCommandList.append(loopCommandKey)
+                    unconsumedLoopCommandList.append([loopCommandKey, loopCommandValue[0]])
 
         if unconsumedLoopCommandList == []:
             return  None
@@ -1023,18 +1048,17 @@ class SeqDiagBuilder:
             # error messages in built diagram
             seqDiagCommandStr += "actor {}\n\n".format(actorName)
 
-        seqDiagCommandStr += "@enduml"
+        if SeqDiagBuilder._loopCommandMgr:
+            unconsumedLoopCommandList = SeqDiagBuilder._loopCommandMgr.getUnconsumedLoopCommandList()
 
-        # temporary code replacing correct error msg handlin
-        # if SeqDiagBuilder._loopCommandMgr:
-        #     unconsumedLoopCommandList = SeqDiagBuilder._loopCommandMgr.getUnconsumedLoopCommandList()
-        #
-        #     if unconsumedLoopCommandList:
-        #         raise Exception(', '.join(unconsumedLoopCommandList))
-
+            if unconsumedLoopCommandList:
+                seqDiagCommandStr += "actor {}\n\n".format(actorName)
+                for unconsumedLoopCommandInfo in unconsumedLoopCommandList:
+                    SeqDiagBuilder._issueLoopTagOutsideRecordedFlowError(unconsumedLoopCommandInfo)
 
         seqDiagHeaderStr = SeqDiagBuilder._buildCommandFileHeaderSection()
         seqDiagCommandStr = seqDiagHeaderStr + seqDiagCommandStr
+        seqDiagCommandStr += "@enduml"
 
         return seqDiagCommandStr
 
@@ -1087,6 +1111,25 @@ class SeqDiagBuilder:
                 isEntryPointReached)
         SeqDiagBuilder._issueWarning(warning)
 
+
+    @staticmethod
+    def _issueLoopTagOutsideRecordedFlowError(unconsumedLoopCommandInfo):
+        loopCommandKey = unconsumedLoopCommandInfo[0]
+        fromClassName, fromMethodName, toMethodName, methodCallLineNumber = SeqDiagBuilder._loopCommandMgr.splitKey(loopCommandKey)
+        loopCommandType = unconsumedLoopCommandInfo[1][0]
+
+        errorMsg = "ERROR - :{} tag located on line {} of file containing class {} is placed on an instruction calling method {}() which is not part of the execution flow recorded by SeqDiagBuilder".format(
+                    loopCommandType,
+                    methodCallLineNumber,
+                    fromClassName,
+                    toMethodName)
+
+        SeqDiagBuilder._issueWarning(errorMsg)
+
+        solutionMsg = "To solve the problem, ensure the :{} tag is placed on a line calling a method whose execution is recorded by SeqDiagBuilder.recordFlow()".format(
+            loopCommandType)
+
+        SeqDiagBuilder._issueWarning(solutionMsg)
 
     @staticmethod
     def _handleSeqDiagReturnMesssageCommand(returnEntry,
