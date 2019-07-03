@@ -752,29 +752,13 @@ User -> ClassLoopTagOnMethodNotInRecordFlowCaller: callLoopStartOnRecordedMethod
 
 center header
 <b><font color=red size=20> Warnings</font></b>
-<b><font color=red size=14>  WARNING - :seqdiag_loop_end command located on line 55 of classlooptagonmethodnotinrecordflow.py has no corresponding :seqdiag_loop_start command. UML loop annotation ignored.</font></b>
-<b><font color=red size=14>  To solve the problem, ensure the :seqdiag_loop_start tag is placed on a method whose call is recorded by SeqDiag.recordFlow().</font></b>
+<b><font color=red size=14>  ERROR - :seqdiag_loop_start tag located on line 53 of file containing class ClassLoopTagOnMethodNotInRecordFlow is placed on an instruction calling method doC4NotRecordedInFlow() which is not part of the execution flow recorded by SeqDiagBuilder.</font></b>
+<b><font color=red size=14>  To solve the problem, ensure the :seqdiag_loop_start tag is placed on a line calling a method whose execution is recorded by SeqDiag.recordFlow().</font></b>
 endheader
 actor User
 participant ClassLoopTagOnMethodNotInRecordFlowCaller
 participant ClassLoopTagOnMethodNotInRecordFlow
 participant ClassLeaf
-User -> ClassLoopTagOnMethodNotInRecordFlowCaller: callLoopStartOnNotRecordedMethodCallAndLoopEndOnRecordedMethodCall(p1)
-	activate ClassLoopTagOnMethodNotInRecordFlowCaller
-	ClassLoopTagOnMethodNotInRecordFlowCaller -> ClassLoopTagOnMethodNotInRecordFlow: doLoopStartOnNotRecordedMethodCallAndLoopEndOnRecordedMethodCall(p1)
-		activate ClassLoopTagOnMethodNotInRecordFlow
-		ClassLoopTagOnMethodNotInRecordFlow -> ClassLeaf: doC1(p1)
-			activate ClassLeaf
-			ClassLoopTagOnMethodNotInRecordFlow <-- ClassLeaf: 
-			deactivate ClassLeaf
-		ClassLoopTagOnMethodNotInRecordFlow -> ClassLeaf: doC2(p1)
-			activate ClassLeaf
-			ClassLoopTagOnMethodNotInRecordFlow <-- ClassLeaf: 
-			deactivate ClassLeaf
-		ClassLoopTagOnMethodNotInRecordFlowCaller <-- ClassLoopTagOnMethodNotInRecordFlow: 
-		deactivate ClassLoopTagOnMethodNotInRecordFlow
-	User <-- ClassLoopTagOnMethodNotInRecordFlowCaller: 
-	deactivate ClassLoopTagOnMethodNotInRecordFlowCaller
 @enduml''', commands)
 
         SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
