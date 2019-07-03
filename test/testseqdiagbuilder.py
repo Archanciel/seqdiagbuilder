@@ -2139,7 +2139,7 @@ actor USER
 '''@startuml
 center header
 <b><font color=red size=20> Warnings</font></b>
-<b><font color=red size=14>  ERROR - constructor for class FileReader in module testclasses.subtestpackage.filereader failed due to invalid                 argument(s) (['testfile.txt', 'inval arg']) defined in the class argument dictionary passed to the SeqDiagBuilder.activate() method.</font></b>
+<b><font color=red size=14>  ERROR - constructor for class FileReader in module testclasses.subtestpackage.filereader failed due to invalid argument(s) (['testfile.txt', 'inval arg']) defined in the class argument dictionary passed to the SeqDiagBuilder.activate() method.</font></b>
 endheader
 
 

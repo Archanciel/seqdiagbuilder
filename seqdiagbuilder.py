@@ -1532,8 +1532,7 @@ class SeqDiagBuilder:
                             className, packageSpec + moduleName, className))
                         break
             else:
-                SeqDiagBuilder._issueWarning('ERROR - constructor for class {} in module {} failed due to invalid \
-                argument(s) ({}) defined in the class argument dictionary passed to the SeqDiagBuilder.activate() method'.format(
+                SeqDiagBuilder._issueWarning('ERROR - constructor for class {} in module {} failed due to invalid argument(s) ({}) defined in the class argument dictionary passed to the SeqDiagBuilder.activate() method'.format(
                     className, packageSpec + moduleName, ctorArgValueList))
 
         return instance
