@@ -1052,7 +1052,7 @@ class SeqDiagBuilder:
             unconsumedLoopCommandList = SeqDiagBuilder._loopCommandMgr.getUnconsumedLoopCommandList()
 
             if unconsumedLoopCommandList:
-                seqDiagCommandStr += "actor {}\n\n".format(actorName)
+                seqDiagCommandStr = "actor {}\n\n".format(actorName)
                 for unconsumedLoopCommandInfo in unconsumedLoopCommandList:
                     SeqDiagBuilder._issueLoopTagOutsideRecordedFlowError(unconsumedLoopCommandInfo)
 
