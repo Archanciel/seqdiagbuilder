@@ -908,7 +908,7 @@ class SeqDiagBuilder:
             isFlowRecorded = False
             SeqDiagBuilder._issueNoFlowRecordedWarning(isEntryPointReached)
 
-        seqDiagCommandStr = SeqDiagBuilder._buildCommandFileHeaderSection()
+        seqDiagCommandStr = ''
 
         if isFlowRecorded:
             classMethodReturnStack = SeqDiagCommandStack()
@@ -1026,11 +1026,15 @@ class SeqDiagBuilder:
         seqDiagCommandStr += "@enduml"
 
         # temporary code replacing correct error msg handlin
-        if SeqDiagBuilder._loopCommandMgr:
-            unconsumedLoopCommandList = SeqDiagBuilder._loopCommandMgr.getUnconsumedLoopCommandList()
+        # if SeqDiagBuilder._loopCommandMgr:
+        #     unconsumedLoopCommandList = SeqDiagBuilder._loopCommandMgr.getUnconsumedLoopCommandList()
+        #
+        #     if unconsumedLoopCommandList:
+        #         raise Exception(', '.join(unconsumedLoopCommandList))
 
-            if unconsumedLoopCommandList:
-                raise Exception(', '.join(unconsumedLoopCommandList))
+
+        seqDiagHeaderStr = SeqDiagBuilder._buildCommandFileHeaderSection()
+        seqDiagCommandStr = seqDiagHeaderStr + seqDiagCommandStr
 
         return seqDiagCommandStr
 
