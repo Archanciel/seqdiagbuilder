@@ -589,8 +589,8 @@ User -> ClassTwoLoopsCaller: call(p1)
 
     def testLoopStartAndLoopEndOnNotRecordedMethodCall(self):
         '''
-        This test case tests the the correct handling of a :seqdiag_loop
-        start tag located on a call to a method  which is not monitored
+        This test case tests the the correct handling of both :seqdiag_loop
+        start and :seqdiag_loop end tags located on a call to a method  which is not monitored
         by the SeqDiagBuilder.recordFlow() static method.
         '''
         entryPoint = ClassLoopTagOnMethodNotInRecordFlowCaller()
@@ -603,27 +603,28 @@ User -> ClassTwoLoopsCaller: call(p1)
         with open("c:\\temp\\testLoopStartAndLoopEndOnNotRecordedMethodCall.txt", "w") as f:
             f.write(commands)
 
-        self.assertEqual(len(SeqDiagBuilder.getWarningList()), 0)
+        self.assertEqual(len(SeqDiagBuilder.getWarningList()), 2)
 
         self.assertEqual(
 '''@startuml
+center header
+<b><font color=red size=20> Warnings</font></b>
+<b><font color=red size=20> 1</font></b>
+<b><font color=red size=14>  ERROR - ':seqdiag_loop_start' tag located on line 16 of file containing class ClassLoopTagOnMethodNotInRecordFlow is placed on an instruction calling</font></b>
+<b><font color=red size=14>  method doC4NotRecordedInFlow() which IS NOT part of the execution flow recorded by SeqDiagBuilder.</font></b>
+<b><font color=red size=14>  To solve the problem, ensure the ':seqdiag_loop_start' tag is placed on a line calling a method whose execution is recorded by</font></b>
+<b><font color=red size=14>  SeqDiagBuilder.recordFlow().</font></b>
+<b><font color=red size=20> 2</font></b>
+<b><font color=red size=14>  ERROR - ':seqdiag_loop_end' tag located on line 18 of file containing class ClassLoopTagOnMethodNotInRecordFlow is placed on an instruction calling</font></b>
+<b><font color=red size=14>  method doC4NotRecordedInFlow() which IS NOT part of the execution flow recorded by SeqDiagBuilder.</font></b>
+<b><font color=red size=14>  To solve the problem, ensure the ':seqdiag_loop_end' tag is placed on a line calling a method whose execution is recorded by</font></b>
+<b><font color=red size=14>  SeqDiagBuilder.recordFlow().</font></b>
+endheader
 
 actor User
 participant ClassLoopTagOnMethodNotInRecordFlowCaller
 participant ClassLoopTagOnMethodNotInRecordFlow
 participant ClassLeaf
-User -> ClassLoopTagOnMethodNotInRecordFlowCaller: callLoopStartAndLoopEndOnNotRecordedMethodCall(p1)
-	activate ClassLoopTagOnMethodNotInRecordFlowCaller
-	ClassLoopTagOnMethodNotInRecordFlowCaller -> ClassLoopTagOnMethodNotInRecordFlow: doLoopStartAndLoopEndOnNotRecordedMethodCall(p1)
-		activate ClassLoopTagOnMethodNotInRecordFlow
-		ClassLoopTagOnMethodNotInRecordFlow -> ClassLeaf: doC2(p1)
-			activate ClassLeaf
-			ClassLoopTagOnMethodNotInRecordFlow <-- ClassLeaf: 
-			deactivate ClassLeaf
-		ClassLoopTagOnMethodNotInRecordFlowCaller <-- ClassLoopTagOnMethodNotInRecordFlow: 
-		deactivate ClassLoopTagOnMethodNotInRecordFlow
-	User <-- ClassLoopTagOnMethodNotInRecordFlowCaller: 
-	deactivate ClassLoopTagOnMethodNotInRecordFlowCaller
 @enduml''', commands)
 
         SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
@@ -644,27 +645,22 @@ User -> ClassLoopTagOnMethodNotInRecordFlowCaller: callLoopStartAndLoopEndOnNotR
         with open("c:\\temp\\testLoopStartEndOnNotRecordedMethodCall.txt", "w") as f:
             f.write(commands)
 
-        self.assertEqual(len(SeqDiagBuilder.getWarningList()), 0)
+        self.assertEqual(len(SeqDiagBuilder.getWarningList()), 1)
 
         self.assertEqual(
 '''@startuml
+center header
+<b><font color=red size=20> Warnings</font></b>
+<b><font color=red size=14>  ERROR - ':seqdiag_loop_start_end' tag located on line 34 of file containing class ClassLoopTagOnMethodNotInRecordFlow is placed on an instruction</font></b>
+<b><font color=red size=14>  calling method doC4NotRecordedInFlow() which IS NOT part of the execution flow recorded by SeqDiagBuilder.</font></b>
+<b><font color=red size=14>  To solve the problem, ensure the ':seqdiag_loop_start_end' tag is placed on a line calling a method whose execution is recorded by</font></b>
+<b><font color=red size=14>  SeqDiagBuilder.recordFlow().</font></b>
+endheader
 
 actor User
 participant ClassLoopTagOnMethodNotInRecordFlowCaller
 participant ClassLoopTagOnMethodNotInRecordFlow
 participant ClassLeaf
-User -> ClassLoopTagOnMethodNotInRecordFlowCaller: callLoopStartEndOnNotRecordedMethodCall(p1)
-	activate ClassLoopTagOnMethodNotInRecordFlowCaller
-	ClassLoopTagOnMethodNotInRecordFlowCaller -> ClassLoopTagOnMethodNotInRecordFlow: doLoopStartEndOnNotRecordedMethodCall(p1)
-		activate ClassLoopTagOnMethodNotInRecordFlow
-		ClassLoopTagOnMethodNotInRecordFlow -> ClassLeaf: doC2(p1)
-			activate ClassLeaf
-			ClassLoopTagOnMethodNotInRecordFlow <-- ClassLeaf: 
-			deactivate ClassLeaf
-		ClassLoopTagOnMethodNotInRecordFlowCaller <-- ClassLoopTagOnMethodNotInRecordFlow: 
-		deactivate ClassLoopTagOnMethodNotInRecordFlow
-	User <-- ClassLoopTagOnMethodNotInRecordFlowCaller: 
-	deactivate ClassLoopTagOnMethodNotInRecordFlowCaller
 @enduml''', commands)
 
         SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
@@ -687,39 +683,24 @@ User -> ClassLoopTagOnMethodNotInRecordFlowCaller: callLoopStartEndOnNotRecorded
         with open("c:\\temp\\testLoopStartOnRecordedMethodCallAndLoopEndOnNotRecordedMethodCall.txt", "w") as f:
             f.write(commands)
 
-        self.assertEqual(len(SeqDiagBuilder.getWarningList()), 0)
+        self.assertEqual(len(SeqDiagBuilder.getWarningList()), 1)
 
         # since the loop start command has no corresponding end command, PlantUML
         # will ignore the loop start command
         self.assertEqual(
 '''@startuml
-
 center header
 <b><font color=red size=20> Warnings</font></b>
-<b><font color=red size=14>  WARNING - :seqdiag_loop_start command located on line 73 of classlooptagonmethodnotinrecordflow.py has no corresponding :seqdiag_loop_end command. UML loop annotation ignored.</font></b>
-<b><font color=red size=14>  To solve the problem, ensure the :seqdiag_loop_end tag is placed on a method whose call is recorded by SeqDiag.recordFlow().</font></b>
+<b><font color=red size=14>  ERROR - ':seqdiag_loop_end' tag located on line 75 of file containing class ClassLoopTagOnMethodNotInRecordFlow is placed on an instruction calling</font></b>
+<b><font color=red size=14>  method doC4NotRecordedInFlow() which IS NOT part of the execution flow recorded by SeqDiagBuilder.</font></b>
+<b><font color=red size=14>  To solve the problem, ensure the ':seqdiag_loop_end' tag is placed on a line calling a method whose execution is recorded by</font></b>
+<b><font color=red size=14>  SeqDiagBuilder.recordFlow().</font></b>
 endheader
+
 actor User
 participant ClassLoopTagOnMethodNotInRecordFlowCaller
 participant ClassLoopTagOnMethodNotInRecordFlow
 participant ClassLeaf
-User -> ClassLoopTagOnMethodNotInRecordFlowCaller: callLoopStartOnRecordedMethodCallAndLoopEndOnNotRecordedMethodCall(p1)
-	activate ClassLoopTagOnMethodNotInRecordFlowCaller
-	ClassLoopTagOnMethodNotInRecordFlowCaller -> ClassLoopTagOnMethodNotInRecordFlow: doLoopStartOnRecordedMethodCallAndLoopEndOnNotRecordedMethodCall(p1)
-		activate ClassLoopTagOnMethodNotInRecordFlow
-		loop 3 times
-			ClassLoopTagOnMethodNotInRecordFlow -> ClassLeaf: doC1(p1)
-				activate ClassLeaf
-				ClassLoopTagOnMethodNotInRecordFlow <-- ClassLeaf: 
-				deactivate ClassLeaf
-			ClassLoopTagOnMethodNotInRecordFlow -> ClassLeaf: doC2(p1)
-				activate ClassLeaf
-				ClassLoopTagOnMethodNotInRecordFlow <-- ClassLeaf: 
-				deactivate ClassLeaf
-		ClassLoopTagOnMethodNotInRecordFlowCaller <-- ClassLoopTagOnMethodNotInRecordFlow: 
-		deactivate ClassLoopTagOnMethodNotInRecordFlow
-	User <-- ClassLoopTagOnMethodNotInRecordFlowCaller: 
-	deactivate ClassLoopTagOnMethodNotInRecordFlowCaller
 @enduml''', commands)
 
         SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
