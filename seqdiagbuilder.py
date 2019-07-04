@@ -832,7 +832,7 @@ class SeqDiagBuilder:
 
 
     @staticmethod
-    def _buildClassNoteSection(participantDocOrderedDic, maxNoteCharLen):
+    def _buildParticipantSection(participantDocOrderedDic, maxNoteCharLen):
         classNoteSectionStr = ''
 
         for className, classNote in participantDocOrderedDic.items():
@@ -957,8 +957,8 @@ class SeqDiagBuilder:
                 seqDiagCommandStr += "actor {}\n".format(actorName)
             else:
                 seqDiagCommandStr += "\nactor {}\n".format(actorName)
-            seqDiagCommandStr += SeqDiagBuilder._buildClassNoteSection(SeqDiagBuilder._participantDocOrderedDic,
-                                                                       maxNoteCharLen)
+            participantSection = SeqDiagBuilder._buildParticipantSection(SeqDiagBuilder._participantDocOrderedDic, maxNoteCharLen)
+            seqDiagCommandStr += participantSection
             firstFlowEntry = SeqDiagBuilder._recordedFlowPath.flowEntryList[0]
             firstFlowEntry.fromClass = actorName
             fromClass = firstFlowEntry.fromClass
@@ -1067,7 +1067,7 @@ class SeqDiagBuilder:
             unconsumedLoopCommandList = SeqDiagBuilder._loopCommandMgr.getUnconsumedLoopCommandList()
 
             if unconsumedLoopCommandList:
-                seqDiagCommandStr = "actor {}\n\n".format(actorName)
+                seqDiagCommandStr = "actor {}\n".format(actorName) +participantSection
                 for unconsumedLoopCommandInfo in unconsumedLoopCommandList:
                     SeqDiagBuilder._issueLoopTagOutsideRecordedFlowError(unconsumedLoopCommandInfo)
 
@@ -1133,18 +1133,31 @@ class SeqDiagBuilder:
         fromClassName, fromMethodName, toMethodName, methodCallLineNumber = SeqDiagBuilder._loopCommandMgr.splitKey(loopCommandKey)
         loopCommandType = unconsumedLoopCommandInfo[1][0]
 
-        errorMsg = "ERROR - {} tag located on line {} of file containing class {} is placed on an instruction calling method {}() which is not part of the execution flow recorded by SeqDiagBuilder".format(
+        errorMsg = "ERROR - '{}' tag located on line {} of file containing class {} is placed on an instruction calling method {}() which IS NOT part of the execution flow recorded by SeqDiagBuilder.".format(
                     loopCommandType,
                     methodCallLineNumber,
                     fromClassName,
                     toMethodName)
 
-        SeqDiagBuilder._issueWarning(errorMsg)
+        errorMsgLines = SeqDiagBuilder._splitNoteToLines(oneLineNote=errorMsg, maxNoteLineLen=150)
+        multilineErrorMsg = ''
 
-        solutionMsg = "To solve the problem, ensure the {} tag is placed on a line calling a method whose execution is recorded by SeqDiagBuilder.recordFlow()".format(
+        for line in errorMsgLines:
+            multilineErrorMsg += line + '\n'
+
+        solutionMsg = "To solve the problem, ensure the '{}' tag is placed on a line calling a method whose execution is recorded by SeqDiagBuilder.recordFlow().".format(
             loopCommandType)
 
-        SeqDiagBuilder._issueWarning(solutionMsg)
+        solutionMsgLines = SeqDiagBuilder._splitNoteToLines(oneLineNote=solutionMsg, maxNoteLineLen=150)
+
+        multilineSolutionMsg = ''
+
+        for line in solutionMsgLines:
+            multilineSolutionMsg += line + '\n'
+
+        multilineSolutionMsg = multilineSolutionMsg[:-1]
+
+        SeqDiagBuilder._issueWarning(multilineErrorMsg + multilineSolutionMsg)
 
     @staticmethod
     def _handleSeqDiagReturnMesssageCommand(returnEntry,

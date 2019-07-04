@@ -470,7 +470,7 @@ class TestSeqDiagBuilderSimple(unittest.TestCase):
         participantDocOrderedDic['PriceRequester'] = 'Obtains the RT or historical rates from the Cryptocompare web site'
         maxNoteLineLen = 30
 
-        participantSection = SeqDiagBuilder._buildClassNoteSection(participantDocOrderedDic, maxNoteLineLen)
+        participantSection = SeqDiagBuilder._buildParticipantSection(participantDocOrderedDic, maxNoteLineLen)
         self.assertEqual(
 '''participant Controller
 	/note over of Controller

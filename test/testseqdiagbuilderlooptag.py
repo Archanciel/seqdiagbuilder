@@ -742,7 +742,7 @@ User -> ClassLoopTagOnMethodNotInRecordFlowCaller: callLoopStartOnRecordedMethod
         with open("c:\\temp\\testLoopStartOnNotRecordedMethodCallAndLoopEndOnRecordedMethodCall.txt", "w") as f:
             f.write(commands)
 
-        self.assertEqual(len(SeqDiagBuilder.getWarningList()), 2)
+        self.assertEqual(len(SeqDiagBuilder.getWarningList()), 1)
 
         # since the loop end command has no corresponding start command,
         # we do not write an end command in the PlantUML command file since
@@ -751,12 +751,16 @@ User -> ClassLoopTagOnMethodNotInRecordFlowCaller: callLoopStartOnRecordedMethod
 '''@startuml
 center header
 <b><font color=red size=20> Warnings</font></b>
-<b><font color=red size=14>  ERROR - ::seqdiag_loop_start tag located on line 53 of file containing class ClassLoopTagOnMethodNotInRecordFlow is placed on an instruction calling method doC4NotRecordedInFlow() which is not part of the execution flow recorded by SeqDiagBuilder.</font></b>
-<b><font color=red size=14>  To solve the problem, ensure the ::seqdiag_loop_start tag is placed on a line calling a method whose execution is recorded by SeqDiagBuilder.recordFlow().</font></b>
+<b><font color=red size=14>  ERROR - ':seqdiag_loop_start' tag located on line 53 of file containing class ClassLoopTagOnMethodNotInRecordFlow is placed on an instruction calling</font></b>
+<b><font color=red size=14>  method doC4NotRecordedInFlow() which IS NOT part of the execution flow recorded by SeqDiagBuilder.</font></b>
+<b><font color=red size=14>  To solve the problem, ensure the ':seqdiag_loop_start' tag is placed on a line calling a method whose execution is recorded by</font></b>
+<b><font color=red size=14>  SeqDiagBuilder.recordFlow().</font></b>
 endheader
 
 actor User
-
+participant ClassLoopTagOnMethodNotInRecordFlowCaller
+participant ClassLoopTagOnMethodNotInRecordFlow
+participant ClassLeaf
 @enduml''', commands)
 
         SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
