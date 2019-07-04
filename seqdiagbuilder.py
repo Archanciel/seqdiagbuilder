@@ -790,7 +790,7 @@ class SeqDiagBuilder:
                 if warningIndex:
                     commandFileHeaderSectionStr += "<b><font color=red size=20> {}</font></b>\n".format(warningIndex)
                     warningIndex += 1
-                commandFileHeaderSectionStr += SeqDiagBuilder._splitWarningToLines(warning)
+                commandFileHeaderSectionStr += SeqDiagBuilder._splitLongWarningToFormattedLines(warning)
 
             commandFileHeaderSectionStr += "endheader\n\n"
 
@@ -855,17 +855,32 @@ class SeqDiagBuilder:
 
 
     @staticmethod
-    def _splitWarningToLines(warningStr):
+    def _splitLongWarningToFormattedLines(warningStr):
         '''
 
         :param warningStr:
         :return:
         '''
         formattedWarnings = ''
-        lines = warningStr.split('. ')
+        lines = warningStr.split('\n')
 
         for line in lines:
-            formattedWarnings += '<b><font color=red size=14>  {}.</font></b>\n'.format(line)
+            formattedWarnings += '<b><font color=red size=14>  {}</font></b>\n'.format(line)
+
+        return formattedWarnings
+
+    @staticmethod
+    def _splitBackslashWarningToFormattedLines(warningStr):
+        '''
+
+        :param warningStr:
+        :return:
+        '''
+        formattedWarnings = ''
+        lines = warningStr.split('\n')
+
+        for line in lines:
+            formattedWarnings += '<b><font color=red size=14>  {}</font></b>\n'.format(line)
 
         return formattedWarnings
 
@@ -1092,7 +1107,7 @@ class SeqDiagBuilder:
             savedClassArgDic = None
 
         if SeqDiagBuilder._isActive:
-            warning = "No control flow recorded. Method activate() called with arguments projectPath=<{}>, entryClass=<{}>, entryMethod=<{}>, classArgDic=<{}>: {}. Method recordFlow() called: {}. Specified entry point: {}.{} reached: {}".format(
+            warning = "No control flow recorded.\nMethod activate() called with arguments projectPath=<{}>, entryClass=<{}>, entryMethod=<{}>, classArgDic=<{}>: {}.\nMethod recordFlow() called: {}.\nSpecified entry point: {}.{} reached: {}.".format(
                 SeqDiagBuilder._projectPath,
                 SeqDiagBuilder._seqDiagEntryClass,
                 SeqDiagBuilder._seqDiagEntryMethod,
@@ -1103,7 +1118,7 @@ class SeqDiagBuilder:
                 SeqDiagBuilder._seqDiagEntryMethod,
                 isEntryPointReached)
         else:
-            warning = "No control flow recorded. Method activate() called: {}. Method recordFlow() called: {}. Specified entry point: {}.{} reached: {}".format(
+            warning = "No control flow recorded.\nMethod activate() called: {}.\nMethod recordFlow() called: {}.\nSpecified entry point: {}.{} reached: {}.".format(
                 SeqDiagBuilder._isActive,
                 SeqDiagBuilder._recordFlowCalled,
                 SeqDiagBuilder._seqDiagEntryClass,
@@ -1118,7 +1133,7 @@ class SeqDiagBuilder:
         fromClassName, fromMethodName, toMethodName, methodCallLineNumber = SeqDiagBuilder._loopCommandMgr.splitKey(loopCommandKey)
         loopCommandType = unconsumedLoopCommandInfo[1][0]
 
-        errorMsg = "ERROR - :{} tag located on line {} of file containing class {} is placed on an instruction calling method {}() which is not part of the execution flow recorded by SeqDiagBuilder".format(
+        errorMsg = "ERROR - {} tag located on line {} of file containing class {} is placed on an instruction calling method {}() which is not part of the execution flow recorded by SeqDiagBuilder".format(
                     loopCommandType,
                     methodCallLineNumber,
                     fromClassName,
@@ -1126,7 +1141,7 @@ class SeqDiagBuilder:
 
         SeqDiagBuilder._issueWarning(errorMsg)
 
-        solutionMsg = "To solve the problem, ensure the :{} tag is placed on a line calling a method whose execution is recorded by SeqDiagBuilder.recordFlow()".format(
+        solutionMsg = "To solve the problem, ensure the {} tag is placed on a line calling a method whose execution is recorded by SeqDiagBuilder.recordFlow()".format(
             loopCommandType)
 
         SeqDiagBuilder._issueWarning(solutionMsg)
@@ -1510,7 +1525,7 @@ class SeqDiagBuilder:
             for filteredInstance in instanceList:
                 filteredClassNameList.append(filteredInstance.__class__.__name__)
             SeqDiagBuilder._issueWarning(
-                "More than one class {} found in module {} do support method {}{}. Since Python provides no way to determine the exact target class, class {} was chosen by default for building the sequence diagram. To override this selection, put tag {} somewhere in the target method documentation or define every class of the hierarchy in its own file. See help for more information".format(
+                "More than one class {} found in module {} do support method {}{}.\nSince Python provides no way to determine the exact target class, class {} was chosen by default for building the sequence diagram.\nTo override this selection, put tag {} somewhere in the target method documentation or define every class of the hierarchy in its own file.\nSee help for more information.".format(
                     str(filteredClassNameList), moduleName, methodName, methodSignature,
                     instance.__class__.__name__,
                     SEQDIAG_SELECT_METHOD_TAG))
@@ -1566,7 +1581,7 @@ class SeqDiagBuilder:
                     # a None argument, we are caught in an infinite loop, so the need to
                     # set a max instanciation attempt number !
                     if attemptNumber > 100:
-                        SeqDiagBuilder._issueWarning('ERROR - constructor for class {} in module {} failed due to invalid argument(s). To solve the problem, pass a class argument dictionary with an entry for {} to the SeqDiagBuilder.activate() method'.format(
+                        SeqDiagBuilder._issueWarning('ERROR - constructor for class {} in module {} failed due to invalid argument(s).\nTo solve the problem, pass a class argument dictionary with an entry for {} to the SeqDiagBuilder.activate() method.'.format(
                             className, packageSpec + moduleName, className))
                         break
                     try:
@@ -1575,11 +1590,11 @@ class SeqDiagBuilder:
                     except TypeError:
                         noneStr += ', None'
                     except SyntaxError as e:
-                        SeqDiagBuilder._issueWarning('ERROR - constructor for class {} in module {} failed due to invalid argument(s). To solve the problem, pass a class argument dictionary with an entry for {} to the SeqDiagBuilder.activate() method'.format(
+                        SeqDiagBuilder._issueWarning('ERROR - constructor for class {} in module {} failed due to invalid argument(s).\nTo solve the problem, pass a class argument dictionary with an entry for {} to the SeqDiagBuilder.activate() method.'.format(
                             className, packageSpec + moduleName, className))
                         break
             else:
-                SeqDiagBuilder._issueWarning('ERROR - constructor for class {} in module {} failed due to invalid argument(s) ({}) defined in the class argument dictionary passed to the SeqDiagBuilder.activate() method'.format(
+                SeqDiagBuilder._issueWarning('ERROR - constructor for class {} in module {} failed due to invalid argument(s) ({}) defined in the class argument dictionary passed to the SeqDiagBuilder.activate() method.'.format(
                     className, packageSpec + moduleName, ctorArgValueList))
 
         return instance

@@ -427,6 +427,39 @@ class TestSeqDiagBuilderSimple(unittest.TestCase):
         self.assertEqual(multilineNote[0], '1234567891123456789212345678931')
         self.assertEqual(multilineNote[1], '1234567891123456789212345678931')
 
+    def test_splitNoteToLinesLargeNote(self):
+        note = 'ERROR - :seqdiag_loop_start tag located on line 53 of file containing class ClassLoopTagOnMethodNotInRecordFlow is placed on an instruction calling method doC4NotRecordedInFlow() which is not part of the execution flow recorded by SeqDiagBuilder.'
+        maxNoteLineLen = 150
+
+        multilineNote = SeqDiagBuilder._splitNoteToLines(note, maxNoteLineLen)
+
+        self.assertEqual(len(multilineNote), 2)
+        self.assertEqual(multilineNote[0], 'ERROR - :seqdiag_loop_start tag located on line 53 of file containing class ClassLoopTagOnMethodNotInRecordFlow is placed on an instruction calling')
+        self.assertEqual(multilineNote[1], 'method doC4NotRecordedInFlow() which is not part of the execution flow recorded by SeqDiagBuilder.')
+
+    def test_splitLongWarningWithDotsToFormattedLines(self):
+        longWarning = "No control flow recorded.\nMethod activate() called with arguments projectPath=<D:\Development\Python\seqdiagbuilder>, entryClass=<Caller>, entryMethod=<call>, classArgDic=<{'FileReader_1': ['testfile.txt'], 'FileReader_2': ['testfile2.txt']}>: True.\nMethod recordFlow() called: True.\nSpecified entry point: Caller.call reached: False."
+
+        multiLineFormattedWarning = SeqDiagBuilder._splitLongWarningToFormattedLines(longWarning)
+
+        self.assertEqual(
+"""<b><font color=red size=14>  No control flow recorded.</font></b>
+<b><font color=red size=14>  Method activate() called with arguments projectPath=<D:\Development\Python\seqdiagbuilder>, entryClass=<Caller>, entryMethod=<call>, classArgDic=<{'FileReader_1': ['testfile.txt'], 'FileReader_2': ['testfile2.txt']}>: True.</font></b>
+<b><font color=red size=14>  Method recordFlow() called: True.</font></b>
+<b><font color=red size=14>  Specified entry point: Caller.call reached: False.</font></b>
+""", multiLineFormattedWarning)
+
+    def test_splitLongWarningWithBackslashNToFormattedLines(self):
+        longWarning = "No control flow recorded.\nMethod activate() called with arguments projectPath=<D:\Development\Python\seqdiagbuilder>, entryClass=<Caller>, entryMethod=<call>, classArgDic=<{'FileReader_1': ['testfile.txt'], 'FileReader_2': ['testfile2.txt']}>: True.\nMethod recordFlow() called: True\nSpecified entry point: Caller.call reached: False."
+
+        multiLineFormattedWarning = SeqDiagBuilder._splitLongWarningToFormattedLines(longWarning)
+
+        self.assertEqual(
+"""<b><font color=red size=14>  No control flow recorded.</font></b>
+<b><font color=red size=14>  Method activate() called with arguments projectPath=<D:\Development\Python\seqdiagbuilder>, entryClass=<Caller>, entryMethod=<call>, classArgDic=<{'FileReader_1': ['testfile.txt'], 'FileReader_2': ['testfile2.txt']}>: True.</font></b>
+<b><font color=red size=14>  Method recordFlow() called: True</font></b>
+<b><font color=red size=14>  Specified entry point: Caller.call reached: False.</font></b>
+""", multiLineFormattedWarning)
 
     def test__buildClassNoteSection(self):
         participantDocOrderedDic = collections.OrderedDict()

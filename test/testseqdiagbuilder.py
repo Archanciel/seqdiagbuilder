@@ -1734,10 +1734,11 @@ participant ClassB
         SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
         entryPoint.doWork()
 
-        commands = SeqDiagBuilder.createSeqDiaqCommands('USER')
+        SeqDiagBuilder.createSeqDiaqCommands('USER')
 
-        self.assertEqual(len(SeqDiagBuilder.getWarningList()), 1)
-        self.assertEqual('No control flow recorded. Method activate() called: False. Method recordFlow() called: True. Specified entry point: None.None reached: False', SeqDiagBuilder.getWarningList()[0])
+        warningList = SeqDiagBuilder.getWarningList()
+        self.assertEqual(len(warningList), 1)
+        self.assertEqual('No control flow recorded.\nMethod activate() called: False.\nMethod recordFlow() called: True.\nSpecified entry point: None.None reached: False.', warningList[0])
 
 
     def testCreateSeqDiagCommandsOnClassLocatedInPackage(self):
