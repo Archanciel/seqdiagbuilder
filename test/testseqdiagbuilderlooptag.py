@@ -21,6 +21,7 @@ from testclasses.classloopnestedinnerwosamelooptagononelinecaller import ClassLo
 from testclasses.classlooptagonmethodnotinrecordflowcaller import ClassLoopTagOnMethodNotInRecordFlowCaller
 from testclasses.classloopmultinestedloopstartendendonsamelinecaller import ClassLoopMultiNestedLoopStartEndEndOnSameLineCaller
 from testclasses.classloopmultinestedloopsimplercaller import ClassLoopMultiNestedLoopSimplerCaller
+from testclasses.classloopmultinestedloopsimplercaller2 import ClassLoopMultiNestedLoopSimplerCaller2
 
 class TestSeqDiagBuilderLoopTag(unittest.TestCase):
     def setUp(self):
@@ -405,20 +406,110 @@ User -> ClassLoopMultiNestedLoopSimplerCaller: call(p1)
 									activate ClassLeaf
 									ClassLeaf <-- ClassLeaf: 
 									deactivate ClassLeaf
-								ClassMidLoop <-- ClassLeaf: 
-								deactivate ClassLeaf
 							end
 							ClassMidLoop <-- ClassLeaf: 
 							deactivate ClassLeaf
+						ClassLoopMultiNestedLoopSimpler <-- ClassMidLoop: 
+						deactivate ClassMidLoop
 					end
-					ClassLoopMultiNestedLoopSimpler <-- ClassMidLoop: 
-					deactivate ClassMidLoop
+				ClassLoopMultiNestedLoopSimpler -> ClassMidLoop: doMidLoopSimple(p1)
+					activate ClassMidLoop
+					loop 3 times
+						ClassMidLoop -> ClassLeaf: doC1(p1)
+							activate ClassLeaf
+							ClassMidLoop <-- ClassLeaf: 
+							deactivate ClassLeaf
+						ClassMidLoop -> ClassLeaf: doC2(p1)
+							activate ClassLeaf
+							ClassMidLoop <-- ClassLeaf: 
+							deactivate ClassLeaf
+					end
+				end
 			end
-		end
+			ClassLoopMultiNestedLoopSimpler <-- ClassMidLoop: 
+			deactivate ClassMidLoop
 		ClassLoopMultiNestedLoopSimplerCaller <-- ClassLoopMultiNestedLoopSimpler: 
 		deactivate ClassLoopMultiNestedLoopSimpler
 	User <-- ClassLoopMultiNestedLoopSimplerCaller: 
 	deactivate ClassLoopMultiNestedLoopSimplerCaller
+@enduml''', commands)
+
+        SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
+
+    def testLoopTagMultiNestedLoopsSimpler2(self):
+        '''
+        This test case tests the correct generation of multi nested
+        PlantUml loop.
+        '''
+        entryPoint = ClassLoopMultiNestedLoopSimplerCaller2()
+
+        SeqDiagBuilder.activate(parentdir, 'ClassLoopMultiNestedLoopSimplerCaller2', 'call',
+                                None)  # activate sequence diagram building
+        entryPoint.call('str')
+
+        commands = SeqDiagBuilder.createSeqDiaqCommands('User')
+
+        with open("c:\\temp\\testLoopTagMultiNestedLoopsSimpler2.txt", "w") as f:
+            f.write(commands)
+
+        self.assertEqual(len(SeqDiagBuilder.getWarningList()), 0)
+
+        self.assertEqual(
+'''@startuml
+
+actor User
+participant ClassLoopMultiNestedLoopSimplerCaller2
+participant ClassLoopMultiNestedLoopSimpler2
+participant ClassMidLoop
+participant ClassLeaf
+User -> ClassLoopMultiNestedLoopSimplerCaller2: call(p1)
+	activate ClassLoopMultiNestedLoopSimplerCaller2
+	ClassLoopMultiNestedLoopSimplerCaller2 -> ClassLoopMultiNestedLoopSimpler2: doB(p1)
+		activate ClassLoopMultiNestedLoopSimpler2
+		loop 2 times
+			loop 3 times
+				ClassLoopMultiNestedLoopSimpler2 -> ClassMidLoop: doMidLoopLeafLoop(p1)
+					activate ClassMidLoop
+					loop 2 times
+						ClassMidLoop -> ClassLeaf: doCLoop(p1)
+							activate ClassLeaf
+							note right
+								doCLoop method note
+							end note
+							loop 2 times
+								ClassLeaf -> ClassLeaf: doC1(p1)
+									activate ClassLeaf
+									ClassLeaf <-- ClassLeaf: 
+									deactivate ClassLeaf
+								ClassLeaf -> ClassLeaf: doC2(p1)
+									activate ClassLeaf
+									ClassLeaf <-- ClassLeaf: 
+									deactivate ClassLeaf
+							end
+							ClassMidLoop <-- ClassLeaf: 
+							deactivate ClassLeaf
+						ClassMidLoop -> ClassLeaf: doCLoopStartEnd(p1)
+							activate ClassLeaf
+							note right
+								doCLoopStartEnd method note
+							end note
+							loop 3 times
+								ClassLeaf -> ClassLeaf: doC1(p1)
+									activate ClassLeaf
+									ClassLeaf <-- ClassLeaf: 
+									deactivate ClassLeaf
+							end
+							ClassMidLoop <-- ClassLeaf: 
+							deactivate ClassLeaf
+					end
+					ClassLoopMultiNestedLoopSimpler2 <-- ClassMidLoop: 
+					deactivate ClassMidLoop
+			end
+		end
+		ClassLoopMultiNestedLoopSimplerCaller2 <-- ClassLoopMultiNestedLoopSimpler2: 
+		deactivate ClassLoopMultiNestedLoopSimpler2
+	User <-- ClassLoopMultiNestedLoopSimplerCaller2: 
+	deactivate ClassLoopMultiNestedLoopSimplerCaller2
 @enduml''', commands)
 
         SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
