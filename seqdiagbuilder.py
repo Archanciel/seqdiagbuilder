@@ -1088,7 +1088,7 @@ class SeqDiagBuilder:
                                                     toMethodCallLineNb=returnEntry.getToMethodCallLineNumber())
         while isLoopEnd: # using while cares for the case where multiple seqdiag loop start end
                          # commands are located on the same line
-            identStr = SeqDiagBuilder._getReturnIndent(returnEntry=returnEntry, loopDepth=loopDepth)
+            identStr = SeqDiagBuilder._getLoopEndCommandIndent(returnEntry=returnEntry, loopDepth=loopDepth)
             loopEndCommandStr += identStr + 'end\n'
             loopDepth -= 1
             loopCommandMgr.unstackTopLoopEndCommand()
@@ -1166,7 +1166,7 @@ class SeqDiagBuilder:
                                             loopDepth):
         fromClass = returnEntry.toClass
         toClass = returnEntry.fromClass
-        indentStr = SeqDiagBuilder._getReturnIndent(returnEntry=returnEntry, loopDepth=0)
+        indentStr = SeqDiagBuilder._getReturnIndent(returnEntry=returnEntry)
         toReturnType = returnEntry.createReturnType(maxArgNum, maxReturnTypeCharLen)
         commandStr = SeqDiagBuilder._addReturnSeqDiagCommand(fromClass, toClass, toReturnType, indentStr + loopDepth * TAB_CHAR)
 
@@ -1234,16 +1234,31 @@ class SeqDiagBuilder:
 
 
     @staticmethod
-    def _getReturnIndent(returnEntry, loopDepth):
+    def _getReturnIndent(returnEntry):
         '''
         Returns the return ident string .
         :param returnEntry:
         :return:
         '''
-        if loopDepth > 1:
-            loopDepth -= 2
+        # if loopDepth > 1:
+        #     loopDepth -= 2
 
-        return (returnEntry.getCallDepth() + 1 - loopDepth) * TAB_CHAR
+        return (returnEntry.getCallDepth() + 1) * TAB_CHAR
+
+    @staticmethod
+    def _getLoopEndCommandIndent(returnEntry, loopDepth):
+        '''
+        Returns the loop end tag ident string .
+        :param returnEntry:
+        :return:
+        '''
+        # if loopDepth > 1:
+        #     loopDepth -= 2
+
+        callDepth = returnEntry.getCallDepth()
+        loopEndDepth = loopDepth - 1
+
+        return (callDepth + loopEndDepth) * TAB_CHAR
 
     @staticmethod
     def _addForwardSeqDiagCommand(fromClass, toClass, method, signature, indentStr, loopDepth):
