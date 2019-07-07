@@ -14,6 +14,6 @@ class ClassLoopThreeNestedLoop:
 
         for i in range(2):
             for j in range(3):
-                for k in range(2):
-                    c.doC3(p1) #:seqdiag_loop_start_end 2 times :seqdiag_loop_start_end 3 times :seqdiag_loop_start_end 2 times
+                for k in range(4):
+                    c.doC3(p1) #:seqdiag_loop_start_end 2 times :seqdiag_loop_start_end 3 times :seqdiag_loop_start_end 4 times
 

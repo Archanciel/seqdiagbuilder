@@ -1277,9 +1277,8 @@ class SeqDiagBuilder:
                 seqdiagCommand = seqdiagLoopCommand[0]
 
                 if seqdiagCommand == SEQDIAG_LOOP_START_TAG or seqdiagCommand == SEQDIAG_LOOP_START_END_TAG:
-                    indentStr += loopDepth * TAB_CHAR
                     seqdiagCommandComment = seqdiagLoopCommand[1]
-                    loopCommandStr += "{}loop {}\n".format(indentStr, seqdiagCommandComment)
+                    loopCommandStr += "{}loop {}\n".format(indentStr + loopDepth * TAB_CHAR, seqdiagCommandComment)
                     loopDepth += 1
 
                 if seqdiagCommand == SEQDIAG_LOOP_START_END_TAG or seqdiagCommand == SEQDIAG_LOOP_END_TAG:

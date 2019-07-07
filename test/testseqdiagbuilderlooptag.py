@@ -546,7 +546,7 @@ User -> ClassLoopThreeNestedLoopCaller: call(p1)
 		activate ClassLoopThreeNestedLoop
 		loop 2 times
 			loop 3 times
-				loop 2 times
+				loop 4 times
 					ClassLoopThreeNestedLoop -> ClassLeaf: doC3(p1)
 						activate ClassLeaf
 						note right
