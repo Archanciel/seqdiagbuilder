@@ -22,6 +22,7 @@ from testclasses.classlooptagonmethodnotinrecordflowcaller import ClassLoopTagOn
 from testclasses.classloopmultinestedloopstartendendonsamelinecaller import ClassLoopMultiNestedLoopStartEndEndOnSameLineCaller
 from testclasses.classloopmultinestedloopsimplercaller import ClassLoopMultiNestedLoopSimplerCaller
 from testclasses.classloopmultinestedloopsimplercaller2 import ClassLoopMultiNestedLoopSimplerCaller2
+from testclasses.classloopthreenestedloopcaller import ClassLoopThreeNestedLoopCaller
 
 class TestSeqDiagBuilderLoopTag(unittest.TestCase):
     def setUp(self):
@@ -510,6 +511,56 @@ User -> ClassLoopMultiNestedLoopSimplerCaller2: call(p1)
 		deactivate ClassLoopMultiNestedLoopSimpler2
 	User <-- ClassLoopMultiNestedLoopSimplerCaller2: 
 	deactivate ClassLoopMultiNestedLoopSimplerCaller2
+@enduml''', commands)
+
+        SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
+
+    def testLoopTagThreeNestedLoops(self):
+        '''
+        This test case tests the correct generation of multi nested
+        PlantUml loop.
+        '''
+        entryPoint = ClassLoopThreeNestedLoopCaller()
+
+        SeqDiagBuilder.activate(parentdir, 'ClassLoopThreeNestedLoopCaller', 'call',
+                                None)  # activate sequence diagram building
+        entryPoint.call('str')
+
+        commands = SeqDiagBuilder.createSeqDiaqCommands('User')
+
+        with open("c:\\temp\\testLoopTagThreeNestedLoops.txt", "w") as f:
+            f.write(commands)
+
+        self.assertEqual(len(SeqDiagBuilder.getWarningList()), 0)
+
+        self.assertEqual(
+'''@startuml
+
+actor User
+participant ClassLoopThreeNestedLoopCaller
+participant ClassLoopThreeNestedLoop
+participant ClassLeaf
+User -> ClassLoopThreeNestedLoopCaller: call(p1)
+	activate ClassLoopThreeNestedLoopCaller
+	ClassLoopThreeNestedLoopCaller -> ClassLoopThreeNestedLoop: doB(p1)
+		activate ClassLoopThreeNestedLoop
+		loop 2 times
+			loop 3 times
+				loop 2 times
+					ClassLoopThreeNestedLoop -> ClassLeaf: doC3(p1)
+						activate ClassLeaf
+						note right
+							doC3 method note
+						end note
+						ClassLoopThreeNestedLoop <-- ClassLeaf: 
+						deactivate ClassLeaf
+				end
+			end
+		end
+		ClassLoopThreeNestedLoopCaller <-- ClassLoopThreeNestedLoop: 
+		deactivate ClassLoopThreeNestedLoop
+	User <-- ClassLoopThreeNestedLoopCaller: 
+	deactivate ClassLoopThreeNestedLoopCaller
 @enduml''', commands)
 
         SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
