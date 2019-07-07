@@ -15,6 +15,8 @@ class ClassLoopMultiNestedLoopSimpler2:
         for i in range(2):
             a += 1 # dummy instruction
             for i in range(3):
-                c.doMidLoopLeafLoop(p1) #:seqdiag_loop_start_end 2 times :seqdiag_loop_start_end 3 times
+                c.doMidLoopLeafLoop(p1) #:seqdiag_loop_start 2 times :seqdiag_loop_start_end 3 times
                 a += 1 # dummy instruction
+            a += 1 # dummy instruction
+            c.doMidLoopSimple(p1) #:seqdiag_loop_end
             a += 1 # dummy instruction
