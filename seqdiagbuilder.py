@@ -963,7 +963,7 @@ class SeqDiagBuilder:
             firstFlowEntry.fromClass = actorName
             fromClass = firstFlowEntry.fromClass
             loopDepth = 0
-            forwardCommandStr, loopDepth = SeqDiagBuilder._handleSeqDiagForwardMesssageCommand(fromClass=fromClass,
+            forwardCommandStr = SeqDiagBuilder._handleSeqDiagForwardMesssageCommand(fromClass=fromClass,
                                                                                                flowEntry=firstFlowEntry,
                                                                                                classMethodReturnStack=classMethodReturnStack,
                                                                                                maxSigArgNum=maxSigArgNum,
@@ -983,7 +983,7 @@ class SeqDiagBuilder:
                                                                                                     loopDepth=loopDepth)
                     seqDiagCommandStr += loopStartCommandStr
 
-                    forwardCommandStr, loopDepth = SeqDiagBuilder._handleSeqDiagForwardMesssageCommand(fromClass=fromClass,
+                    forwardCommandStr = SeqDiagBuilder._handleSeqDiagForwardMesssageCommand(fromClass=fromClass,
                                                                                                        flowEntry=flowEntry,
                                                                                                        classMethodReturnStack=classMethodReturnStack,
                                                                                                        maxSigArgNum=maxSigArgNum,
@@ -1036,7 +1036,7 @@ class SeqDiagBuilder:
                                                                                                     loopDepth=loopDepth)
                     seqDiagCommandStr += loopStartCommandStr
 
-                    forwardCommandStr, loopDepth = SeqDiagBuilder._handleSeqDiagForwardMesssageCommand(fromClass=fromClass,
+                    forwardCommandStr = SeqDiagBuilder._handleSeqDiagForwardMesssageCommand(fromClass=fromClass,
                                                                                                        flowEntry=flowEntry,
                                                                                                        classMethodReturnStack=classMethodReturnStack,
                                                                                                        maxSigArgNum=maxSigArgNum,
@@ -1230,7 +1230,7 @@ class SeqDiagBuilder:
             noteSection += '{}end note\n'.format(indentStr + loopDepth * TAB_CHAR)
             forwardCommandStr += noteSection
 
-        return forwardCommandStr, loopDepth
+        return forwardCommandStr
 
 
     @staticmethod
