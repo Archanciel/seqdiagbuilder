@@ -24,6 +24,7 @@ from testclasses.classloopmultinestedloopsimplercaller import ClassLoopMultiNest
 from testclasses.classloopmultinestedloopsimpler2caller import ClassLoopMultiNestedLoopSimpler2Caller
 from testclasses.classloopthreenestedloopcaller import ClassLoopThreeNestedLoopCaller
 from testclasses.classloopmultinestedloopsimpler2missingloopendtagcaller import ClassLoopMultiNestedLoopSimpler2MissingLoopEndTagCaller
+from testclasses.classloopmultinestedloopsimpler2missingloopstarttagcaller import ClassLoopMultiNestedLoopSimpler2MissingLoopStartTagCaller
 
 class TestSeqDiagBuilderLoopTag(unittest.TestCase):
     def setUp(self):
@@ -596,6 +597,103 @@ User -> ClassLoopMultiNestedLoopSimpler2MissingLoopEndTagCaller: call(p1)
 			deactivate ClassLoopMultiNestedLoopSimpler2MissingLoopEndTag
 		User <-- ClassLoopMultiNestedLoopSimpler2MissingLoopEndTagCaller: 
 		deactivate ClassLoopMultiNestedLoopSimpler2MissingLoopEndTagCaller
+@enduml''', commands)
+
+        SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
+
+    def testLoopTagMultiNestedLoopsSimpler2MissingLoopStartTag(self):
+        '''
+        This test case tests the correct generation of multi nested
+        PlantUml loop.
+        '''
+        entryPoint = ClassLoopMultiNestedLoopSimpler2MissingLoopStartTagCaller()
+
+        SeqDiagBuilder.activate(parentdir, 'ClassLoopMultiNestedLoopSimpler2MissingLoopStartTagCaller', 'call',
+                                None)  # activate sequence diagram building
+        entryPoint.call('str')
+
+        commands = SeqDiagBuilder.createSeqDiaqCommands('User')
+
+        with open("c:\\temp\\testLoopTagMultiNestedLoopsSimpler2MissingLoopStartTag.txt", "w") as f:
+            f.write(commands)
+
+        self.assertEqual(len(SeqDiagBuilder.getWarningList()), 1)
+
+        self.assertEqual(
+'''@startuml
+center header
+<b><font color=red size=20> Warnings</font></b>
+<b><font color=red size=14>  ERROR - ':seqdiag_loop_end' tag number (1) greater than :seqdiag_loop_start tag number (0) in method doB of class</font></b>
+<b><font color=red size=14>  ClassLoopMultiNestedLoopSimpler2MissingLoopStartTag. As a consequence, the whole sequence diagram is wrong or incomplete !</font></b>
+<b><font color=red size=14>  </font></b>
+endheader
+
+
+actor User
+participant ClassLoopMultiNestedLoopSimpler2MissingLoopStartTagCaller
+participant ClassLoopMultiNestedLoopSimpler2MissingLoopStartTag
+participant ClassMidLoop
+participant ClassLeaf
+User -> ClassLoopMultiNestedLoopSimpler2MissingLoopStartTagCaller: call(p1)
+	activate ClassLoopMultiNestedLoopSimpler2MissingLoopStartTagCaller
+	ClassLoopMultiNestedLoopSimpler2MissingLoopStartTagCaller -> ClassLoopMultiNestedLoopSimpler2MissingLoopStartTag: doB(p1)
+		activate ClassLoopMultiNestedLoopSimpler2MissingLoopStartTag
+		loop 2 times
+			loop 3 times
+				ClassLoopMultiNestedLoopSimpler2MissingLoopStartTag -> ClassMidLoop: doMidLoopLeafLoop(p1)
+					activate ClassMidLoop
+					loop 2 times
+						ClassMidLoop -> ClassLeaf: doCLoop(p1)
+							activate ClassLeaf
+							note right
+								doCLoop method note
+							end note
+							loop 2 times
+								ClassLeaf -> ClassLeaf: doC1(p1)
+									activate ClassLeaf
+									ClassLeaf <-- ClassLeaf: 
+									deactivate ClassLeaf
+								ClassLeaf -> ClassLeaf: doC2(p1)
+									activate ClassLeaf
+									ClassLeaf <-- ClassLeaf: 
+									deactivate ClassLeaf
+							end
+							ClassMidLoop <-- ClassLeaf: 
+							deactivate ClassLeaf
+						ClassMidLoop -> ClassLeaf: doCLoopStartEnd(p1)
+							activate ClassLeaf
+							note right
+								doCLoopStartEnd method note
+							end note
+							loop 3 times
+								ClassLeaf -> ClassLeaf: doC1(p1)
+									activate ClassLeaf
+									ClassLeaf <-- ClassLeaf: 
+									deactivate ClassLeaf
+							end
+							ClassMidLoop <-- ClassLeaf: 
+							deactivate ClassLeaf
+						ClassLoopMultiNestedLoopSimpler2MissingLoopStartTag <-- ClassMidLoop: 
+						deactivate ClassMidLoop
+					ClassLoopMultiNestedLoopSimpler2MissingLoopStartTag -> ClassMidLoop: doMidLoopSimple(p1)
+						activate ClassMidLoop
+						loop 3 times
+							ClassMidLoop -> ClassLeaf: doC1(p1)
+								activate ClassLeaf
+								ClassMidLoop <-- ClassLeaf: 
+								deactivate ClassLeaf
+							ClassMidLoop -> ClassLeaf: doC2(p1)
+								activate ClassLeaf
+								ClassMidLoop <-- ClassLeaf: 
+								deactivate ClassLeaf
+						end
+						ClassLoopMultiNestedLoopSimpler2MissingLoopStartTag <-- ClassMidLoop: 
+						deactivate ClassMidLoop
+				end
+				ClassLoopMultiNestedLoopSimpler2MissingLoopStartTagCaller <-- ClassLoopMultiNestedLoopSimpler2MissingLoopStartTag: 
+				deactivate ClassLoopMultiNestedLoopSimpler2MissingLoopStartTag
+			User <-- ClassLoopMultiNestedLoopSimpler2MissingLoopStartTagCaller: 
+			deactivate ClassLoopMultiNestedLoopSimpler2MissingLoopStartTagCaller
 @enduml''', commands)
 
         SeqDiagBuilder.deactivate()  # deactivate sequence diagram building

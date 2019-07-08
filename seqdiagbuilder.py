@@ -1187,7 +1187,7 @@ class SeqDiagBuilder:
                 methodName,
                 className)
         elif loopStartCommandNumber < loopEndCommandNumber:
-            errorMsg = "ERROR - '{}' tag number ({}) greater than {} tag number ({}) in method {} of class {}. As a consequence, the loop part of the sequence diagram is not correct !".format(
+            errorMsg = "ERROR - '{}' tag number ({}) greater than {} tag number ({}) in method {} of class {}. As a consequence, the whole sequence diagram is wrong or incomplete !".format(
                 SEQDIAG_LOOP_END_TAG,
                 loopEndCommandNumber,
                 SEQDIAG_LOOP_START_TAG,
