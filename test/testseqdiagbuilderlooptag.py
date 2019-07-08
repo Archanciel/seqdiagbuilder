@@ -503,9 +503,9 @@ User -> ClassLoopMultiNestedLoopSimplerCaller2: call(p1)
 							ClassMidLoop <-- ClassLeaf: 
 							deactivate ClassLeaf
 					end
+					ClassLoopMultiNestedLoopSimpler2 <-- ClassMidLoop: 
+					deactivate ClassMidLoop
 			end
-			ClassLoopMultiNestedLoopSimpler2 <-- ClassMidLoop: 
-			deactivate ClassMidLoop
 		end
 		ClassLoopMultiNestedLoopSimplerCaller2 <-- ClassLoopMultiNestedLoopSimpler2: 
 		deactivate ClassLoopMultiNestedLoopSimpler2
