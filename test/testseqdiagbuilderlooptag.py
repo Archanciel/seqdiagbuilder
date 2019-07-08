@@ -519,8 +519,9 @@ User -> ClassLoopMultiNestedLoopSimpler2Caller: call(p1)
 
     def testLoopTagMultiNestedLoopsSimpler2MissingLoopEndTag(self):
         '''
-        This test case tests the correct generation of multi nested
-        PlantUml loop.
+        This test case tests the generation of an error warning in the Plant
+        Uml command file in case a seqdiag loop start tag has no corresponding
+        seqdiag loop end tag.
         '''
         entryPoint = ClassLoopMultiNestedLoopSimpler2MissingLoopEndTagCaller()
 
@@ -603,8 +604,9 @@ User -> ClassLoopMultiNestedLoopSimpler2MissingLoopEndTagCaller: call(p1)
 
     def testLoopTagMultiNestedLoopsSimpler2MissingLoopStartTag(self):
         '''
-        This test case tests the correct generation of multi nested
-        PlantUml loop.
+        This test case tests the generation of an error warning in the Plant
+        Uml command file in case a seqdiag loop end tag has no corresponding
+        seqdiag loop start tag.
         '''
         entryPoint = ClassLoopMultiNestedLoopSimpler2MissingLoopStartTagCaller()
 
