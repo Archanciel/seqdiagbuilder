@@ -532,23 +532,70 @@ User -> ClassLoopMultiNestedLoopSimpler2Caller: call(p1)
         with open("c:\\temp\\testLoopTagMultiNestedLoopsSimpler2MissingLoopEndTag.txt", "w") as f:
             f.write(commands)
 
-        self.assertEqual(len(SeqDiagBuilder.getWarningList()), 0)
+        self.assertEqual(len(SeqDiagBuilder.getWarningList()), 1)
 
         self.assertEqual(
 '''@startuml
 center header
 <b><font color=red size=20> Warnings</font></b>
-<b><font color=red size=14>  ERROR - ':seqdiag_loop_start' tag located on line 53 of file containing class ClassLoopTagOnMethodNotInRecordFlow is placed on an instruction calling</font></b>
-<b><font color=red size=14>  method doC4NotRecordedInFlow() which IS NOT part of the execution flow recorded by SeqDiagBuilder.</font></b>
-<b><font color=red size=14>  To solve the problem, ensure the ':seqdiag_loop_start' tag is placed on a line calling a method whose execution is recorded by</font></b>
-<b><font color=red size=14>  SeqDiagBuilder.recordFlow().</font></b>
+<b><font color=red size=14>  ERROR - ':seqdiag_loop_start' tag number (1) greater than :seqdiag_loop_end tag number (0) in method doB of class</font></b>
+<b><font color=red size=14>  ClassLoopMultiNestedLoopSimpler2MissingLoopEndTag. As a consequence, the loop part of the sequence diagram is not correct !</font></b>
+<b><font color=red size=14>  </font></b>
 endheader
+
 
 actor User
 participant ClassLoopMultiNestedLoopSimpler2MissingLoopEndTagCaller
 participant ClassLoopMultiNestedLoopSimpler2MissingLoopEndTag
 participant ClassMidLoop
 participant ClassLeaf
+User -> ClassLoopMultiNestedLoopSimpler2MissingLoopEndTagCaller: call(p1)
+	activate ClassLoopMultiNestedLoopSimpler2MissingLoopEndTagCaller
+	ClassLoopMultiNestedLoopSimpler2MissingLoopEndTagCaller -> ClassLoopMultiNestedLoopSimpler2MissingLoopEndTag: doB(p1)
+		activate ClassLoopMultiNestedLoopSimpler2MissingLoopEndTag
+		loop 2 times
+			loop 3 times
+				ClassLoopMultiNestedLoopSimpler2MissingLoopEndTag -> ClassMidLoop: doMidLoopLeafLoop(p1)
+					activate ClassMidLoop
+					loop 2 times
+						ClassMidLoop -> ClassLeaf: doCLoop(p1)
+							activate ClassLeaf
+							note right
+								doCLoop method note
+							end note
+							loop 2 times
+								ClassLeaf -> ClassLeaf: doC1(p1)
+									activate ClassLeaf
+									ClassLeaf <-- ClassLeaf: 
+									deactivate ClassLeaf
+								ClassLeaf -> ClassLeaf: doC2(p1)
+									activate ClassLeaf
+									ClassLeaf <-- ClassLeaf: 
+									deactivate ClassLeaf
+							end
+							ClassMidLoop <-- ClassLeaf: 
+							deactivate ClassLeaf
+						ClassMidLoop -> ClassLeaf: doCLoopStartEnd(p1)
+							activate ClassLeaf
+							note right
+								doCLoopStartEnd method note
+							end note
+							loop 3 times
+								ClassLeaf -> ClassLeaf: doC1(p1)
+									activate ClassLeaf
+									ClassLeaf <-- ClassLeaf: 
+									deactivate ClassLeaf
+							end
+							ClassMidLoop <-- ClassLeaf: 
+							deactivate ClassLeaf
+					end
+					ClassLoopMultiNestedLoopSimpler2MissingLoopEndTag <-- ClassMidLoop: 
+					deactivate ClassMidLoop
+			end
+			ClassLoopMultiNestedLoopSimpler2MissingLoopEndTagCaller <-- ClassLoopMultiNestedLoopSimpler2MissingLoopEndTag: 
+			deactivate ClassLoopMultiNestedLoopSimpler2MissingLoopEndTag
+		User <-- ClassLoopMultiNestedLoopSimpler2MissingLoopEndTagCaller: 
+		deactivate ClassLoopMultiNestedLoopSimpler2MissingLoopEndTagCaller
 @enduml''', commands)
 
         SeqDiagBuilder.deactivate()  # deactivate sequence diagram building

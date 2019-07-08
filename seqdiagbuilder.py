@@ -485,8 +485,13 @@ class LoopCommandManager():
         '''
         Find in the passed methodBodyLines the seqdiag loop commands and
         store them in the internal _loopIndexDic.
-        :return:
+
+        :return: loopStartCommandNumber, loopEndCommandNumber used by caller to
+                 issue an error msg if those 2 values differs !
         '''
+        loopStartCommandNumber = 0
+        loopEndCommandNumber = 0
+
         for methodBodyLineNb, line in enumerate(methodBodyLines[0]):
             loopCommandTupleList = self.extractLoopCommandsFromLine(line)
             if loopCommandTupleList:
@@ -505,7 +510,14 @@ class LoopCommandManager():
 
                 for loopCommandTuple in loopCommandTupleList:
                     loopCommandComment = loopCommandTuple[1]
-                    self.addKeyValue(dicKey, loopCommandTuple[0], loopCommandComment)
+                    loopCommand = loopCommandTuple[0]
+                    if loopCommand == SEQDIAG_LOOP_START_TAG:
+                        loopStartCommandNumber += 1
+                    elif loopCommand == SEQDIAG_LOOP_END_TAG:
+                        loopEndCommandNumber += 1
+                    self.addKeyValue(dicKey, loopCommand, loopCommandComment)
+
+        return loopStartCommandNumber, loopEndCommandNumber
 
     def extractLoopCommandsFromLine(self, lineStr):
         '''
@@ -1160,6 +1172,50 @@ class SeqDiagBuilder:
         SeqDiagBuilder._issueWarning(multilineErrorMsg + multilineSolutionMsg)
 
     @staticmethod
+    def _issueLoopStartLoopEndTagMissmatchError(className,
+                                                methodName,
+                                                loopStartCommandNumber,
+                                                loopEndCommandNumber):
+        errorMsg = ''
+
+        if loopStartCommandNumber > loopEndCommandNumber:
+            errorMsg = "ERROR - '{}' tag number ({}) greater than {} tag number ({}) in method {} of class {}. As a consequence, the loop part of the sequence diagram is not correct !".format(
+                SEQDIAG_LOOP_START_TAG,
+                loopStartCommandNumber,
+                SEQDIAG_LOOP_END_TAG,
+                loopEndCommandNumber,
+                methodName,
+                className)
+        elif loopStartCommandNumber < loopEndCommandNumber:
+            errorMsg = "ERROR - '{}' tag number ({}) greater than {} tag number ({}) in method {} of class {}. As a consequence, the loop part of the sequence diagram is not correct !".format(
+                SEQDIAG_LOOP_END_TAG,
+                loopEndCommandNumber,
+                SEQDIAG_LOOP_START_TAG,
+                loopStartCommandNumber,
+                methodName,
+                className)
+
+        errorMsgLines = SeqDiagBuilder._splitNoteToLines(oneLineNote=errorMsg, maxNoteLineLen=150)
+        multilineErrorMsg = ''
+
+        for line in errorMsgLines:
+            multilineErrorMsg += line + '\n'
+
+        # solutionMsg = "To solve the problem, ensure the '{}' tag is placed on a line calling a method whose execution is recorded by SeqDiagBuilder.recordFlow().".format(
+        #     loopCommandType)
+        #
+        # solutionMsgLines = SeqDiagBuilder._splitNoteToLines(oneLineNote=solutionMsg, maxNoteLineLen=150)
+        #
+        # multilineSolutionMsg = ''
+        #
+        # for line in solutionMsgLines:
+        #     multilineSolutionMsg += line + '\n'
+        #
+        # multilineSolutionMsg = multilineSolutionMsg[:-1]
+
+        SeqDiagBuilder._issueWarning(multilineErrorMsg)
+
+    @staticmethod
     def _handleSeqDiagReturnMesssageCommand(returnEntry,
                                             maxArgNum,
                                             maxReturnTypeCharLen,
@@ -1502,7 +1558,13 @@ class SeqDiagBuilder:
                     methodDoc = methodObj.__doc__
                     methodBodyLines = inspect.getsourcelines(methodObj)
 
-                    SeqDiagBuilder._loopCommandMgr.storeLoopCommands(className, methodName, methodStartLineNumber, methodBodyLines)
+                    loopStartCommandNumber, loopEndCommandNumber = SeqDiagBuilder._loopCommandMgr.storeLoopCommands(className, methodName, methodStartLineNumber, methodBodyLines)
+
+                    if loopStartCommandNumber != loopEndCommandNumber:
+                        SeqDiagBuilder._issueLoopStartLoopEndTagMissmatchError(className,
+                                                                               methodName,
+                                                                               loopStartCommandNumber,
+                                                                               loopEndCommandNumber)
 
                     if methodDoc:
                         # get method return type from method documentation
