@@ -4,7 +4,8 @@ class ClassLoopMultiNestedLoopSimpler2MissingLoopEndTag:
     def doB(self, p1):
         '''
         This class is used to test the handling of the :seqdiag loop and
-        :seqdiag loop end tags with two nested loops. The nested loop contains
+        :seqdiag loop end tags with two nested loops when the loop start tag
+        has no corresponding end tag. The nested loop contains
         a call to a method which itself causes nested loops to occur.
         :param p1:
         :return:
