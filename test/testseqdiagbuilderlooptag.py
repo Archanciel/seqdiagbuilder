@@ -23,6 +23,7 @@ from testclasses.classloopmultinestedloopstartendendonsamelinecaller import Clas
 from testclasses.classloopmultinestedloopsimplercaller import ClassLoopMultiNestedLoopSimplerCaller
 from testclasses.classloopmultinestedloopsimpler2caller import ClassLoopMultiNestedLoopSimpler2Caller
 from testclasses.classloopthreenestedloopcaller import ClassLoopThreeNestedLoopCaller
+from testclasses.classloopmultinestedloopsimpler2missingloopendtagcaller import ClassLoopMultiNestedLoopSimpler2MissingLoopEndTagCaller
 
 class TestSeqDiagBuilderLoopTag(unittest.TestCase):
     def setUp(self):
@@ -511,6 +512,43 @@ User -> ClassLoopMultiNestedLoopSimpler2Caller: call(p1)
 		deactivate ClassLoopMultiNestedLoopSimpler2
 	User <-- ClassLoopMultiNestedLoopSimpler2Caller: 
 	deactivate ClassLoopMultiNestedLoopSimpler2Caller
+@enduml''', commands)
+
+        SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
+
+    def testLoopTagMultiNestedLoopsSimpler2MissingLoopEndTag(self):
+        '''
+        This test case tests the correct generation of multi nested
+        PlantUml loop.
+        '''
+        entryPoint = ClassLoopMultiNestedLoopSimpler2MissingLoopEndTagCaller()
+
+        SeqDiagBuilder.activate(parentdir, 'ClassLoopMultiNestedLoopSimpler2MissingLoopEndTagCaller', 'call',
+                                None)  # activate sequence diagram building
+        entryPoint.call('str')
+
+        commands = SeqDiagBuilder.createSeqDiaqCommands('User')
+
+        with open("c:\\temp\\testLoopTagMultiNestedLoopsSimpler2MissingLoopEndTag.txt", "w") as f:
+            f.write(commands)
+
+        self.assertEqual(len(SeqDiagBuilder.getWarningList()), 0)
+
+        self.assertEqual(
+'''@startuml
+center header
+<b><font color=red size=20> Warnings</font></b>
+<b><font color=red size=14>  ERROR - ':seqdiag_loop_start' tag located on line 53 of file containing class ClassLoopTagOnMethodNotInRecordFlow is placed on an instruction calling</font></b>
+<b><font color=red size=14>  method doC4NotRecordedInFlow() which IS NOT part of the execution flow recorded by SeqDiagBuilder.</font></b>
+<b><font color=red size=14>  To solve the problem, ensure the ':seqdiag_loop_start' tag is placed on a line calling a method whose execution is recorded by</font></b>
+<b><font color=red size=14>  SeqDiagBuilder.recordFlow().</font></b>
+endheader
+
+actor User
+participant ClassLoopMultiNestedLoopSimpler2MissingLoopEndTagCaller
+participant ClassLoopMultiNestedLoopSimpler2MissingLoopEndTag
+participant ClassMidLoop
+participant ClassLeaf
 @enduml''', commands)
 
         SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
