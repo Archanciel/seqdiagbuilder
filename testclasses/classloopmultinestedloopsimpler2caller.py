@@ -1,6 +1,6 @@
 from testclasses.classloopmultinestedloopsimpler2 import ClassLoopMultiNestedLoopSimpler2
 
-class ClassLoopMultiNestedLoopSimplerCaller2:
+class ClassLoopMultiNestedLoopSimpler2Caller:
     '''
     ClassLoopNestedCaller is the entry point of our sequence diagram.
     '''
