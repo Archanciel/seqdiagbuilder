@@ -1038,6 +1038,12 @@ class SeqDiagBuilder:
                                                                                               maxReturnTypeCharLen=maxSigCharLen,
                                                                                               loopDepth=loopDepth)
                         seqDiagCommandStr += returnCommandStr
+
+                        loopEndCommandStr, loopDepth = SeqDiagBuilder._handleLoopEndCommand(loopDepth=loopDepth,
+                                                                                            returnEntry=returnEntry)
+
+                        seqDiagCommandStr += loopEndCommandStr
+
                         fromClass = returnEntry.fromClass
 
                     loopStartCommandStr, loopDepth = SeqDiagBuilder._handledSeqDiagLoopStartCommand(fromClassName=fromClass,

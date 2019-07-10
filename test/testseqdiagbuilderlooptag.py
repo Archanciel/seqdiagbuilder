@@ -412,25 +412,25 @@ User -> ClassLoopMultiNestedLoopSimplerCaller: call(p1)
 							end
 							ClassMidLoop <-- ClassLeaf: 
 							deactivate ClassLeaf
-						ClassLoopMultiNestedLoopSimpler <-- ClassMidLoop: 
-						deactivate ClassMidLoop
 					end
-				ClassLoopMultiNestedLoopSimpler -> ClassMidLoop: doMidLoopSimple(p1)
-					activate ClassMidLoop
-					loop 3 times
-						ClassMidLoop -> ClassLeaf: doC1(p1)
-							activate ClassLeaf
-							ClassMidLoop <-- ClassLeaf: 
-							deactivate ClassLeaf
-						ClassMidLoop -> ClassLeaf: doC2(p1)
-							activate ClassLeaf
-							ClassMidLoop <-- ClassLeaf: 
-							deactivate ClassLeaf
-					end
-				end
+					ClassLoopMultiNestedLoopSimpler <-- ClassMidLoop: 
+					deactivate ClassMidLoop
 			end
-			ClassLoopMultiNestedLoopSimpler <-- ClassMidLoop: 
-			deactivate ClassMidLoop
+			ClassLoopMultiNestedLoopSimpler -> ClassMidLoop: doMidLoopSimple(p1)
+				activate ClassMidLoop
+				loop 3 times
+					ClassMidLoop -> ClassLeaf: doC1(p1)
+						activate ClassLeaf
+						ClassMidLoop <-- ClassLeaf: 
+						deactivate ClassLeaf
+					ClassMidLoop -> ClassLeaf: doC2(p1)
+						activate ClassLeaf
+						ClassMidLoop <-- ClassLeaf: 
+						deactivate ClassLeaf
+				end
+				ClassLoopMultiNestedLoopSimpler <-- ClassMidLoop: 
+				deactivate ClassMidLoop
+		end
 		ClassLoopMultiNestedLoopSimplerCaller <-- ClassLoopMultiNestedLoopSimpler: 
 		deactivate ClassLoopMultiNestedLoopSimpler
 	User <-- ClassLoopMultiNestedLoopSimplerCaller: 
