@@ -73,7 +73,7 @@ class TestLoopCommandManager(unittest.TestCase):
         value_20 = loopCommandMgr.getLoopCommandList(fromClassName, fromMethodName, 'doC2', 20)
         self.assertEqual(value_20[0], [':seqdiag_loop_end', '', False])
 
-    def testConsumeLoopCommand(self):
+    def testSetLoopCommandIsOnFlow(self):
         loopCommandMgr = LoopCommandManager()
         sourcePathFileName = parentdir + "\\testclasses\\classloopnestedinneronefortestloopidxdic.py"
         fromClassName = 'ClassLoopNestedInnerOneForTestLoopIdxDic'
@@ -85,16 +85,16 @@ class TestLoopCommandManager(unittest.TestCase):
             loopCommandMgr.storeLoopCommands(fromClassName, fromMethodName, methodDefLineIndex + 1, [contentList[methodDefLineIndex:]])
 
         value_17 = loopCommandMgr.getLoopCommandList(fromClassName, fromMethodName, 'doCWithNote', 17)
-        loopCommandMgr.consumeLoopCommand(0, fromClassName, fromMethodName, 'doCWithNote', 17)
+        loopCommandMgr.setLoopCommandIsOnFlow(0, fromClassName, fromMethodName, 'doCWithNote', 17)
         self.assertEqual(value_17[0], [':seqdiag_loop_start', '3 times', True], [':seqdiag_loop_start_end', '5 times', False])
-        loopCommandMgr.consumeLoopCommand(1, fromClassName, fromMethodName, 'doCWithNote', 17)
+        loopCommandMgr.setLoopCommandIsOnFlow(1, fromClassName, fromMethodName, 'doCWithNote', 17)
         self.assertEqual(value_17[0], [':seqdiag_loop_start', '3 times', True], [':seqdiag_loop_start_end', '5 times', True])
 
         value_20 = loopCommandMgr.getLoopCommandList(fromClassName, fromMethodName, 'doC2', 20)
-        loopCommandMgr.consumeLoopCommand(0, fromClassName, fromMethodName, 'doC2', 20)
+        loopCommandMgr.setLoopCommandIsOnFlow(0, fromClassName, fromMethodName, 'doC2', 20)
         self.assertEqual(value_20[0], [':seqdiag_loop_end', '', True])
 
-    def testConsumeLoopCommand(self):
+    def testSetLoopCommandIsOnFlow(self):
         loopCommandMgr = LoopCommandManager()
         sourcePathFileName = parentdir + "\\testclasses\\classloopnestedinneronefortestloopidxdic.py"
         fromClassName = 'ClassLoopNestedInnerOneForTestLoopIdxDic'
@@ -106,16 +106,16 @@ class TestLoopCommandManager(unittest.TestCase):
             loopCommandMgr.storeLoopCommands(fromClassName, fromMethodName, methodDefLineIndex + 1, [contentList[methodDefLineIndex:]])
 
         value_17 = loopCommandMgr.getLoopCommandList(fromClassName, fromMethodName, 'doCWithNote', 17)
-        loopCommandMgr.consumeLoopCommand(0, fromClassName, fromMethodName, 'doCWithNote', 17)
+        loopCommandMgr.setLoopCommandIsOnFlow(0, fromClassName, fromMethodName, 'doCWithNote', 17)
         self.assertEqual(value_17[0], [':seqdiag_loop_start', '3 times', True], [':seqdiag_loop_start_end', '5 times', False])
-        loopCommandMgr.consumeLoopCommand(1, fromClassName, fromMethodName, 'doCWithNote', 17)
+        loopCommandMgr.setLoopCommandIsOnFlow(1, fromClassName, fromMethodName, 'doCWithNote', 17)
         self.assertEqual(value_17[0], [':seqdiag_loop_start', '3 times', True], [':seqdiag_loop_start_end', '5 times', True])
 
         value_20 = loopCommandMgr.getLoopCommandList(fromClassName, fromMethodName, 'doC2', 20)
-        loopCommandMgr.consumeLoopCommand(0, fromClassName, fromMethodName, 'doC2', 20)
+        loopCommandMgr.setLoopCommandIsOnFlow(0, fromClassName, fromMethodName, 'doC2', 20)
         self.assertEqual(value_20[0], [':seqdiag_loop_end', '', True])
 
-    def testGetUnconsumedLoopCommandListNoUnconsumedCommands(self):
+    def testGetOutOfRecordedFlowLoopCommandListNoUnconsumedCommands(self):
         loopCommandMgr = LoopCommandManager()
         sourcePathFileName = parentdir + "\\testclasses\\classloopnestedinneronefortestloopidxdic.py"
         fromClassName = 'ClassLoopNestedInnerOneForTestLoopIdxDic'
@@ -126,13 +126,13 @@ class TestLoopCommandManager(unittest.TestCase):
             methodDefLineIndex = [i for (i, entry) in enumerate(contentList) if fromMethodName in entry][0]
             loopCommandMgr.storeLoopCommands(fromClassName, fromMethodName, methodDefLineIndex + 1, [contentList[methodDefLineIndex:]])
 
-        loopCommandMgr.consumeLoopCommand(0, fromClassName, fromMethodName, 'doCWithNote', 17)
-        loopCommandMgr.consumeLoopCommand(1, fromClassName, fromMethodName, 'doCWithNote', 17)
+        loopCommandMgr.setLoopCommandIsOnFlow(0, fromClassName, fromMethodName, 'doCWithNote', 17)
+        loopCommandMgr.setLoopCommandIsOnFlow(1, fromClassName, fromMethodName, 'doCWithNote', 17)
 
-        loopCommandMgr.consumeLoopCommand(0, fromClassName, fromMethodName, 'doC2', 20)
-        self.assertIsNone(loopCommandMgr.getUnconsumedLoopCommandList())
+        loopCommandMgr.setLoopCommandIsOnFlow(0, fromClassName, fromMethodName, 'doC2', 20)
+        self.assertIsNone(loopCommandMgr.getOutOfRecordedFlowLoopCommandList())
 
-    def testGetUnconsumedLoopCommandListOneUnconsumedCommands(self):
+    def testGetOutOfRecordedFlowLoopCommandListOneUnconsumedCommands(self):
         loopCommandMgr = LoopCommandManager()
         sourcePathFileName = parentdir + "\\testclasses\\classloopnestedinneronefortestloopidxdic.py"
         fromClassName = 'ClassLoopNestedInnerOneForTestLoopIdxDic'
@@ -143,13 +143,13 @@ class TestLoopCommandManager(unittest.TestCase):
             methodDefLineIndex = [i for (i, entry) in enumerate(contentList) if fromMethodName in entry][0]
             loopCommandMgr.storeLoopCommands(fromClassName, fromMethodName, methodDefLineIndex + 1, [contentList[methodDefLineIndex:]])
 
-        loopCommandMgr.consumeLoopCommand(0, fromClassName, fromMethodName, 'doCWithNote', 17)
-        loopCommandMgr.consumeLoopCommand(1, fromClassName, fromMethodName, 'doCWithNote', 17)
+        loopCommandMgr.setLoopCommandIsOnFlow(0, fromClassName, fromMethodName, 'doCWithNote', 17)
+        loopCommandMgr.setLoopCommandIsOnFlow(1, fromClassName, fromMethodName, 'doCWithNote', 17)
 
-        unconsumedLoopCommandList = loopCommandMgr.getUnconsumedLoopCommandList()
-        self.assertEqual(unconsumedLoopCommandList, [['ClassLoopNestedInnerOneForTestLoopIdxDic.doB->doC2: 20', [':seqdiag_loop_end', '', False]]])
+        outOfFlowLoopCommandList = loopCommandMgr.getOutOfRecordedFlowLoopCommandList()
+        self.assertEqual(outOfFlowLoopCommandList, [['ClassLoopNestedInnerOneForTestLoopIdxDic.doB->doC2: 20', [':seqdiag_loop_end', '', False]]])
 
-    def testGetUnconsumedLoopCommandListTwoUnconsumedCommandsOnDifferentLines(self):
+    def testGetOutOfRecordedFlowLoopCommandListTwoUnconsumedCommandsOnDifferentLines(self):
         loopCommandMgr = LoopCommandManager()
         sourcePathFileName = parentdir + "\\testclasses\\classloopnestedinneronefortestloopidxdic.py"
         fromClassName = 'ClassLoopNestedInnerOneForTestLoopIdxDic'
@@ -160,12 +160,12 @@ class TestLoopCommandManager(unittest.TestCase):
             methodDefLineIndex = [i for (i, entry) in enumerate(contentList) if fromMethodName in entry][0]
             loopCommandMgr.storeLoopCommands(fromClassName, fromMethodName, methodDefLineIndex + 1, [contentList[methodDefLineIndex:]])
 
-        loopCommandMgr.consumeLoopCommand(0, fromClassName, fromMethodName, 'doCWithNote', 17)
+        loopCommandMgr.setLoopCommandIsOnFlow(0, fromClassName, fromMethodName, 'doCWithNote', 17)
 
-        unconsumedLoopCommandList = loopCommandMgr.getUnconsumedLoopCommandList()
-        self.assertEqual(unconsumedLoopCommandList, [['ClassLoopNestedInnerOneForTestLoopIdxDic.doB->doCWithNote: 17', [':seqdiag_loop_start', '3 times', True]], ['ClassLoopNestedInnerOneForTestLoopIdxDic.doB->doC2: 20', [':seqdiag_loop_end', '', False]]])
+        outOfFlowLoopCommandList = loopCommandMgr.getOutOfRecordedFlowLoopCommandList()
+        self.assertEqual(outOfFlowLoopCommandList, [['ClassLoopNestedInnerOneForTestLoopIdxDic.doB->doCWithNote: 17', [':seqdiag_loop_start', '3 times', True]], ['ClassLoopNestedInnerOneForTestLoopIdxDic.doB->doC2: 20', [':seqdiag_loop_end', '', False]]])
 
-    def testGetUnconsumedLoopCommandListTwoUnconsumedCommandsOnSameLines(self):
+    def testGetOutOfRecordedFlowLoopCommandListTwoUnconsumedCommandsOnSameLines(self):
         loopCommandMgr = LoopCommandManager()
         sourcePathFileName = parentdir + "\\testclasses\\classloopnestedinneronefortestloopidxdic.py"
         fromClassName = 'ClassLoopNestedInnerOneForTestLoopIdxDic'
@@ -176,10 +176,10 @@ class TestLoopCommandManager(unittest.TestCase):
             methodDefLineIndex = [i for (i, entry) in enumerate(contentList) if fromMethodName in entry][0]
             loopCommandMgr.storeLoopCommands(fromClassName, fromMethodName, methodDefLineIndex + 1, [contentList[methodDefLineIndex:]])
 
-        loopCommandMgr.consumeLoopCommand(0, fromClassName, fromMethodName, 'doC2', 20)
+        loopCommandMgr.setLoopCommandIsOnFlow(0, fromClassName, fromMethodName, 'doC2', 20)
 
-        unconsumedLoopCommandList = loopCommandMgr.getUnconsumedLoopCommandList()
-        self.assertEqual(unconsumedLoopCommandList, [['ClassLoopNestedInnerOneForTestLoopIdxDic.doB->doCWithNote: 17', [':seqdiag_loop_start', '3 times', False]], ['ClassLoopNestedInnerOneForTestLoopIdxDic.doB->doCWithNote: 17', [':seqdiag_loop_start', '3 times', False]]])
+        outOfFlowLoopCommandList = loopCommandMgr.getOutOfRecordedFlowLoopCommandList()
+        self.assertEqual(outOfFlowLoopCommandList, [['ClassLoopNestedInnerOneForTestLoopIdxDic.doB->doCWithNote: 17', [':seqdiag_loop_start', '3 times', False]], ['ClassLoopNestedInnerOneForTestLoopIdxDic.doB->doCWithNote: 17', [':seqdiag_loop_start', '3 times', False]]])
 
     def testExtractLoopCommandsFromLine(self):
         '''

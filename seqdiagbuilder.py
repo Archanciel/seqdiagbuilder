@@ -666,10 +666,12 @@ class LoopCommandManager():
 
         return loopCommandInfo == self._loopCommandStack.peek()
 
-    def consumeLoopCommand(self, loopCommandIndex, fromClassName, fromMethodName, toMethodName, toMethodCallLineNb):
+    def setLoopCommandIsOnFlow(self, loopCommandIndex, fromClassName, fromMethodName, toMethodName, toMethodCallLineNb):
         '''
         Sets the 3rd element of the loopCommandIndex sub list in the loop command list attached to
-        the passed key components to True.
+        the passed key components to True. This indicates that the loop command is
+        located on a method which execution belongs to the SeqDiagBuillder recorded
+        flow.
 
         A precondition of the method is that there's a loop command list in the internal dictionary.
         So, no test is done on the existence of the list.
@@ -686,25 +688,27 @@ class LoopCommandManager():
         loopCommandList = self._loopIndexDic[key]
         loopCommandList[loopCommandIndex][2] = True
 
-    def getUnconsumedLoopCommandList(self):
+    def getOutOfRecordedFlowLoopCommandList(self):
         '''
         Returns a list of loop command entries stored in the internal loop command
-        dictionary which have NOT been consumed at PlantUML command file generation.
-        If all entries were consumed, None is returned.
+        dictionary which have NOT been handled at PlantUML command file generation
+        time to generate a seqDiag loop command.
+
+        If all entries were handled, None is returned.
 
         :return:
         '''
-        unconsumedLoopCommandList = []
+        outOfFlowLoopCommandList = []
 
         for loopCommandKey, loopCommandValue in self._loopIndexDic.items():
             for loopCommandEntry in loopCommandValue:
                 if not loopCommandEntry[2]:
-                    unconsumedLoopCommandList.append([loopCommandKey, loopCommandValue[0]])
+                    outOfFlowLoopCommandList.append([loopCommandKey, loopCommandValue[0]])
 
-        if unconsumedLoopCommandList == []:
+        if outOfFlowLoopCommandList == []:
             return  None
         else:
-            return unconsumedLoopCommandList
+            return outOfFlowLoopCommandList
 
 class SeqDiagBuilder:
     '''
@@ -1084,7 +1088,7 @@ class SeqDiagBuilder:
             seqDiagCommandStr += "actor {}\n\n".format(actorName)
 
         if SeqDiagBuilder._loopCommandMgr:
-            unconsumedLoopCommandList = SeqDiagBuilder._loopCommandMgr.getUnconsumedLoopCommandList()
+            unconsumedLoopCommandList = SeqDiagBuilder._loopCommandMgr.getOutOfRecordedFlowLoopCommandList()
 
             if unconsumedLoopCommandList:
                 seqDiagCommandStr = "actor {}\n".format(actorName) +participantSection
@@ -1376,7 +1380,7 @@ class SeqDiagBuilder:
                 if seqdiagCommand == SEQDIAG_LOOP_START_END_TAG or seqdiagCommand == SEQDIAG_LOOP_END_TAG:
                     loopCommandMgr.stackLoopEndCommand(fromClassName, fromMethodName, toMethodName, toMethodCallLineNb)
 
-                loopCommandMgr.consumeLoopCommand(commandIndex, fromClassName, fromMethodName, toMethodName, toMethodCallLineNb)
+                loopCommandMgr.setLoopCommandIsOnFlow(commandIndex, fromClassName, fromMethodName, toMethodName, toMethodCallLineNb)
         return loopCommandStr, loopDepth
 
     @staticmethod
