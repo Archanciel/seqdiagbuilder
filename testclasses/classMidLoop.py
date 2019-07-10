@@ -9,9 +9,8 @@ class ClassMidLoop:
         a = 0
 
         for i in range(2):
-            c.doC1(p1) #:seqdiag_loop_start 2 times
+            c.doC1(p1) #:seqdiag_loop_start_end 2 times
             a += 1 # dummy instruction
-            c.doC2(p1) #:seqdiag_loop_end
 
     def doMidLoopSimple(self, p1):
         '''

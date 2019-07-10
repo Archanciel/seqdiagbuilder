@@ -1217,7 +1217,7 @@ class SeqDiagBuilder:
             multilineErrorMsg += line + '\n'
 
         multilineSolutionMsg = ''
-        
+
         if throwAwayGeneratedSeqDiagCommands:
             solutionMsg = "To solve the problem, ensure every '{}' tag relates to a corresponding '{}' tag in the method mentioned above.".format(
                 SEQDIAG_LOOP_END_TAG,

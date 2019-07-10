@@ -301,8 +301,6 @@ User -> ClassLoopMultiNestedLoopCaller: call(p1)
 									activate ClassLeaf
 									ClassLeaf <-- ClassLeaf: 
 									deactivate ClassLeaf
-								ClassMidLoop <-- ClassLeaf: 
-								deactivate ClassLeaf
 							end
 							ClassMidLoop <-- ClassLeaf: 
 							deactivate ClassLeaf
@@ -329,10 +327,6 @@ User -> ClassLoopMultiNestedLoopCaller: call(p1)
 			activate ClassMidLoop
 			loop 2 times
 				ClassMidLoop -> ClassLeaf: doC1(p1)
-					activate ClassLeaf
-					ClassMidLoop <-- ClassLeaf: 
-					deactivate ClassLeaf
-				ClassMidLoop -> ClassLeaf: doC2(p1)
 					activate ClassLeaf
 					ClassMidLoop <-- ClassLeaf: 
 					deactivate ClassLeaf
