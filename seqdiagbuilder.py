@@ -723,8 +723,9 @@ class SeqDiagBuilder:
     _seqDiagEntryMethod = None
     _recordedFlowPath = None
     _participantDocOrderedDic = None
-    _constructorArgProvider = None
+    __loopCommandMgrconstructorArgProvider = None
     _loopCommandMgr = None
+    _throwAwayGeneratedSeqDiagCommands = False
 
     @staticmethod
     def activate(projectPath, entryClass, entryMethod, classArgDic = None):
@@ -777,6 +778,7 @@ class SeqDiagBuilder:
         SeqDiagBuilder._participantDocOrderedDic = collections.OrderedDict()
         SeqDiagBuilder._constructorArgProvider = None
         SeqDiagBuilder._loopCommandMgr = None
+        SeqDiagBuilder._throwAwayGeneratedSeqDiagCommands = False
 
 
     @staticmethod
@@ -1090,7 +1092,12 @@ class SeqDiagBuilder:
                     SeqDiagBuilder._issueLoopTagOutsideRecordedFlowError(unconsumedLoopCommandInfo)
 
         seqDiagHeaderStr = SeqDiagBuilder._buildCommandFileHeaderSection()
+
+        if SeqDiagBuilder._throwAwayGeneratedSeqDiagCommands:
+            seqDiagCommandStr = "actor {}\n".format(actorName) + participantSection
+
         seqDiagCommandStr = seqDiagHeaderStr + seqDiagCommandStr
+
         seqDiagCommandStr += "@enduml"
 
         return seqDiagCommandStr
@@ -1182,6 +1189,7 @@ class SeqDiagBuilder:
                                                 methodName,
                                                 loopStartCommandNumber,
                                                 loopEndCommandNumber):
+        throwAwayGeneratedSeqDiagCommands = False
         errorMsg = ''
 
         if loopStartCommandNumber > loopEndCommandNumber:
@@ -1193,13 +1201,14 @@ class SeqDiagBuilder:
                 methodName,
                 className)
         elif loopStartCommandNumber < loopEndCommandNumber:
-            errorMsg = "ERROR - '{}' tag number ({}) greater than {} tag number ({}) in method {} of class {}. As a consequence, the whole sequence diagram is wrong or incomplete !".format(
+            errorMsg = "ERROR - '{}' tag number ({}) greater than {} tag number ({}) in method {} of class {}. As a consequence, the generated PlantUML sequence diagram commands are syntactically incorrect and were thrown away !".format(
                 SEQDIAG_LOOP_END_TAG,
                 loopEndCommandNumber,
                 SEQDIAG_LOOP_START_TAG,
                 loopStartCommandNumber,
                 methodName,
                 className)
+            throwAwayGeneratedSeqDiagCommands = True
 
         errorMsgLines = SeqDiagBuilder._splitNoteToLines(oneLineNote=errorMsg, maxNoteLineLen=150)
         multilineErrorMsg = ''
@@ -1207,19 +1216,25 @@ class SeqDiagBuilder:
         for line in errorMsgLines:
             multilineErrorMsg += line + '\n'
 
-        # solutionMsg = "To solve the problem, ensure the '{}' tag is placed on a line calling a method whose execution is recorded by SeqDiagBuilder.recordFlow().".format(
-        #     loopCommandType)
-        #
-        # solutionMsgLines = SeqDiagBuilder._splitNoteToLines(oneLineNote=solutionMsg, maxNoteLineLen=150)
-        #
-        # multilineSolutionMsg = ''
-        #
-        # for line in solutionMsgLines:
-        #     multilineSolutionMsg += line + '\n'
-        #
-        # multilineSolutionMsg = multilineSolutionMsg[:-1]
+        multilineSolutionMsg = ''
+        
+        if throwAwayGeneratedSeqDiagCommands:
+            solutionMsg = "To solve the problem, ensure every '{}' tag relates to a corresponding '{}' tag in the method mentioned above.".format(
+                SEQDIAG_LOOP_END_TAG,
+                SEQDIAG_LOOP_START_TAG)
 
-        SeqDiagBuilder._issueWarning(multilineErrorMsg)
+            solutionMsgLines = SeqDiagBuilder._splitNoteToLines(oneLineNote=solutionMsg, maxNoteLineLen=150)
+
+            multilineSolutionMsg = ''
+
+            for line in solutionMsgLines:
+                multilineSolutionMsg += line + '\n'
+
+            multilineSolutionMsg = multilineSolutionMsg[:-1]
+
+        SeqDiagBuilder._issueWarning(multilineErrorMsg + multilineSolutionMsg)
+
+        return throwAwayGeneratedSeqDiagCommands
 
     @staticmethod
     def _handleSeqDiagReturnMesssageCommand(returnEntry,
@@ -1439,7 +1454,11 @@ class SeqDiagBuilder:
                             entryClassEncountered = True
 
                         currentMethodStartLineNumber = [i for i, s in enumerate(source.split('\n')) if currentMethodName in s][0] + 1
-                        toClassName, toClassNote, toMethodReturn, toMethodSignature, toMethodNote, toMethodReturnNote = SeqDiagBuilder._extractToClassMethodInformation(moduleClassNameList, packageSpec, moduleName, currentMethodName, currentMethodStartLineNumber)
+                        toClassName, toClassNote, toMethodReturn, toMethodSignature, toMethodNote, toMethodReturnNote = SeqDiagBuilder._extractToClassMethodInformation(moduleClassNameList,
+                                                                                                                                                                        packageSpec,
+                                                                                                                                                                        moduleName,
+                                                                                                                                                                        currentMethodName,
+                                                                                                                                                                        currentMethodStartLineNumber)
 
                         if toClassName == None:
                             continue
@@ -1545,6 +1564,7 @@ class SeqDiagBuilder:
         methodNote = ''
         methodReturnNote = ''
         selectedMethodFound = False
+        skipCommandGeneration = False
 
         for className in moduleClassNameList:
             if selectedMethodFound:
@@ -1567,10 +1587,10 @@ class SeqDiagBuilder:
                     loopStartCommandNumber, loopEndCommandNumber = SeqDiagBuilder._loopCommandMgr.storeLoopCommands(className, methodName, methodStartLineNumber, methodBodyLines)
 
                     if loopStartCommandNumber != loopEndCommandNumber:
-                        SeqDiagBuilder._issueLoopStartLoopEndTagMissmatchError(className,
-                                                                               methodName,
-                                                                               loopStartCommandNumber,
-                                                                               loopEndCommandNumber)
+                        SeqDiagBuilder._throwAwayGeneratedSeqDiagCommands = SeqDiagBuilder._issueLoopStartLoopEndTagMissmatchError(className,
+                                                                                                                                   methodName,
+                                                                                                                                   loopStartCommandNumber,
+                                                                                                                                   loopEndCommandNumber)
 
                     if methodDoc:
                         # get method return type from method documentation

@@ -1,6 +1,6 @@
 from testclasses.classMidLoop import ClassMidLoop
 
-class ClassLoopMultiNestedLoopSimpler2MissingLoopStartTag:
+class ClassLoopMultiNestedLoopSimplerMissingLoopStartTag:
     def doB(self, p1):
         '''
         This class is used to test the handling of the :seqdiag loop and
