@@ -1568,7 +1568,6 @@ class SeqDiagBuilder:
         methodNote = ''
         methodReturnNote = ''
         selectedMethodFound = False
-        skipCommandGeneration = False
 
         for className in moduleClassNameList:
             if selectedMethodFound:
