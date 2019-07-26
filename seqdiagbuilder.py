@@ -888,21 +888,6 @@ class SeqDiagBuilder:
         return formattedWarnings
 
     @staticmethod
-    def _splitBackslashWarningToFormattedLines(warningStr):
-        '''
-
-        :param warningStr:
-        :return:
-        '''
-        formattedWarnings = ''
-        lines = warningStr.split('\n')
-
-        for line in lines:
-            formattedWarnings += '<b><font color=red size=14>  {}</font></b>\n'.format(line)
-
-        return formattedWarnings
-
-    @staticmethod
     def createDiagram(targetDriveDirName, actorName, title=None, maxSigArgNum=None, maxSigCharLen=BIG_COMMENT_LENGTH, maxNoteCharLen=BIG_COMMENT_LENGTH):
         '''
         This method create a Plant UML command file, launch Plant UML on it and open the
