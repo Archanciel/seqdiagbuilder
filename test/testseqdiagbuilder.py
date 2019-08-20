@@ -1,7 +1,5 @@
-import inspect
-import os
-import sys
 import unittest
+import os, sys, inspect
 
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
@@ -422,7 +420,7 @@ class A:
     def a2(self, a2_p1):
         '''
         :param a2_p1:
-        :seqdiag_note method a2 note
+        :seqdiag_return Aa2Return
         :return:
         '''
         b = B()
@@ -466,8 +464,7 @@ class A:
     def a7(self, a7_p1):
         '''
         :param a7_p1:
-        :seqdiag_note method a7 note
-        :seqdiag_return Aa7Return
+        :seqdiag_return Aa6Return
         :return:
         '''
         b = B()
@@ -688,12 +685,6 @@ participant B
         SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
 
     def testCreateSeqDiagCommandsOnTwoLevelCall(self):
-        '''
-        This test case although tests the #seqdiag_note used in a method
-        documentation.
-
-        :return:
-        '''
         entryPoint = A()
 
         SeqDiagBuilder.activate(parentdir, 'A', 'a2')  # activate sequence diagram building
@@ -703,9 +694,7 @@ participant B
 
         self.assertEqual(len(SeqDiagBuilder.getWarningList()), 0)
 
-        commandFile = "c:\\temp\\testCreateSeqDiagCommandsOnTwoLevelCall.txt"
-
-        with open(commandFile, "w") as f:
+        with open("c:\\temp\\ess.txt", "w") as f:
             f.write(commands)
 
         self.assertEqual(
@@ -723,19 +712,15 @@ participant B
 	end note
 	USER -> A: a2(a2_p1)
 		activate A
-		note right
-			method a2 note
-		end note
 		A -> B: b1(b1_p1)
 			activate B
 			A <-- B: return Bb1Return
 			deactivate B
-		USER <-- A: 
+		USER <-- A: return Aa2Return
 		deactivate A
 @enduml''', commands)
 
         SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
-        os.remove(commandFile)
 
 
     def testCreateSeqDiagCommandsOnThreeLevelCallingMidLevelMethodTwice(self):
@@ -1065,10 +1050,7 @@ participant DSub
 
     def testCreateSeqDiagCommandsOnThreeLevelCallingLastLevelMethodTwice(self):
         '''
-        Calling two level deep method which calls last Level method twice. This
-        test case although tests the #seqdiag_note used in a method
-        documentation.
-
+        Calling two level deep method which calls last Level method twice
         :return:
         '''
         entryPoint = A()
@@ -1080,8 +1062,7 @@ participant DSub
 
         self.assertEqual(len(SeqDiagBuilder.getWarningList()), 0)
 
-        commandFile = "c:\\temp\\testCreateSeqDiagCommandsOnThreeLevelCallingLastLevelMethodTwice.txt"
-        with open(commandFile, "w") as f:
+        with open("c:\\temp\\ess.txt", "w") as f:
             f.write(commands)
 
         self.assertEqual(
@@ -1100,9 +1081,6 @@ participant B
 participant C
 	USER -> A: a7(a7_p1)
 		activate A
-		note right
-			method a7 note
-		end note
 		A -> B: b3(b3_p1)
 			activate B
 			B -> C: c1(c1_p1)
@@ -1115,12 +1093,11 @@ participant C
 				deactivate C
 			A <-- B: return Bb3Return
 			deactivate B
-		USER <-- A: return Aa7Return
+		USER <-- A: return Aa6Return
 		deactivate A
 @enduml''', commands)
 
         SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
-        os.remove(commandFile)
 
 
     def testCreateSeqDiagCommandsOnTwoLevelCallCallingMethodTwice(self):
@@ -1516,7 +1493,7 @@ GUI -> Controller: getPrintableResultForInput(inputStr)
 		activate Requester
 		Requester -> Requester: _parseAndFillCommandPrice(inputStr)
 			activate Requester
-			Requester -> Requester: _buildFullCommandPriceOptionalParmsDic(optionalParmList)
+			Requester -> Requester: _buildFullCommandPriceOptionalParmsDic(orderFreeParmList)
 				activate Requester
 				Requester <-- Requester: return optionalParsedParmDataDic
 				deactivate Requester
@@ -1529,14 +1506,14 @@ GUI -> Controller: getPrintableResultForInput(inputStr)
 		end note
 	Controller -> CommandPrice: execute()
 		activate CommandPrice
-		CommandPrice -> Processor: getCryptoPrice(crypto, fiat, exchange, day, month, year, hour, minute, priceValueSymbol=None, ...)
+		CommandPrice -> Processor: getCryptoPrice(crypto, unit, exchange, day, month, year, hour, minute, optionValueSymbol=None, ...)
 			activate Processor
-			Processor -> PriceRequester: getHistoricalPriceAtUTCTimeStamp(crypto, fiat, timeStampLocalForHistoMinute, timeStampUTCNoHHMMForHistoDay, exchange)
+			Processor -> PriceRequester: getHistoricalPriceAtUTCTimeStamp(crypto, unit, timeStampLocalForHistoMinute, timeStampUTCNoHHMMForHistoDay, exchange)
 				activate PriceRequester
 				note right
 					Obtainins a minute price if request date < 7 days from now, else a day close price.
 				end note
-				PriceRequester -> PriceRequester: _getHistoDayPriceAtUTCTimeStamp(crypto, fiat, timeStampUTC, exchange, resultData)
+				PriceRequester -> PriceRequester: _getHistoDayPriceAtUTCTimeStamp(crypto, unit, timeStampUTC, exchange, resultData)
 					activate PriceRequester
 					PriceRequester <-- PriceRequester: return ResultData
 					deactivate PriceRequester
@@ -1632,7 +1609,7 @@ GUI -> Controller: getPrintableResultForInput(inputStr)
 		activate Requester
 		Requester -> Requester: _parseAndFillCommandPrice(inputStr)
 			activate Requester
-			Requester -> Requester: _buildFullCommandPriceOptionalParmsDic(optionalParmList)
+			Requester -> Requester: _buildFullCommandPriceOptionalParmsDic(orderFreeParmList)
 				activate Requester
 				Requester <-- Requester: return ...
 				deactivate Requester
@@ -1646,16 +1623,16 @@ GUI -> Controller: getPrintableResultForInput(inputStr)
 		end note
 	Controller -> CommandPrice: execute()
 		activate CommandPrice
-		CommandPrice -> Processor: getCryptoPrice(crypto, fiat, ...)
+		CommandPrice -> Processor: getCryptoPrice(crypto, unit, ...)
 			activate Processor
-			Processor -> PriceRequester: getHistoricalPriceAtUTCTimeStamp(crypto, fiat, ...)
+			Processor -> PriceRequester: getHistoricalPriceAtUTCTimeStamp(crypto, unit, ...)
 				activate PriceRequester
 				note right
 					Obtainins a minute price if
 					request date < 7 days from
 					now, else a day close price.
 				end note
-				PriceRequester -> PriceRequester: _getHistoDayPriceAtUTCTimeStamp(crypto, fiat, ...)
+				PriceRequester -> PriceRequester: _getHistoDayPriceAtUTCTimeStamp(crypto, unit, ...)
 					activate PriceRequester
 					PriceRequester <-- PriceRequester: return ResultData
 					deactivate PriceRequester
@@ -2153,6 +2130,7 @@ USER -> Caller: call()
 @enduml''', commands)
 
         SeqDiagBuilder.deactivate()  # deactivate sequence diagram building
+
 
 if __name__ == '__main__':
     unittest.main()
