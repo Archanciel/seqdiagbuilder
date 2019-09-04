@@ -1493,7 +1493,7 @@ GUI -> Controller: getPrintableResultForInput(inputStr)
 		activate Requester
 		Requester -> Requester: _parseAndFillCommandPrice(inputStr)
 			activate Requester
-			Requester -> Requester: _buildFullCommandPriceOptionalParmsDic(orderFreeParmList)
+			Requester -> Requester: _buildFullCommandPriceOrderFreeParmsDic(orderFreeParmList)
 				activate Requester
 				Requester <-- Requester: return optionalParsedParmDataDic
 				deactivate Requester
@@ -1609,7 +1609,7 @@ GUI -> Controller: getPrintableResultForInput(inputStr)
 		activate Requester
 		Requester -> Requester: _parseAndFillCommandPrice(inputStr)
 			activate Requester
-			Requester -> Requester: _buildFullCommandPriceOptionalParmsDic(orderFreeParmList)
+			Requester -> Requester: _buildFullCommandPriceOrderFreeParmsDic(orderFreeParmList)
 				activate Requester
 				Requester <-- Requester: return ...
 				deactivate Requester
