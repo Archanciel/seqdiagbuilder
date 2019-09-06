@@ -1508,17 +1508,21 @@ GUI -> Controller: getPrintableResultForInput(inputStr)
 		activate CommandPrice
 		CommandPrice -> Processor: getCryptoPrice(crypto, unit, exchange, day, month, year, hour, minute, optionValueSymbol=None, ...)
 			activate Processor
-			Processor -> PriceRequester: getHistoricalPriceAtUTCTimeStamp(crypto, unit, timeStampLocalForHistoMinute, timeStampUTCNoHHMMForHistoDay, exchange)
-				activate PriceRequester
-				note right
-					Obtainins a minute price if request date < 7 days from now, else a day close price.
-				end note
-				PriceRequester -> PriceRequester: _getHistoDayPriceAtUTCTimeStamp(crypto, unit, timeStampUTC, exchange, resultData)
+			Processor -> Processor: _getPrice(currency, targetCurrency, exchange, year, month, day, hour, minute, dateTimeFormat, localTz)
+				activate Processor
+				Processor -> PriceRequester: getHistoricalPriceAtUTCTimeStamp(crypto, unit, timeStampLocalForHistoMinute, timeStampUTCNoHHMMForHistoDay, exchange)
 					activate PriceRequester
-					PriceRequester <-- PriceRequester: return ResultData
+					note right
+						Obtainins a minute price if request date < 7 days from now, else a day close price.
+					end note
+					PriceRequester -> PriceRequester: _getHistoDayPriceAtUTCTimeStamp(crypto, unit, timeStampUTC, exchange, resultData)
+						activate PriceRequester
+						PriceRequester <-- PriceRequester: return ResultData
+						deactivate PriceRequester
+					Processor <-- PriceRequester: return ResultData
 					deactivate PriceRequester
-				Processor <-- PriceRequester: return ResultData
-				deactivate PriceRequester
+				Processor <-- Processor: return ResultData
+				deactivate Processor
 			CommandPrice <-- Processor: return ResultData
 			deactivate Processor
 		Controller <-- CommandPrice: return ResultData or False
@@ -1625,19 +1629,23 @@ GUI -> Controller: getPrintableResultForInput(inputStr)
 		activate CommandPrice
 		CommandPrice -> Processor: getCryptoPrice(crypto, unit, ...)
 			activate Processor
-			Processor -> PriceRequester: getHistoricalPriceAtUTCTimeStamp(crypto, unit, ...)
-				activate PriceRequester
-				note right
-					Obtainins a minute price if
-					request date < 7 days from
-					now, else a day close price.
-				end note
-				PriceRequester -> PriceRequester: _getHistoDayPriceAtUTCTimeStamp(crypto, unit, ...)
+			Processor -> Processor: _getPrice(currency, ...)
+				activate Processor
+				Processor -> PriceRequester: getHistoricalPriceAtUTCTimeStamp(crypto, unit, ...)
 					activate PriceRequester
-					PriceRequester <-- PriceRequester: return ResultData
+					note right
+						Obtainins a minute price if
+						request date < 7 days from
+						now, else a day close price.
+					end note
+					PriceRequester -> PriceRequester: _getHistoDayPriceAtUTCTimeStamp(crypto, unit, ...)
+						activate PriceRequester
+						PriceRequester <-- PriceRequester: return ResultData
+						deactivate PriceRequester
+					Processor <-- PriceRequester: return ResultData
 					deactivate PriceRequester
-				Processor <-- PriceRequester: return ResultData
-				deactivate PriceRequester
+				Processor <-- Processor: return ResultData
+				deactivate Processor
 			CommandPrice <-- Processor: return ResultData
 			deactivate Processor
 		Controller <-- CommandPrice: return ResultData or False
