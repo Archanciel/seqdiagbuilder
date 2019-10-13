@@ -1533,7 +1533,7 @@ GUI -> Controller: getPrintableResultForInput(inputStr)
 			activate GuiOutputFormater
 			GuiOutputFormater <-- GuiOutputFormater: return requestDateDMY, requestDateHM
 			deactivate GuiOutputFormater
-		Controller <-- GuiOutputFormater: return printResult, fullCommandStrWithNoOption, fullCommandStrWithOptions, ...
+		Controller <-- GuiOutputFormater: return printResult, fullCommandStrNoOptions, fullCommandStrWithOptions, fullCommandStrWithSaveModeOptions
 		deactivate GuiOutputFormater
 	GUI <-- Controller: return printResult, fullCommandStr, fullCommandStrWithOptions, fullCommandStrWithSaveModeOptions
 	deactivate Controller
