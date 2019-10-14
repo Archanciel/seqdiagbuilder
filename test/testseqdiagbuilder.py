@@ -1456,7 +1456,7 @@ participant Parent
 
         self.assertEqual(
             'ETH/BTC on CCCAGG: ' + '{}/{}/{} {}:{}{}'.format(requestDayStr, requestMonthStr, requestYearStr, hourStr, minuteStr, priceType),
-                                                        UtilityForTest.removePriceFromResult(printResult))
+                                                        UtilityForTest.removeOneEndPriceFromResult(printResult))
         self.assertEqual('eth btc {}/{}/{} {}:{} all'.format(requestDayStr, requestMonthStr, requestYearStr, hourStr, minuteStr), fullCommandStr)
         self.assertEqual(None, fullCommandStrWithSaveModeOptions)
         self.assertEqual(len(SeqDiagBuilder.getWarningList()), 0)
@@ -1535,7 +1535,7 @@ GUI -> Controller: getPrintableResultForInput(inputStr)
 			deactivate GuiOutputFormater
 		Controller <-- GuiOutputFormater: return printResult, fullCommandStrNoOptions, fullCommandStrWithOptions, fullCommandStrWithSaveModeOptions
 		deactivate GuiOutputFormater
-	GUI <-- Controller: return printResult, fullCommandStr, fullCommandStrWithOptions, fullCommandStrWithSaveModeOptions
+	GUI <-- Controller: return printResult, fullCommandStrNoOptions, fullCommandStrWithOptions, fullCommandStrWithSaveModeOptions
 	deactivate Controller
 @enduml''', commands)
 
