@@ -1418,6 +1418,7 @@ participant Parent
 
         from datetimeutil import DateTimeUtil
         from utilityfortest import UtilityForTest
+        from pricerequester import PriceRequester
         from configurationmanager import ConfigurationManager
         from guioutputformater import GuiOutputFormater
         from controller import Controller
@@ -1430,7 +1431,7 @@ participant Parent
             FILE_PATH = 'c:\\temp\\cryptopricer.ini'
 
         configMgr = ConfigurationManager(FILE_PATH)
-        self.controller = Controller(GuiOutputFormater(configMgr), configMgr)
+        self.controller = Controller(GuiOutputFormater(configMgr), configMgr, PriceRequester())
 
         timezoneStr = 'Europe/Zurich'
         now = DateTimeUtil.localNow(timezoneStr)
@@ -1550,6 +1551,7 @@ GUI -> Controller: getPrintableResultForInput(inputStr)
 
         from datetimeutil import DateTimeUtil
         from utilityfortest import UtilityForTest
+        from pricerequester import PriceRequester
         from configurationmanager import ConfigurationManager
         from guioutputformater import GuiOutputFormater
         from controller import Controller
@@ -1562,7 +1564,7 @@ GUI -> Controller: getPrintableResultForInput(inputStr)
             FILE_PATH = 'c:\\temp\\cryptopricer.ini'
 
         configMgr = ConfigurationManager(FILE_PATH)
-        self.controller = Controller(GuiOutputFormater(configMgr), configMgr)
+        self.controller = Controller(GuiOutputFormater(configMgr), configMgr, PriceRequester())
 
         timezoneStr = 'Europe/Zurich'
         now = DateTimeUtil.localNow(timezoneStr)
