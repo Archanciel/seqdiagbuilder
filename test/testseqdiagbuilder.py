@@ -1443,7 +1443,7 @@ participant Parent
         requestDayStr = eightDaysBeforeDayStr
         requestMonthStr = eightDaysBeforeMonthStr
         inputStr = 'eth btc {}/{} all'.format(requestDayStr, requestMonthStr)
-        printResult, fullCommandStr, fullCommandStrWithOptions, fullCommandStrWithSaveModeOptions = self.controller.getPrintableResultForInput(
+        printResult, fullCommandStr, fullCommandStrWithOptions, fullCommandStrWithSaveModeOptions, fullCommandStrForStatusBar = self.controller.getPrintableResultForInput(
             inputStr)
 
         if DateTimeUtil.isDateOlderThan(eightDaysBeforeArrowDate, 7):
@@ -1577,7 +1577,7 @@ GUI -> Controller: getPrintableResultForInput(inputStr)
         requestDayStr = eightDaysBeforeDayStr
         requestMonthStr = eightDaysBeforeMonthStr
         inputStr = 'btc usd {}/{} all'.format(requestDayStr, requestMonthStr)
-        printResult, fullCommandStr, fullCommandStrWithOptions, fullCommandStrWithSaveModeOptions = self.controller.getPrintableResultForInput(
+        printResult, fullCommandStr, fullCommandStrWithOptions, fullCommandStrWithSaveModeOptions, fullCommandStrForStatusBar = self.controller.getPrintableResultForInput(
             inputStr)
 
         commands = SeqDiagBuilder.createSeqDiaqCommands(actorName='GUI', title='CryptoPricer sequence diagram', maxSigArgNum=None, maxSigCharLen=20, maxNoteCharLen=20)
